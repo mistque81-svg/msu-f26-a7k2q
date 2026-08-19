@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MSU Assist">
+<meta name="theme-color" content="#0B0F1A">
+<title>MSU Assist</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230B0F1A'/%3E%3Cpath d='M46 124V56l44 40 44-40v68' fill='none' stroke='%234FB783' stroke-width='13' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --canvas:#0B0F1A; --surface:#131926; --elevated:#1B2333;
+  --border:#263043; --hairline:rgba(255,255,255,0.06);
+  --t-pri:#F2F5FA; --t-sec:#A3AEC2; --t-mut:#6B7689;
+  --accent:#4FB783; --accent-ink:#04140C; --accent-warm:#F59E0B;
+  --success:#34D399; --warning:#FBBF24; --danger:#F87171;
+  --s1:#5B7CFA; --s2:#22D3EE; --s3:#A78BFA; --s4:#FBBF24; --s5:#34D399;
+  --inset:inset 0 1px 0 rgba(255,255,255,.05);
+  --sh:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  --r-ctl:8px; --r-card:12px; --r-panel:16px; --r-modal:24px; --r-chip:999px;
+  --e-in:cubic-bezier(0.22,1,0.36,1); --e-out:cubic-bezier(0.4,0,1,1);
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+[data-theme="light"]{
+  --canvas:#F7F9FC; --surface:#FFFFFF; --elevated:#FFFFFF;
+  --border:#DCE3ED; --hairline:rgba(0,0,0,0.06);
+  --t-pri:#0B0F1A; --t-sec:#4A566B; --t-mut:#7C8799;
+  --accent:#1F7A50; --accent-ink:#FFFFFF;
+  --inset:inset 0 1px 0 rgba(255,255,255,.9);
+  --sh:0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--canvas)}
+body{
+  background:var(--canvas); color:var(--t-pri);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(72px + var(--safe-b));
+  transition:background 200ms var(--e-in), color 200ms var(--e-in);
+}
+h1,h2,h3,.disp{font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  line-height:1.15; letter-spacing:-0.02em; font-weight:650}
+.mono,.num{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
+a{color:inherit;text-decoration:none}
+svg{display:block;flex:none}
+
+:focus-visible{outline:2px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset:2px}
+
+/* ============ SHELL ============ */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  padding:calc(var(--safe-t) + 12px) 16px 12px;
+  background:color-mix(in srgb, var(--canvas) 88%, transparent);
+  backdrop-filter:blur(16px); border-bottom:1px solid var(--hairline);
+  display:flex; align-items:center; gap:12px;
+}
+.topbar .brand{font-size:16px;font-weight:650;letter-spacing:-0.02em;flex:1;
+  font-family:"Space Grotesk",system-ui,sans-serif}
+.topbar .brand span{color:var(--accent)}
+.iconbtn{
+  width:36px;height:36px;border-radius:var(--r-ctl);border:1px solid var(--border);
+  background:var(--surface);color:var(--t-sec);display:grid;place-items:center;cursor:pointer;
+  transition:background 120ms var(--e-in),color 120ms var(--e-in),transform 120ms var(--e-in);
+}
+.iconbtn:hover{background:var(--elevated);color:var(--t-pri)}
+.iconbtn:active{transform:scale(.98)}
+
+main{padding:16px 16px 32px;max-width:760px;margin:0 auto}
+.pane{display:none}
+.pane.on{display:block}
+.pane.on > *{animation:rise 200ms var(--e-in) both}
+.pane.on > *:nth-child(1){animation-delay:0ms}
+.pane.on > *:nth-child(2){animation-delay:40ms}
+.pane.on > *:nth-child(3){animation-delay:80ms}
+.pane.on > *:nth-child(4){animation-delay:120ms}
+.pane.on > *:nth-child(5){animation-delay:160ms}
+.pane.on > *:nth-child(6){animation-delay:200ms}
+.pane.on > *:nth-child(7){animation-delay:240ms}
+.pane.on > *:nth-child(n+9){animation-delay:280ms}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+h2.sec{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--t-mut);
+  font-weight:700;margin:32px 0 12px;font-family:"Inter",system-ui,sans-serif}
+h2.sec:first-child{margin-top:8px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:16px;margin-bottom:12px}
+.panel{background:var(--elevated);border:1px solid var(--border);border-radius:var(--r-panel);
+  padding:24px;margin-bottom:12px;box-shadow:var(--sh),var(--inset)}
+.tap{cursor:pointer;transition:transform 120ms var(--e-in),box-shadow 120ms var(--e-in),
+  border-color 120ms var(--e-in)}
+.tap:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+.tap:active{transform:scale(.98)}
+
+/* ============ HERO ============ */
+.hero .kicker{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--accent);font-weight:700}
+.hero .big{font-size:40px;margin:8px 0 4px;font-weight:650}
+.hero .sub{color:var(--t-sec);font-size:16px}
+.hero .strip{margin-top:16px;padding:12px 16px;border-radius:var(--r-ctl);
+  background:var(--canvas);border:1px solid var(--border);font-size:14px;
+  display:flex;gap:12px;align-items:center}
+.hero .strip.urgent{border-color:color-mix(in srgb,var(--accent-warm) 45%,var(--border))}
+.hero .strip b{color:var(--accent-warm)}
+.countdown{font-size:28px;font-weight:650;letter-spacing:-0.02em}
+
+/* ============ ROWS ============ */
+.row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--hairline)}
+.row:last-child{border-bottom:0}
+.dot{width:8px;height:8px;border-radius:var(--r-chip);flex:none}
+.stripe{width:3px;border-radius:var(--r-chip);align-self:stretch;min-height:40px;flex:none}
+.row .grow{flex:1;min-width:0}
+.row .ttl{font-weight:600;font-size:16px}
+.row .meta{color:var(--t-sec);font-size:14px;margin-top:2px}
+.row .time{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:0.02em}
+
+.btn{border:0;border-radius:var(--r-ctl);padding:12px 16px;font:inherit;font-size:14px;
+  font-weight:650;background:var(--accent);color:var(--accent-ink);cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:transform 120ms var(--e-in),filter 120ms var(--e-in)}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface);color:var(--t-sec);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--elevated);color:var(--t-pri)}
+.btn.sm{padding:8px 12px;font-size:12px}
+.btn.full{width:100%;justify-content:center}
+
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-chip);
+  padding:6px 12px;font-size:12px;font-weight:650;border:1px solid var(--border);
+  background:var(--surface);color:var(--t-sec);cursor:pointer;
+  transition:background 120ms var(--e-in),color 120ms var(--e-in),border-color 120ms var(--e-in)}
+.chip:hover{color:var(--t-pri);border-color:var(--t-mut)}
+.chip.on{background:color-mix(in srgb,var(--accent) 16%,transparent);
+  color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+
+.tag{border-radius:var(--r-chip);padding:4px 10px;font-size:12px;font-weight:700;flex:none}
+.tag.n{background:color-mix(in srgb,var(--t-mut) 18%,transparent);color:var(--t-sec)}
+.tag.w{background:color-mix(in srgb,var(--accent-warm) 18%,transparent);color:var(--accent-warm)}
+.tag.d{background:color-mix(in srgb,var(--danger) 18%,transparent);color:var(--danger)}
+.tag.s{background:color-mix(in srgb,var(--success) 18%,transparent);color:var(--success)}
+
+.empty{color:var(--t-mut);text-align:center;padding:32px 16px;font-size:14px}
+.empty svg{margin:0 auto 12px;opacity:.5}
+
+/* ============ SCHEDULE GRID ============ */
+.gridwrap{display:none}
+@media(min-width:768px){.gridwrap{display:block}.agenda{display:none}}
+.gw{position:relative;overflow-x:auto;border:1px solid var(--border);
+  border-radius:var(--r-card);background:var(--surface)}
+.gh{display:grid;grid-template-columns:52px repeat(5,1fr);border-bottom:1px solid var(--border);
+  background:var(--elevated);border-radius:var(--r-card) var(--r-card) 0 0}
+.gh div{padding:8px 4px;text-align:center;font-size:12px;font-weight:700;
+  color:var(--t-mut);letter-spacing:0.06em;text-transform:uppercase}
+.gb{display:grid;grid-template-columns:52px repeat(5,1fr);position:relative}
+.gax{border-right:1px solid var(--hairline)}
+.gax div{height:60px;font-size:12px;color:var(--t-mut);text-align:right;
+  padding-right:8px;transform:translateY(-7px)}
+.gcol{position:relative;border-right:1px solid var(--hairline)}
+.gcol:last-child{border-right:0}
+.ghr{height:60px;border-bottom:1px solid var(--hairline)}
+.blk{position:absolute;left:3px;right:3px;border-radius:var(--r-ctl);padding:6px 8px;
+  font-size:12px;line-height:1.3;overflow:hidden;color:#04140C;font-weight:650;
+  cursor:pointer;transition:transform 120ms var(--e-in),filter 120ms var(--e-in)}
+.blk:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.blk .r{font-weight:500;opacity:.78;font-size:12px}
+.nowline{position:absolute;left:52px;right:0;height:2px;background:var(--danger);z-index:3;pointer-events:none}
+.nowline::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;
+  border-radius:var(--r-chip);background:var(--danger)}
+
+/* ============ DETAIL SHEET ============ */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;
+  z-index:60;transition:opacity 320ms var(--e-in)}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:61;background:var(--elevated);border:1px solid var(--border);
+  box-shadow:var(--sh);transition:transform 320ms var(--e-in);
+  right:0;top:0;bottom:0;width:min(380px,88vw);border-radius:var(--r-panel) 0 0 var(--r-panel);
+  transform:translateX(102%);padding:24px;overflow-y:auto}
+.sheet.on{transform:none}
+@media(max-width:520px){
+  .sheet{left:0;right:0;top:auto;width:auto;border-radius:var(--r-modal) var(--r-modal) 0 0;
+    transform:translateY(102%);max-height:82vh;padding-bottom:calc(24px + var(--safe-b))}
+}
+.sheet h3{font-size:28px;margin:12px 0 4px}
+.kv{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--hairline);font-size:14px}
+.kv .k{color:var(--t-mut);width:88px;flex:none}
+.kv .v{flex:1;color:var(--t-pri)}
+
+/* ============ FORM ============ */
+input,select{font:inherit;font-size:16px;padding:12px;border-radius:var(--r-ctl);
+  border:1px solid var(--border);background:var(--surface);color:var(--t-pri);width:100%;
+  transition:border-color 120ms var(--e-in)}
+input:hover,select:hover{border-color:var(--t-mut)}
+input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--accent)}
+.frm{display:grid;gap:8px;margin-bottom:16px}
+.frm .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.task{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--hairline);
+  transition:opacity 200ms var(--e-out),transform 200ms var(--e-out),max-height 200ms var(--e-out)}
+.task.gone{opacity:0;transform:translateX(24px);max-height:0;padding:0;overflow:hidden}
+.task .grow b{font-weight:600;font-size:16px;display:block}
+.task .grow small{color:var(--t-sec);font-size:12px}
+.task.done .grow b{text-decoration:line-through;color:var(--t-mut)}
+.ring{width:28px;height:28px;flex:none}
+
+.note{border-radius:var(--r-card);padding:16px;font-size:14px;margin-bottom:12px;
+  border:1px solid var(--border);background:var(--surface);color:var(--t-sec)}
+.note.warm{border-color:color-mix(in srgb,var(--accent-warm) 35%,var(--border));
+  background:color-mix(in srgb,var(--accent-warm) 7%,var(--surface))}
+.note b{color:var(--t-pri)}
+.note ol,.note ul{margin:8px 0 0 20px}.note li{margin-bottom:6px}
+.note a{color:var(--accent);font-weight:650}
+
+/* ============ NAV ============ */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:color-mix(in srgb,var(--canvas) 92%,transparent);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(6,1fr);
+  padding-bottom:var(--safe-b);position:fixed}
+nav button{position:relative;background:none;border:0;color:var(--t-mut);cursor:pointer;
+  padding:10px 2px 8px;font:inherit;font-size:12px;font-weight:650;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:color 120ms var(--e-in)}
+nav button:hover{color:var(--t-sec)}
+nav button.on{color:var(--accent)}
+#navbar{position:absolute;top:0;height:2px;background:var(--accent);border-radius:var(--r-chip);
+  transition:transform 200ms var(--e-in),width 200ms var(--e-in)}
+footer{color:var(--t-mut);font-size:12px;text-align:center;margin-top:32px;line-height:1.7}
+
+
+/* ============ SIDEBAR (>=768px) ============ */
+.sidebar{display:none}
+@media(min-width:768px){
+  .sidebar{display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;width:72px;
+    background:var(--surface);border-right:1px solid var(--border);padding:16px 8px;z-index:45;
+    transition:width 200ms var(--e-in)}
+  .sidebar .sbrand{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:650;font-size:16px;
+    color:var(--accent);text-align:center;margin-bottom:24px;white-space:nowrap;overflow:hidden}
+  .sidebar nav{position:relative;display:block;background:none;border:0;padding:0;backdrop-filter:none}
+  .sbitem{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:12px;
+    border-radius:var(--r-ctl);background:none;border:0;color:var(--t-mut);cursor:pointer;
+    font:inherit;font-size:14px;font-weight:650;margin-bottom:4px;white-space:nowrap;overflow:hidden;
+    transition:color 120ms var(--e-in),background 120ms var(--e-in)}
+  .sbitem:hover{color:var(--t-pri);background:var(--elevated)}
+  .sbitem.on{color:var(--accent)}
+  .sbitem span{opacity:0;transition:opacity 200ms var(--e-in)}
+  #sbbar{position:absolute;left:0;width:2px;background:var(--accent);border-radius:var(--r-chip);
+    transition:transform 200ms var(--e-in),height 200ms var(--e-in)}
+  nav.tabbar{display:none}
+  body{padding-left:72px;padding-bottom:32px}
+  .topbar{padding-left:24px}
+  .topbar .brand{display:none}
+}
+@media(min-width:1024px){
+  .sidebar{width:212px;padding:20px 12px}
+  .sidebar .sbitem span{opacity:1}
+  body{padding-left:212px}
+}
+
+/* ============ SEARCH ============ */
+.searchbtn{display:none}
+@media(min-width:768px){
+  .searchbtn{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r-ctl);
+    border:1px solid var(--border);background:var(--surface);color:var(--t-mut);cursor:pointer;
+    font:inherit;font-size:14px;min-width:220px;transition:border-color 120ms var(--e-in)}
+  .searchbtn:hover{border-color:var(--t-mut);color:var(--t-sec)}
+  .searchbtn kbd{margin-left:auto;font-family:inherit;font-size:12px;border:1px solid var(--border);
+    border-radius:4px;padding:1px 5px;color:var(--t-mut)}
+}
+.sk{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;
+  transition:opacity 200ms var(--e-in);display:grid;place-items:start center;padding-top:12vh}
+.sk.on{opacity:1;pointer-events:auto}
+.skbox{width:min(560px,92vw);background:var(--elevated);border:1px solid var(--border);
+  border-radius:var(--r-modal);box-shadow:var(--sh),var(--inset);overflow:hidden;
+  transform:translateY(8px);transition:transform 200ms var(--e-in)}
+.sk.on .skbox{transform:none}
+.skbox input{border:0;border-bottom:1px solid var(--border);border-radius:0;font-size:16px;padding:16px}
+.skres{max-height:52vh;overflow-y:auto;padding:8px}
+.skitem{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--r-ctl);
+  cursor:pointer;color:var(--t-sec);font-size:14px}
+.skitem:hover,.skitem.sel{background:var(--surface);color:var(--t-pri)}
+.skitem b{font-weight:600;color:var(--t-pri)}
+.skitem .kind{margin-left:auto;font-size:12px;color:var(--t-mut);flex:none}
+
+/* ============ GRADES ============ */
+.gpa{font-size:56px;font-weight:650;letter-spacing:-0.02em;line-height:1}
+.gpasub{color:var(--t-sec);font-size:14px;margin-top:8px}
+.bars{margin-top:4px}
+.barrow{display:grid;grid-template-columns:76px 1fr 64px;gap:12px;align-items:center;
+  padding:8px 0;position:relative}
+.barrow .lab{font-size:12px;font-weight:700;color:var(--t-sec);text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{position:relative;height:18px;border-left:1px solid var(--border)}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:0 4px 4px 0;
+  transition:width 480ms var(--e-in)}
+.barrow .val{font-size:14px;font-weight:650;text-align:right}
+.barrow:hover .fill{filter:brightness(1.1)}
+.btip{position:absolute;left:0;bottom:calc(100% + 4px);background:var(--canvas);
+  border:1px solid var(--border);border-radius:var(--r-ctl);padding:6px 10px;font-size:12px;
+  color:var(--t-pri);white-space:nowrap;opacity:0;pointer-events:none;z-index:5;
+  transition:opacity 120ms var(--e-in)}
+.barrow:hover .btip{opacity:1}
+.gitem{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--hairline);font-size:14px}
+.gitem:last-child{border-bottom:0}
+.gitem .gn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gitem .gs{color:var(--t-sec);flex:none}
+@media (prefers-reduced-motion: reduce){ .fill{transition:none} }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:100ms!important;animation-duration:100ms!important}
+  .pane.on > *{animation:fadeonly 100ms both}
+  .tap:hover,.blk:hover{transform:none}
+  .btn:active,.iconbtn:active{transform:none}
+  @keyframes fadeonly{from{opacity:0}to{opacity:1}}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sbrand">MSU Assist</div>
+  <nav id="sbnav"><div id="sbbar"></div></nav>
+</aside>
+
+<header class="topbar">
+  <div class="brand">MSU <span>Assist</span></div>
+  <button class="searchbtn" id="searchBtn" aria-label="Search">
+    <span id="searchIcon"></span><span>Search…</span><kbd>⌘K</kbd></button>
+  <button class="iconbtn" id="themeBtn" aria-label="Toggle theme"></button>
+</header>
+
+<main>
+  <!-- ===== TODAY ===== -->
+  <section class="pane on" id="p-today">
+    <div class="panel hero">
+      <div class="kicker" id="hKick">Next class</div>
+      <div class="big disp" id="hBig">—</div>
+      <div class="sub" id="hSub"></div>
+      <div class="strip" id="hStrip" style="display:none"></div>
+    </div>
+    <div class="chips" id="modeChips2"></div>
+    <h2 class="sec">Today</h2>
+    <div class="card" id="todayList"></div>
+    <h2 class="sec">Due soon</h2>
+    <div class="card" id="dueSoon"></div>
+    <h2 class="sec">Tomorrow</h2>
+    <div class="card" id="tmrwList"></div>
+  </section>
+
+  <!-- ===== SCHEDULE ===== -->
+  <section class="pane" id="p-sched">
+    <h2 class="sec">Week</h2>
+    <div class="gridwrap"><div class="gw" id="gw"></div></div>
+    <div class="agenda">
+      <div class="chips" id="dayChips"></div>
+      <div class="card" id="agendaList"></div>
+    </div>
+    <h2 class="sec">Courses</h2>
+    <div id="courseList"></div>
+  </section>
+
+  <!-- ===== WORK ===== -->
+  <section class="pane" id="p-work">
+    <h2 class="sec">Assignments</h2>
+    <div class="card">
+      <div class="frm">
+        <input id="aT" placeholder="Add an assignment…">
+        <div class="two"><select id="aC"></select><input id="aD" type="date"></div>
+        <button class="btn full" onclick="addTask()">Add</button>
+      </div>
+      <div class="chips" id="courseFilter"></div>
+      <div id="taskGroups"></div>
+      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+        <button class="btn ghost" onclick="saveTasks()">Save file</button>
+        <button class="btn ghost" onclick="document.getElementById('lf').click()">Load file</button>
+      </div>
+      <input type="file" id="lf" accept=".json" hidden onchange="loadTasks(event)">
+    </div>
+    <h2 class="sec">Deadlines</h2>
+    <div class="card" id="dlList"></div>
+    <h2 class="sec">Exams</h2>
+    <div class="card" id="examList"></div>
+  </section>
+
+  <!-- ===== INBOX ===== -->
+  <section class="pane" id="p-inbox">
+    <h2 class="sec">School email</h2>
+    <div class="card" id="inboxList"></div>
+    <div class="note warm" id="inboxNote"></div>
+    <button class="btn ghost full" onclick="document.getElementById('df').click()">Load digest file</button>
+    <input type="file" id="df" accept=".json" hidden onchange="loadDigest(event)">
+  </section>
+
+  <!-- ===== GRADES ===== -->
+  <section class="pane" id="p-grades">
+    <div class="panel hero">
+      <div class="kicker">Projected GPA</div>
+      <div class="gpa mono" id="gpaVal">—</div>
+      <div class="gpasub" id="gpaSub"></div>
+    </div>
+    <h2 class="sec">Current grade by course</h2>
+    <div class="card"><div class="bars" id="bars"></div>
+      <p style="color:var(--t-mut);font-size:12px;margin-top:12px" id="scaleNote"></p></div>
+    <h2 class="sec">Add a score</h2>
+    <div class="card">
+      <div class="frm">
+        <input id="gN" placeholder="e.g. Exam 1">
+        <div class="two"><select id="gC"></select>
+          <div class="two"><input id="gE" type="number" inputmode="decimal" placeholder="Earned">
+            <input id="gP" type="number" inputmode="decimal" placeholder="Out of"></div></div>
+        <button class="btn full" onclick="addGrade()">Add score</button>
+      </div>
+      <div id="gList"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px">
+        <button class="btn ghost" onclick="saveGrades()">Save file</button>
+        <button class="btn ghost" onclick="document.getElementById('gf').click()">Load file</button>
+      </div>
+      <input type="file" id="gf" accept=".json" hidden onchange="loadGrades(event)">
+    </div>
+    <h2 class="sec">GPA by term</h2>
+    <div class="card" id="terms"></div>
+  </section>
+
+  <!-- ===== INFO ===== -->
+  <section class="pane" id="p-info">
+    <h2 class="sec">Getting around</h2>
+    <div class="chips" id="modeChips"></div>
+    <div class="card" id="bldgList"></div>
+    <div class="note" id="modeNote"></div>
+    <div class="note">Times are estimates from your dorm, not measured. Whichever mode you pick,
+      walk or ride each route once before Aug 31 and correct them.
+      <br><br><a href="https://maps.msu.edu/interactive/" target="_blank" rel="noopener">Official MSU campus map ↗</a></div>
+    <h2 class="sec">Install</h2>
+    <div class="note"><b>iPhone:</b> Safari → Share → Add to Home Screen.<br>
+      <b>Android:</b> Chrome → ⋮ → Add to Home screen.<br><br>
+      Own icon, full screen, works with no signal.</div>
+    <h2 class="sec">Don't forget</h2>
+    <div class="card" id="factList"></div>
+    <footer>MSU Assist · Fall 2026<br>Verify all times in SIS before the first week of class</footer>
+  </section>
+</main>
+
+<div class="sk" id="sk" onclick="if(event.target===this)closeSearch()">
+  <div class="skbox">
+    <input id="skq" placeholder="Search courses, buildings, dates…" autocomplete="off">
+    <div class="skres" id="skres"></div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true"></aside>
+
+<nav id="nav" class="tabbar">
+  <div id="navbar"></div>
+</nav>
+
+<script>
+/* ================= ICONS ================= */
+const I = (d,extra="") => `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+const IC = {
+  today:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  work:'<path d="M9 11l3 3 5-6"/><rect x="3" y="4" width="18" height="17" rx="2"/>',
+  mail:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/>',
+  pin:'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+  nav:'<path d="M3 11l18-8-8 18-2-8-8-2z"/>',
+  moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
+  sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  inbox0:'<path d="M3 13h4l2 3h6l2-3h4"/><path d="M5 5h14l2 8v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4z"/>',
+  alert:'<path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/>'
+};
+
+/* ================= DATA ================= */
+const HOME_Q = "Michigan State University, East Lansing, MI";
+const B = {
+  NKZ:{n:"North Kedzie Hall",r:"N220",q:"North Kedzie Hall, 354 Farm Ln, East Lansing, MI 48824",w:20,bus:15,drive:7,note:"North-central campus, on Farm Lane."},
+  SKZ:{n:"South Kedzie Hall",r:"S105",q:"South Kedzie Hall, Michigan State University, East Lansing, MI",w:20,bus:15,drive:7,note:"Next door to North Kedzie, about 5 min apart."},
+  HOL:{n:"Holden Hall",r:"G8",q:"Holden Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood."},
+  CAB:{n:"Communication Arts Bldg",r:"171",q:"Communication Arts Building, 404 Wilson Rd, East Lansing, MI 48824",w:15,bus:12,drive:6,note:"On Wilson Road, central campus."},
+  WON:{n:"Wonders Hall",r:"C100",q:"Wonders Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood, near Holden."},
+  ONL:{n:"Online — asynchronous",r:"",q:null,w:0,bus:0,drive:0,note:"No room. Watch lectures on your own schedule."}
+};
+
+/* Travel mode. Google Maps takes these verbatim as travelmode=. Bus figures include
+   a rough wait; drive figures EXCLUDE parking, which on this campus is the real cost. */
+const MODES=[{k:"walking",label:"Walk",f:b=>b.w},
+             {k:"transit",label:"Bus",  f:b=>b.bus},
+             {k:"bicycling",label:"Bike",f:b=>Math.max(5,Math.round(b.w*0.4))},
+             {k:"driving",label:"Drive",f:b=>b.drive}];
+let MODE="walking";
+const modeDef=()=>MODES.find(m=>m.k===MODE);
+const mins=b=>modeDef().f(b);
+const C = [
+  {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",col:"var(--s2)",hex:"#22D3EE",
+   meets:[{d:1,s:620,e:730}],prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
+  {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",col:"var(--s3)",hex:"#A78BFA",
+   meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],prof:"G. Ording",extra:""},
+  {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",col:"var(--s4)",hex:"#FBBF24",
+   meets:[{d:3,s:760,e:840}],prof:"D. Carnahan",extra:""},
+  {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14282",sec:"012",cr:0,b:"CAB",col:"var(--s4)",hex:"#FBBF24",
+   meets:[{d:3,s:1080,e:1160}],prof:"Y. Sun",extra:"You're #2 on the waitlist for the Friday 12:40 section (015)."},
+  {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",col:"var(--s5)",hex:"#34D399",
+   meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
+  {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",col:"var(--s1)",hex:"#5B7CFA",
+   meets:[],prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."}
+];
+const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
+  {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
+  {d:"2026-12-11",t:"Last day of classes"},{d:"2026-12-18",t:"End of finals week"}];
+const EX=[{d:"2026-09-17",t:"EC 201 midterm 1",w:"7:00 PM · room TBA",k:"w"},
+  {d:"2026-10-29",t:"EC 201 midterm 2",w:"7:00 PM · room TBA",k:"w"},
+  {d:"2026-12-03",t:"EC 201 midterm 3",w:"7:00 PM · room TBA",k:"w"},
+  {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
+  {d:"2026-12-15",t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
+  {d:"2026-12-16",t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
+  {d:"2026-12-17",t:"EC 201 final",w:"3:10–5:10 PM · room TBA",k:"w"}];
+const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
+  ["Three 7 PM midterms","Sept 17, Oct 29, Dec 3. Off-campus exams are not offered. SIS labels them “Wednesdays” but all three dates are Thursdays — ask Prof. Ackermann in week one."],
+  ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
+  ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
+  ["COM 100 waitlist","You're #2 for the Friday 12:40 section. The blocking seat was reserved for the NSO August cohort; that hold expires Aug 21."]];
+
+let INBOX = [];
+
+/* ================= UTIL ================= */
+const DAY=["","Mon","Tue","Wed","Thu","Fri"];
+const fm=v=>{const h=Math.floor(v/60),m=v%60,a=h>=12?"PM":"AM",hh=h%12||12;
+  return hh+(m?":"+String(m).padStart(2,"0"):"")+" "+a};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const days=iso=>{const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(iso+"T00:00:00")-t)/864e5)};
+const dfmt=iso=>new Date(iso+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+const dir=(q,m)=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(q)+"&travelmode="+(m||MODE);
+const dur=m=>m<60?m+" min":(Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":""));
+
+/* ================= NAV ================= */
+const TABS=[["today","Today","today"],["sched","Schedule","cal"],["work","Work","work"],
+            ["grades","Grades","chart"],["inbox","Inbox","mail"],["info","Info","pin"]];
+const nav=document.getElementById("nav"), sbnav=document.getElementById("sbnav");
+TABS.forEach(([id,label,ic],i)=>{
+  const b=document.createElement("button");
+  b.innerHTML=I(IC[ic])+"<span>"+label+"</span>";
+  b.className=i===0?"on":""; b.onclick=()=>go(id); nav.appendChild(b);
+  const s=document.createElement("button");
+  s.className="sbitem"+(i===0?" on":""); s.innerHTML=I(IC[ic])+"<span>"+label+"</span>";
+  s.onclick=()=>go(id); sbnav.appendChild(s);
+});
+let curTab="today";
+function go(id){
+  curTab=id;
+  document.querySelectorAll(".pane").forEach(p=>p.classList.remove("on"));
+  document.getElementById("p-"+id).classList.add("on");
+  const i=TABS.findIndex(t=>t[0]===id);
+  nav.querySelectorAll("button").forEach((b,j)=>b.classList.toggle("on",j===i));
+  sbnav.querySelectorAll(".sbitem").forEach((b,j)=>b.classList.toggle("on",j===i));
+  moveBar(); window.scrollTo({top:0,behavior:"instant"});
+  if(id==="grades") requestAnimationFrame(drawBars);
+}
+function moveBar(){
+  const i=TABS.findIndex(t=>t[0]===curTab);
+  const btn=nav.querySelectorAll("button")[i], sb=sbnav.querySelectorAll(".sbitem")[i];
+  if(btn){const bar=document.getElementById("navbar");
+    bar.style.width=btn.offsetWidth+"px"; bar.style.transform="translateX("+btn.offsetLeft+"px)";}
+  if(sb){const b2=document.getElementById("sbbar");
+    b2.style.height=sb.offsetHeight+"px"; b2.style.transform="translateY("+sb.offsetTop+"px)";}
+}
+addEventListener("resize",moveBar);
+
+/* ================= THEME ================= */
+let dark=true;
+function paintTheme(){
+  document.documentElement.setAttribute("data-theme",dark?"dark":"light");
+  document.getElementById("themeBtn").innerHTML=I(dark?IC.sun:IC.moon);
+  document.querySelector('meta[name=theme-color]').setAttribute("content",dark?"#0B0F1A":"#F7F9FC");
+}
+document.getElementById("themeBtn").onclick=()=>{dark=!dark;paintTheme()};
+paintTheme();
+
+/* ================= DAY LISTS ================= */
+function dayItems(dow){const o=[];C.forEach(c=>c.meets.forEach(m=>{if(m.d===dow)o.push({c,m})}));
+  return o.sort((a,b)=>a.m.s-b.m.s)}
+function renderDay(el,dow,today){
+  const it=dayItems(dow);
+  if(!it.length){el.innerHTML="<div class='empty'>"+I(IC.clock,'width="28" height="28"')+
+    "No classes"+(today?" today":"")+".<br>Good window for EC 201 lectures.</div>";return}
+  el.innerHTML=it.map((x,i)=>{
+    const b=B[x.c.b],prev=i?it[i-1]:null;
+    let note = prev ? (x.m.s-prev.m.e)+" min after "+prev.c.c
+                    : (b.q? "leave home by "+fm(x.m.s-mins(b)-5)+" ("+modeDef().label.toLowerCase()+")" : "");
+    return "<div class='row'><div class='stripe' style='background:"+x.c.col+"'></div>"+
+      "<div class='grow'><div class='time mono'>"+fm(x.m.s)+" – "+fm(x.m.e)+"</div>"+
+      "<div class='ttl'>"+esc(x.c.c)+"</div>"+
+      "<div class='meta'>"+esc(b.n+(b.r?" "+b.r:""))+(note?" · "+esc(note):"")+"</div></div>"+
+      (b.q?"<a class='btn sm' href='"+dir(b.q)+"' target='_blank' rel='noopener'>"+
+           I(IC.nav,'width="14" height="14"')+"Go</a>":"<span class='tag n'>Online</span>")+
+    "</div>"}).join("");
+}
+
+/* ================= HERO ================= */
+function tick(){
+  const n=new Date(),dow=n.getDay(),nowMin=n.getHours()*60+n.getMinutes();
+  let cur=null,next=null,best=1e9;
+  C.forEach(c=>c.meets.forEach(m=>{
+    if(m.d===dow&&nowMin>=m.s&&nowMin<m.e)cur={c,m};
+    const dd=(m.d-dow+7)%7,delta=dd*1440+(m.s-nowMin);
+    if(delta>0&&delta<best){best=delta;next={c,m,dd}}
+  }));
+  const K=document.getElementById("hKick"),T=document.getElementById("hBig"),
+        S=document.getElementById("hSub"),P=document.getElementById("hStrip");
+  P.style.display="none";P.classList.remove("urgent");
+  const hr=n.getHours();
+  if(cur){
+    const b=B[cur.c.b];
+    K.textContent="In class now"; T.textContent=cur.c.c;
+    S.textContent=b.n+(b.r?" · "+b.r:"")+" · ends "+fm(cur.m.e);
+  }else if(next){
+    const b=B[next.c.b];
+    K.textContent=hr<12?"Good morning · next up":hr<18?"Next class":"Good evening · next up";
+    T.textContent=next.c.c;
+    const when=next.dd===0?"today":next.dd===1?"tomorrow":DAY[next.m.d];
+    S.textContent=when+" at "+fm(next.m.s)+" · "+b.n+(b.r?" · "+b.r:"");
+    if(next.dd===0&&b.q){
+      const lv=next.m.s-mins(b)-5, mLeft=lv-nowMin;
+      P.style.display="flex";
+      if(nowMin>=lv){P.classList.add("urgent");
+        P.innerHTML=I(IC.alert,'width="18" height="18"')+"<span><b>Leave now</b> — about "+mins(b)+" min by "+modeDef().label.toLowerCase()+".</span>"}
+      else P.innerHTML=I(IC.clock,'width="18" height="18"')+
+        "<span>Leave home by <b class='mono'>"+fm(lv)+"</b> — "+dur(mLeft)+" from now, ~"+mins(b)+" min by "+modeDef().label.toLowerCase()+".</span>";
+    }
+  }else{K.textContent="Schedule";T.textContent="All clear";S.textContent="Nothing else this week."}
+  renderDay(document.getElementById("todayList"),dow,true);
+  renderDay(document.getElementById("tmrwList"),(dow+1)%7,false);
+  drawNowLine();
+  renderDueSoon();
+}
+
+/* ================= WEEK GRID ================= */
+const G_START=9*60,G_END=20*60,PXM=1;
+(function(){
+  let h="<div class='gh'><div></div>"+DAY.slice(1).map(d=>"<div>"+d+"</div>").join("")+"</div><div class='gb' id='gb'>";
+  h+="<div class='gax'>";
+  for(let t=G_START;t<G_END;t+=60)h+="<div>"+fm(t)+"</div>";
+  h+="</div>";
+  for(let d=1;d<=5;d++){
+    h+="<div class='gcol' data-d='"+d+"'>";
+    for(let t=G_START;t<G_END;t+=60)h+="<div class='ghr'></div>";
+    C.forEach((c,ci)=>c.meets.forEach(m=>{
+      if(m.d!==d)return;
+      const top=(m.s-G_START)*PXM, ht=(m.e-m.s)*PXM;
+      h+="<div class='blk' style='top:"+top+"px;height:"+(ht-4)+"px;background:"+c.hex+"' "+
+         "onclick='openSheet("+ci+")' role='button' tabindex='0'>"+esc(c.c)+
+         "<div class='r'>"+fm(m.s)+"</div><div class='r'>"+esc(B[c.b].r||"")+"</div></div>";
+    }));
+    h+="</div>";
+  }
+  h+="<div class='nowline' id='nowline' style='display:none'></div></div>";
+  document.getElementById("gw").innerHTML=h;
+})();
+function drawNowLine(){
+  const el=document.getElementById("nowline");if(!el)return;
+  const n=new Date(),dow=n.getDay(),mins=n.getHours()*60+n.getMinutes();
+  if(dow<1||dow>5||mins<G_START||mins>G_END){el.style.display="none";return}
+  el.style.display="block";
+  el.style.top=(28+(mins-G_START)*PXM)+"px";
+}
+
+/* ================= AGENDA (mobile) ================= */
+(function(){
+  const wrap=document.getElementById("dayChips");
+  const today=new Date().getDay();
+  DAY.slice(1).forEach((d,i)=>{
+    const b=document.createElement("button");
+    b.className="chip"+((i+1)===today?" on":"");
+    b.textContent=d; b.onclick=()=>{
+      wrap.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+      b.classList.add("on"); renderDay(document.getElementById("agendaList"),i+1,false);
+    };
+    wrap.appendChild(b);
+  });
+  renderDay(document.getElementById("agendaList"),(today>=1&&today<=5)?today:1,false);
+})();
+
+/* ================= COURSES + SHEET ================= */
+document.getElementById("courseList").innerHTML=C.map((c,i)=>{
+  const b=B[c.b];
+  return "<div class='card tap' onclick='openSheet("+i+")' role='button' tabindex='0'>"+
+   "<div class='row' style='padding:0;border:0'>"+
+   "<div class='dot' style='background:"+c.col+"'></div>"+
+   "<div class='grow'><div class='ttl'>"+esc(c.c)+"</div>"+
+   "<div class='meta'>"+esc(b.n)+(b.r?" "+b.r:"")+" · "+
+     (c.meets.length? c.meets.map(m=>DAY[m.d]).join(", ")+" "+fm(c.meets[0].s) : "no set time")+"</div></div>"+
+   "<span class='tag n mono'>"+(c.cr||0)+" cr</span></div></div>";
+}).join("");
+
+function openSheet(i){
+  const c=C[i],b=B[c.b],sh=document.getElementById("sheet");
+  sh.innerHTML="<button class='iconbtn' onclick='closeSheet()' aria-label='Close'>"+I(IC.x)+"</button>"+
+    "<h3 class='disp'>"+esc(c.c)+"</h3>"+
+    "<p style='color:var(--t-sec);font-size:14px;margin-bottom:16px'>"+esc(c.name)+"</p>"+
+    "<div class='kv'><div class='k'>When</div><div class='v'>"+
+      (c.meets.length? c.meets.map(m=>DAY[m.d]).join(", ")+"<br><span class='mono'>"+fm(c.meets[0].s)+" – "+fm(c.meets[0].e)+"</span>"
+        :"No scheduled meeting")+"</div></div>"+
+    "<div class='kv'><div class='k'>Where</div><div class='v'>"+esc(b.n)+(b.r?" · "+b.r:"")+"</div></div>"+
+    "<div class='kv'><div class='k'>Instructor</div><div class='v'>"+esc(c.prof)+"</div></div>"+
+    "<div class='kv'><div class='k'>Class nbr</div><div class='v mono'>"+esc(c.cls)+" · Sec "+esc(c.sec)+"</div></div>"+
+    "<div class='kv'><div class='k'>Credits</div><div class='v mono'>"+(c.cr||0)+"</div></div>"+
+    (c.extra?"<p style='margin-top:16px;font-size:14px;color:var(--t-sec)'>"+esc(c.extra)+"</p>":"")+
+    (b.q?"<div style='margin-top:24px'><div style='font-size:12px;color:var(--t-mut);"+
+      "letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:8px'>Directions</div>"+
+      "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'>"+
+      MODES.map(m=>"<a class='btn ghost' style='justify-content:center' href='"+dir(b.q,m.k)+
+        "' target='_blank' rel='noopener'>"+m.label+" · "+m.f(b)+"m</a>").join("")+
+      "</div></div>":"");
+  sh.classList.add("on");document.getElementById("scrim").classList.add("on");
+}
+function closeSheet(){document.getElementById("sheet").classList.remove("on");
+  document.getElementById("scrim").classList.remove("on")}
+addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+
+/* ================= DEADLINES / EXAMS ================= */
+function dateRow(t,sub,tagCls,tagTxt){
+  return "<div class='row'><div class='grow'><div class='ttl'>"+esc(t)+"</div>"+
+    "<div class='meta'>"+esc(sub)+"</div></div><span class='tag "+tagCls+" mono'>"+esc(tagTxt)+"</span></div>";
+}
+document.getElementById("dlList").innerHTML=DL.map(x=>{
+  const n=days(x.d);
+  return dateRow(x.t,dfmt(x.d),n<0?"n":n<=14?"w":"s",n<0?"passed":n===0?"today":n+"d");
+}).join("");
+document.getElementById("examList").innerHTML=EX.map(x=>{
+  const n=days(x.d);
+  return dateRow(x.t,dfmt(x.d)+" · "+x.w,n<0?"n":n<=14?"w":"n",n<0?"passed":n+"d");
+}).join("")+"<p style='color:var(--t-mut);font-size:12px;margin-top:12px'>ISB 201L has no in-person final — it's virtual during finals week.</p>";
+
+function renderBldgs(){document.getElementById("bldgList").innerHTML=Object.keys(B).filter(k=>B[k].q).map(k=>{
+  const b=B[k];
+  return "<div class='row'><div class='grow'><div class='ttl'>"+esc(b.n)+"</div>"+
+    "<div class='meta'><span class='mono'>~"+mins(b)+" min</span> by "+modeDef().label.toLowerCase()+
+    " from home · "+esc(b.note)+"</div></div>"+
+    "<a class='btn sm' href='"+dir(b.q)+"' target='_blank' rel='noopener'>"+I(IC.nav,'width="14" height="14"')+"Go</a></div>";
+}).join("");}
+document.getElementById("factList").innerHTML=FACTS.map(f=>
+  "<div class='row' style='display:block'><div class='ttl'>"+esc(f[0])+"</div>"+
+  "<div class='meta' style='margin-top:4px'>"+esc(f[1])+"</div></div>").join("");
+
+
+/* ================= TRAVEL MODE ================= */
+function renderModeChips(){
+  ["modeChips","modeChips2"].forEach(id=>{
+    const w=document.getElementById(id); if(!w) return;
+    w.innerHTML=MODES.map(m=>"<button class='chip"+(m.k===MODE?" on":"")+"' data-m='"+m.k+"'>"+m.label+"</button>").join("");
+    w.querySelectorAll(".chip").forEach(c=>c.onclick=()=>setMode(c.dataset.m));
+  });
+}
+function setMode(k){
+  MODE=k; renderModeChips(); renderBldgs(); tick();
+  const note=document.getElementById("modeNote");
+  if(note) note.innerHTML=MODE==="driving"
+    ? "<b>Driving is usually the wrong call from Brody.</b> These times exclude parking, which is the actual cost — resident permits don't cover most central lots and hunting for a space can beat the walk. Kept here for weather and off-campus trips."
+    : MODE==="transit"
+    ? "<b>CATA is free with your student ID.</b> Bus times include a rough wait. For short campus hops the bus often isn't faster than walking — it's for rain, snow, and heavy bags."
+    : MODE==="bicycling"
+    ? "<b>Campus is genuinely bike-friendly</b> and this is the biggest time saver from Brody. Bike racks at every building; register your bike with MSU Police."
+    : "<b>Walking is the baseline</b> and the most reliable estimate here. Walk each route once before Aug 31 and correct these numbers in your head.";
+}
+
+/* ================= TASKS ================= */
+let tasks=[],filter="All";
+(function(){const s=document.getElementById("aC");
+  ["General",...new Set(C.map(c=>c.c))].forEach(v=>{
+    const o=document.createElement("option");o.value=o.textContent=v;s.appendChild(o)})})();
+(function(){const w=document.getElementById("courseFilter");
+  ["All",...new Set(C.map(c=>c.c))].forEach(v=>{
+    const b=document.createElement("button");b.className="chip"+(v==="All"?" on":"");b.textContent=v;
+    b.onclick=()=>{filter=v;w.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+      b.classList.add("on");renderTasks()};w.appendChild(b)})})();
+function ring(pct,col){
+  const r=11,c=2*Math.PI*r;
+  return `<svg class="ring" viewBox="0 0 28 28"><circle cx="14" cy="14" r="${r}" fill="none"
+    stroke="var(--border)" stroke-width="2.5"/><circle cx="14" cy="14" r="${r}" fill="none"
+    stroke="${col}" stroke-width="2.5" stroke-linecap="round"
+    stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}"
+    transform="rotate(-90 14 14)"/></svg>`;
+}
+function bucket(t){
+  if(!t.date)return "Later";
+  const n=days(t.date);
+  return n<0?"Overdue":n===0?"Today":n<=7?"This week":"Later";
+}
+function renderTasks(){
+  const el=document.getElementById("taskGroups");
+  const vis=tasks.filter(t=>filter==="All"||t.course===filter);
+  if(!vis.length){el.innerHTML="<div class='empty'>"+I(IC.work,'width="28" height="28"')+"Nothing tracked yet.</div>";return}
+  const order=["Overdue","Today","This week","Later"],g={};
+  vis.forEach(t=>{(g[bucket(t)]=g[bucket(t)]||[]).push(t)});
+  el.innerHTML=order.filter(k=>g[k]).map(k=>{
+    const rows=g[k].sort((a,b)=>(a.date||"9999").localeCompare(b.date||"9999")).map(t=>{
+      const i=tasks.indexOf(t), n=t.date?days(t.date):999;
+      const col=t.done?"var(--success)":n<0?"var(--danger)":n<=1?"var(--accent-warm)":"var(--accent)";
+      const cc=C.find(c=>c.c===t.course);
+      let sub=t.course+(t.date?" · "+dfmt(t.date):"");
+      return "<div class='task"+(t.done?" done":"")+"' id='tk"+i+"'>"+
+        "<input type='checkbox' "+(t.done?"checked":"")+" onchange='toggle("+i+")' aria-label='Done'>"+
+        (cc?"<div class='dot' style='background:"+cc.col+"'></div>":"<div class='dot' style='background:var(--t-mut)'></div>")+
+        "<div class='grow'><b>"+esc(t.title)+"</b><small>"+esc(sub)+"</small></div>"+
+        ring(t.done?1:n<0?1:n<=7?0.5:0.15,col)+
+        "<button class='iconbtn' style='width:30px;height:30px' onclick='delTask("+i+")' aria-label='Delete'>"+
+          I(IC.x,'width="15" height="15"')+"</button></div>";
+    }).join("");
+    const tag=k==="Overdue"?"d":k==="Today"?"w":"n";
+    return "<div style='margin-bottom:16px'><div style='display:flex;align-items:center;gap:8px;margin-bottom:4px'>"+
+      "<span class='tag "+tag+"'>"+k+"</span><span style='color:var(--t-mut);font-size:12px' class='mono'>"+g[k].length+"</span></div>"+rows+"</div>";
+  }).join("");
+}
+function addTask(){
+  const t=document.getElementById("aT");if(!t.value.trim())return;
+  tasks.push({title:t.value.trim(),course:document.getElementById("aC").value,
+    date:document.getElementById("aD").value,done:false});
+  t.value="";document.getElementById("aD").value="";renderTasks();
+}
+function toggle(i){
+  const row=document.getElementById("tk"+i);
+  tasks[i].done=!tasks[i].done;
+  if(tasks[i].done&&row){row.classList.add("gone");setTimeout(renderTasks,200);}
+  else renderTasks();
+}
+function delTask(i){tasks.splice(i,1);renderTasks()}
+function saveTasks(){const b=new Blob([JSON.stringify(tasks,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="msu-assignments.json";a.click()}
+function loadTasks(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{tasks=JSON.parse(r.result)||[];renderTasks()}catch(_){}};r.readAsText(f)}
+document.getElementById("aT").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
+
+function renderDueSoon(){
+  const el=document.getElementById("dueSoon");
+  const soon=[...tasks.filter(t=>!t.done&&t.date&&days(t.date)<=7).map(t=>({t:t.title,s:t.course+" · "+dfmt(t.date),n:days(t.date)})),
+              ...EX.filter(x=>days(x.d)>=0&&days(x.d)<=7).map(x=>({t:x.t,s:x.w,n:days(x.d)})),
+              ...DL.filter(x=>days(x.d)>=0&&days(x.d)<=7).map(x=>({t:x.t,s:dfmt(x.d),n:days(x.d)}))]
+             .sort((a,b)=>a.n-b.n).slice(0,5);
+  if(!soon.length){el.innerHTML="<div class='empty'>"+I(IC.work,'width="28" height="28"')+"Nothing due in the next 7 days.</div>";return}
+  el.innerHTML=soon.map(x=>dateRow(x.t,x.s,x.n<0?"d":x.n<=1?"w":"n",x.n<0?"late":x.n===0?"today":x.n+"d")).join("");
+}
+
+/* ================= INBOX ================= */
+function renderInbox(){
+  const el=document.getElementById("inboxList");
+  if(!INBOX.length){
+    el.innerHTML="<div class='empty'>"+I(IC.inbox0,'width="28" height="28"')+
+      "No digest loaded.<br>Nothing to review right now.</div>";
+  }else{
+    el.innerHTML=INBOX.map(m=>
+      "<div class='row'><div class='stripe' style='background:"+
+        (m.urgent?"var(--accent-warm)":"var(--accent)")+"'></div>"+
+      "<div class='grow'><div class='ttl'>"+esc(m.subject||m.from)+"</div>"+
+      "<div class='meta'>"+esc(m.from||"")+(m.summary?" — "+esc(m.summary):"")+"</div>"+
+      (m.action?"<div class='meta' style='color:var(--accent-warm);margin-top:4px'>Action: "+esc(m.action)+"</div>":"")+
+      "</div>"+(m.due?"<span class='tag w mono'>"+esc(m.due)+"</span>":"")+"</div>").join("");
+  }
+}
+document.getElementById("inboxNote").innerHTML=
+ "<b>Not connected yet.</b> Your school mail is <b>Spartan Mail on Microsoft 365 (Outlook)</b>, not Gmail."+
+ "<ol><li>Add the <b>Microsoft 365</b> connector at claude.ai → Settings → Connectors. MSU IT may need to approve it.</li>"+
+ "<li>A scheduled check runs each morning at <b class='mono'>8:45 AM</b> and pushes a summary to your phone.</li>"+
+ "<li>It can also hand you a digest file — tap <b>Load digest file</b> below to read it here.</li></ol>"+
+ "<p style='margin-top:12px'><b>Free right now:</b> install <b>Outlook mobile</b>, sign into Spartan Mail, "+
+ "and set notifications to VIP senders only — add your professors and the registrar.</p>";
+function loadDigest(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);INBOX=Array.isArray(d)?d:(d.items||[]);renderInbox()}catch(_){}};
+  r.readAsText(f)}
+
+
+/* ================= GRADES ================= */
+const GRADED = C.filter(c=>c.cr>0);
+const SCALE=[[90,4.0],[85,3.5],[80,3.0],[75,2.5],[70,2.0],[65,1.5],[60,1.0],[0,0.0]];
+const TERMS=[];   // {term:"Fall 2026", gpa:3.4} — fills in as terms complete
+let grades=[];    // {course, name, earned, possible}
+
+function gp(pct){ for(const [cut,v] of SCALE) if(pct>=cut) return v; return 0 }
+function courseStats(){
+  return GRADED.map(c=>{
+    const it=grades.filter(g=>g.course===c.c);
+    const e=it.reduce((a,g)=>a+g.earned,0), p=it.reduce((a,g)=>a+g.possible,0);
+    return {c, n:it.length, earned:e, possible:p, pct: p>0? (e/p*100) : null};
+  });
+}
+function drawBars(){
+  const st=courseStats(), el=document.getElementById("bars");
+  const any=st.some(x=>x.pct!==null);
+  if(!any){ el.innerHTML="<div class='empty'>"+I(IC.chart,'width="28" height="28"')+
+    "No scores yet.<br>Add one below and this fills in."; document.getElementById("scaleNote").textContent=""; return }
+  el.innerHTML=st.map(x=>{
+    const pct = x.pct===null? 0 : x.pct;
+    const shown = x.pct===null? "—" : x.pct.toFixed(1)+"%";
+    const tip = x.pct===null? x.c.c+" — no scores yet"
+       : x.c.c+" · "+x.earned+"/"+x.possible+" pts · "+x.pct.toFixed(1)+"% · "+gp(x.pct).toFixed(1);
+    return "<div class='barrow'><div class='lab'>"+esc(x.c.c)+"</div>"+
+      "<div class='track'><div class='fill' data-w='"+Math.max(0,Math.min(100,pct))+"' "+
+        "style='background:"+x.c.col+"'></div>"+
+        "<div class='btip mono'>"+esc(tip)+"</div></div>"+
+      "<div class='val mono'>"+shown+"</div></div>";
+  }).join("");
+  document.getElementById("scaleNote").innerHTML=
+    "Points-based (earned ÷ possible). Scale assumed 90=4.0, 85=3.5, 80=3.0, 75=2.5, 70=2.0 — "+
+    "<b>instructors set their own cutoffs</b>, so treat these as estimates until you see a syllabus.";
+  // grow from the zero baseline once per render; the CSS transition handles the 480ms, never loops
+  const fills=el.querySelectorAll(".fill");
+  fills.forEach(f=>f.style.width="0%");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>
+    fills.forEach(f=>{f.style.width=f.dataset.w+"%"})));
+  // gpa
+  const done=st.filter(x=>x.pct!==null);
+  const G=document.getElementById("gpaVal"), S=document.getElementById("gpaSub");
+  if(!done.length){ G.textContent="—"; S.textContent="Add scores to see a projection."; return }
+  const num=done.reduce((a,x)=>a+gp(x.pct)*x.c.cr,0), den=done.reduce((a,x)=>a+x.c.cr,0);
+  G.textContent=(num/den).toFixed(2);
+  S.textContent="From "+done.length+" of "+GRADED.length+" courses · "+den+" of 15 credits counted. Projection only.";
+}
+function renderTerms(){
+  const el=document.getElementById("terms");
+  if(TERMS.length<2){
+    el.innerHTML="<div class='empty'>"+I(IC.chart,'width="28" height="28"')+
+      "Nothing to plot yet.<br><span style='font-size:12px'>A trend needs at least two completed terms. Fall 2026 is your first.</span></div>";
+    return;
+  }
+  const max=4, W=100;
+  const pts=TERMS.map((t,i)=>[ (i/(TERMS.length-1))*W, (1-t.gpa/max)*100 ]);
+  el.innerHTML="<svg viewBox='0 0 100 100' preserveAspectRatio='none' style='width:100%;height:160px'>"+
+    "<line x1='0' y1='100' x2='100' y2='100' stroke='var(--border)' stroke-width='0.5'/>"+
+    "<polyline fill='none' stroke='var(--s1)' stroke-width='2' vector-effect='non-scaling-stroke' points='"+
+    pts.map(p=>p.join(",")).join(" ")+"'/></svg>"+
+    "<div style='display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--t-sec)'>"+
+    TERMS.map(t=>"<span>"+esc(t.term)+" <b class='mono'>"+t.gpa.toFixed(2)+"</b></span>").join("")+"</div>";
+}
+function renderGList(){
+  const el=document.getElementById("gList");
+  if(!grades.length){ el.innerHTML="<div class='empty' style='padding:16px'>No scores entered.</div>"; return }
+  el.innerHTML=GRADED.map(c=>{
+    const it=grades.filter(g=>g.course===c.c); if(!it.length) return "";
+    return "<div style='margin:12px 0 4px;display:flex;align-items:center;gap:8px'>"+
+      "<span class='dot' style='background:"+c.col+"'></span>"+
+      "<span style='font-weight:650;font-size:14px'>"+esc(c.c)+"</span></div>"+
+      it.map(g=>"<div class='gitem'><span class='gn'>"+esc(g.name)+"</span>"+
+        "<span class='gs mono'>"+g.earned+"/"+g.possible+"</span>"+
+        "<button class='iconbtn' style='width:28px;height:28px' onclick='delGrade("+grades.indexOf(g)+")'>"+
+        I(IC.x,'width="14" height="14"')+"</button></div>").join("");
+  }).join("");
+}
+function addGrade(){
+  const n=document.getElementById("gN"), e=document.getElementById("gE"), p=document.getElementById("gP");
+  const earned=parseFloat(e.value), poss=parseFloat(p.value);
+  if(!n.value.trim()||isNaN(earned)||isNaN(poss)||poss<=0) return;
+  grades.push({course:document.getElementById("gC").value,name:n.value.trim(),earned,possible:poss});
+  n.value="";e.value="";p.value=""; renderGList(); drawBars();
+}
+function delGrade(i){ grades.splice(i,1); renderGList(); drawBars(); }
+function saveGrades(){const b=new Blob([JSON.stringify(grades,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="msu-grades.json";a.click()}
+function loadGrades(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{grades=JSON.parse(r.result)||[];renderGList();drawBars()}catch(_){}};r.readAsText(f)}
+(function(){const s=document.getElementById("gC");
+  GRADED.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c.c;s.appendChild(o)})})();
+
+/* ================= SEARCH ================= */
+document.getElementById("searchIcon").innerHTML=I(IC.search,'width="16" height="16"');
+function searchIndex(){
+  const ix=[];
+  C.forEach((c,i)=>ix.push({t:c.c+" — "+c.name,s:B[c.b].n+(B[c.b].r?" "+B[c.b].r:""),k:"Course",go:()=>{go("sched");openSheet(i)}}));
+  Object.keys(B).filter(k=>B[k].q).forEach(k=>ix.push({t:B[k].n,s:"~"+B[k].w+" min walk",k:"Place",go:()=>go("info")}));
+  DL.forEach(d=>ix.push({t:d.t,s:dfmt(d.d),k:"Deadline",go:()=>go("work")}));
+  EX.forEach(x=>ix.push({t:x.t,s:dfmt(x.d)+" · "+x.w,k:"Exam",go:()=>go("work")}));
+  tasks.forEach(t=>ix.push({t:t.title,s:t.course+(t.date?" · "+dfmt(t.date):""),k:"Task",go:()=>go("work")}));
+  grades.forEach(g=>ix.push({t:g.name,s:g.course+" · "+g.earned+"/"+g.possible,k:"Score",go:()=>go("grades")}));
+  return ix;
+}
+let skSel=0, skHits=[];
+function openSearch(){document.getElementById("sk").classList.add("on");
+  const q=document.getElementById("skq"); q.value=""; runSearch(); setTimeout(()=>q.focus(),50)}
+function closeSearch(){document.getElementById("sk").classList.remove("on")}
+function runSearch(){
+  const q=document.getElementById("skq").value.trim().toLowerCase();
+  const ix=searchIndex();
+  skHits = q? ix.filter(x=>(x.t+" "+x.s+" "+x.k).toLowerCase().includes(q)).slice(0,12) : ix.slice(0,8);
+  skSel=0;
+  const el=document.getElementById("skres");
+  el.innerHTML = skHits.length? skHits.map((h,i)=>
+    "<div class='skitem"+(i===0?" sel":"")+"' data-i='"+i+"'><div><b>"+esc(h.t)+"</b>"+
+    (h.s?"<div style='font-size:12px;color:var(--t-mut)'>"+esc(h.s)+"</div>":"")+"</div>"+
+    "<span class='kind'>"+esc(h.k)+"</span></div>").join("")
+    : "<div class='empty' style='padding:24px'>No matches.</div>";
+  el.querySelectorAll(".skitem").forEach(d=>d.onclick=()=>{skHits[+d.dataset.i].go();closeSearch()});
+}
+document.getElementById("searchBtn").onclick=openSearch;
+document.getElementById("skq").addEventListener("input",runSearch);
+addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openSearch();return}
+  const open=document.getElementById("sk").classList.contains("on");
+  if(!open)return;
+  if(e.key==="Escape"){closeSearch();return}
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+    e.preventDefault(); skSel=(skSel+(e.key==="ArrowDown"?1:-1)+skHits.length)%skHits.length;
+    document.querySelectorAll(".skitem").forEach((d,i)=>d.classList.toggle("sel",i===skSel));
+  }
+  if(e.key==="Enter"&&skHits[skSel]){skHits[skSel].go();closeSearch()}
+});
+
+/* ================= BOOT ================= */
+renderModeChips(); setMode("walking"); renderTasks(); renderInbox(); renderGList(); drawBars(); renderTerms(); tick();
+setInterval(tick,30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
+requestAnimationFrame(moveBar);
+</script>
+</body>
+</html>
