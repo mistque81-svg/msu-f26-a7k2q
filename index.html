@@ -20,7 +20,7 @@
   --t-pri:#F2F5FA; --t-sec:#A3AEC2; --t-mut:#6B7689;
   --accent:#4FB783; --accent-ink:#04140C; --accent-warm:#F59E0B;
   --success:#34D399; --warning:#FBBF24; --danger:#F87171;
-  --s1:#5B7CFA; --s2:#22D3EE; --s3:#A78BFA; --s4:#FBBF24; --s5:#34D399;
+  --s1:#5B7CFA; --s2:#22D3EE; --s3:#A78BFA; --s4:#FBBF24; --s5:#34D399; --s6:#F97316;
   --inset:inset 0 1px 0 rgba(255,255,255,.05);
   --sh:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   --r-ctl:8px; --r-card:12px; --r-panel:16px; --r-modal:24px; --r-chip:999px;
@@ -539,6 +539,27 @@ footer{color:var(--t-mut);font-size:12px;text-align:center;margin-top:32px;line-
     <div class="note">Times are estimates from home, not measured. Whichever mode you pick,
       walk or ride each route once before Aug 31 and correct them.
       <br><br><a href="https://maps.msu.edu/interactive/" target="_blank" rel="noopener">Official MSU campus map ↗</a></div>
+    <h2 class="sec">Gym</h2>
+    <div class="note warm"><b>IM West is closed.</b> It shut on April 24, 2026 and is being demolished —
+      if anyone tells you that's the Brody gym, they're a year out of date. The replacement is the
+      <b>Student Recreation and Wellness Center</b>, 810 Birch Rd, southwest campus.</div>
+    <div class="note">
+      <b>Why this slot.</b> Mon and Fri are set for <b>4:50 PM</b>, ten minutes after ISS 205 lets out
+      in Wonders Hall. The rec center is the next stop south, so those two days cost you almost no
+      extra walking — you're already down there.
+      <br><br>
+      <b>Wednesday is a morning slot on purpose.</b> Wednesday evening looks free but isn't: ISS 205
+      ends at 4:40 and your COM 100 recitation starts at 6:00 in Comm Arts. That's about 65 minutes to
+      train, shower and cross campus. It doesn't fit. 10:15 AM does — you're clear until COM 100 at 12:40.
+      <br><br>
+      <b>Bad-weather fallback:</b> Wonders Hall has an in-hall fitness room — cardio and light strength,
+      right in the building you're already sitting in MWF. Brody itself has no fitness room, which is
+      why the walk exists at all.
+      <br><br>
+      <b>Check the hours before your first trip.</b> Rec Sports posts them as an image, so I couldn't
+      read them reliably — call <span class="mono">(517) 355-5250</span> or check the site.
+      <br><br><a href="https://recsports.msu.edu/facilities/hours" target="_blank" rel="noopener">Rec Sports hours ↗</a>
+    </div>
     <h2 class="sec">Install</h2>
     <div class="note"><b>iPhone:</b> Safari → Share → Add to Home Screen.<br>
       <b>Android:</b> Chrome → ⋮ → Add to Home screen.<br><br>
@@ -603,6 +624,7 @@ const B = {
   HOL:{n:"Holden Hall",r:"G8",q:"Holden Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood."},
   CAB:{n:"Communication Arts Bldg",r:"171",q:"Communication Arts Building, 404 Wilson Rd, East Lansing, MI 48824",w:15,bus:12,drive:6,note:"On Wilson Road, central campus."},
   WON:{n:"Wonders Hall",r:"C100",q:"Wonders Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood, near Holden."},
+  SRW:{n:"Rec & Wellness Center",r:"",q:"Student Recreation and Wellness Center, 810 Birch Rd, East Lansing, MI 48825",w:24,bus:16,drive:8,note:"Southwest campus, straight down Harrison Rd. Opened 2026 — replaced IM West, which closed in April and is being torn down. Weights, 50 m pool, elevated track, climbing wall."},
   ONL:{n:"Online — asynchronous",r:"",q:null,w:0,bus:0,drive:0,note:"No room. Watch lectures on your own schedule."}
 };
 
@@ -627,7 +649,12 @@ const C = [
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",col:"var(--s5)",hex:"#34D399",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",col:"var(--s1)",hex:"#5B7CFA",
-   meets:[],prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."}
+   meets:[],prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
+  {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",cls:"—",sec:"—",cr:0,b:"SRW",
+   col:"var(--s6)",hex:"#F97316",
+   meets:[{d:1,s:1010,e:1090},{d:3,s:615,e:695},{d:5,s:1010,e:1090}],
+   prof:"You",
+   extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. Wednesday is a MORNING slot on purpose: Wednesday evening only leaves about 65 minutes between ISS 205 and your 6 PM COM 100 recitation, which is not enough to train, shower and cross campus. Tue/Thu mornings are wide open if you want to move a day."}
 ];
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
@@ -735,11 +762,13 @@ function tick(){
   const hr=n.getHours();
   if(cur){
     const b=B[cur.c.b];
-    K.textContent="In class now"; T.textContent=cur.c.c;
+    K.textContent=cur.c.kind==="gym"?"Training now":"In class now"; T.textContent=cur.c.c;
     S.textContent=b.n+(b.r?" · "+b.r:"")+" · ends "+fm(cur.m.e);
   }else if(next){
     const b=B[next.c.b];
-    K.textContent=hr<12?"Good morning · next up":hr<18?"Next class":"Good evening · next up";
+    K.textContent=next.c.kind==="gym"
+      ? (hr<12?"Good morning · next up":"Next up")
+      : (hr<12?"Good morning · next up":hr<18?"Next class":"Good evening · next up");
     T.textContent=next.c.c;
     const when=next.dd===0?"today":next.dd===1?"tomorrow":DAY[next.m.d];
     S.textContent=when+" at "+fm(next.m.s)+" · "+b.n+(b.r?" · "+b.r:"");
@@ -828,6 +857,7 @@ function setSview(v){
 
 /* ================= COURSES + SHEET ================= */
 document.getElementById("courseList").innerHTML=C.map((c,i)=>{
+  if(c.kind==="gym")return "";
   const b=B[c.b];
   return "<div class='card tap' onclick='openSheet("+i+")' role='button' tabindex='0'>"+
    "<div class='row' style='padding:0;border:0'>"+
@@ -912,10 +942,10 @@ function setMode(k){
 /* ================= TASKS ================= */
 let tasks=[],filter="All";
 (function(){const s=document.getElementById("aC");
-  ["General",...new Set(C.map(c=>c.c))].forEach(v=>{
+  ["General",...new Set(C.filter(c=>!c.kind).map(c=>c.c))].forEach(v=>{
     const o=document.createElement("option");o.value=o.textContent=v;s.appendChild(o)})})();
 (function(){const w=document.getElementById("courseFilter");
-  ["All",...new Set(C.map(c=>c.c))].forEach(v=>{
+  ["All",...new Set(C.filter(c=>!c.kind).map(c=>c.c))].forEach(v=>{
     const b=document.createElement("button");b.className="chip"+(v==="All"?" on":"");b.textContent=v;
     b.onclick=()=>{filter=v;w.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
       b.classList.add("on");renderTasks()};w.appendChild(b)})})();
