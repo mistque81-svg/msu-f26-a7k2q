@@ -87,6 +87,9 @@ svg{display:block}
   gap:12px;align-items:baseline}
 .nowbar span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .nowbar span:last-child{flex:none}
+@media(max-width:389px){
+  .nowbar{font-size:9.5px;letter-spacing:.055em;padding-left:16px;padding-right:16px;gap:9px}
+}
 .nowbar.quiet{background:var(--surface);color:var(--t-sec);border-bottom:1px solid var(--line)}
 
 main{padding:0 0 30px;max-width:760px;margin:0 auto}
@@ -292,12 +295,25 @@ html[data-theme="dark"] .fill{background:var(--lime)}
 .gitem .gn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .gitem .gs{color:var(--t-sec);flex:none}
 
+
+.homeflag{display:inline-block;font-size:10.5px;font-weight:700;color:var(--spartan);
+  background:color-mix(in srgb,var(--lime) 26%,transparent);border-radius:var(--rc);
+  padding:2px 9px;margin-top:5px;letter-spacing:-.004em}
+html[data-theme="dark"] .homeflag{background:rgba(123,189,0,.2);color:var(--lime)}
+.cf{display:block;font-size:11.5px;margin-top:5px;padding-left:15px;position:relative;line-height:1.35}
+.cf::before{content:"";position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:9px}
+.cf.hard{color:var(--danger)} .cf.hard::before{background:var(--danger)}
+.cf.warn{color:var(--warn)}   .cf.warn::before{background:var(--warn)}
+.cf.info{color:var(--t-mut)}  .cf.info::before{background:var(--t-mut)}
+.cf.free{color:var(--spartan);font-weight:600} .cf.free::before{background:var(--lime)}
+html[data-theme="dark"] .cf.free{color:var(--lime)}
+
 /* ---------------- nav ---------------- */
 nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--spartan);
-  border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:repeat(6,1fr);
+  border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:repeat(7,1fr);
   padding-bottom:var(--safe-b)}
 nav.tabbar button{position:relative;background:none;border:0;color:rgba(255,255,255,.58);
-  cursor:pointer;padding:9px 2px 8px;font:inherit;font-size:10px;font-weight:600;letter-spacing:-.005em;
+  cursor:pointer;padding:9px 1px 8px;font:inherit;font-size:9.5px;font-weight:600;letter-spacing:-.015em;
   display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.tabbar button.on{color:var(--lime)}
 #navbar{position:absolute;top:0;height:2.5px;background:var(--lime);
@@ -448,6 +464,26 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <div class="card" id="dlList"></div>
     <h2 class="sec">Exams</h2>
     <div class="card" id="examList"></div>
+    <h2 class="sec">No-class days</h2>
+    <div class="card" id="breakList"></div>
+  </section>
+
+
+  <section class="pane" id="p-events">
+    <div class="chips" id="evFilter"></div>
+    <div class="card">
+      <button class="btn full addtoggle" id="eToggle" onclick="toggleForm('eForm',this,'Add an event')">Add an event</button>
+      <div class="frm collapsible" id="eForm" style="margin-top:12px">
+        <input id="eT" placeholder="e.g. Sigma Chi tailgate">
+        <div class="two"><input id="eD" type="date"><input id="eW" placeholder="Where"></div>
+        <div class="two"><input id="eS" type="time"><button class="btn" onclick="addEvent()">Add</button></div>
+      </div>
+      <div id="evList"></div>
+      <p class="savednote">Your own events save on this device.</p>
+    </div>
+    <h2 class="sec">Where events come from</h2>
+    <div class="card" id="linkList"></div>
+    <div class="note" id="evNote"></div>
   </section>
 
   <section class="pane" id="p-grades">
@@ -538,6 +574,7 @@ const IC={
   grades:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   inbox:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2.5 7l9.5 6 9.5-6"/>',
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/>',
+  events:'<path d="M4 8V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 4v16" stroke-dasharray="2 2"/>',
   nav:'<path d="M3 11l18-8-8 18-2-8-8-2z"/>',
   sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
@@ -588,7 +625,7 @@ const C = [
 ];
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
-  {d:"2026-12-11",t:"Last day of classes"},{d:"2026-12-18",t:"End of finals week"}];
+  {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
 const EX=[{d:"2026-09-17",t:"EC 201 midterm 1",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-10-29",t:"EC 201 midterm 2",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-12-03",t:"EC 201 midterm 3",w:"7:00 PM · room TBA",k:"w"},
@@ -601,6 +638,50 @@ const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and 
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
   ["COM 100 waitlist","You're #2 for the Friday 12:40 section. The blocking seat was reserved for the NSO August cohort; that hold expires Aug 21."]];
+
+
+/* ===== ATHLETICS =====
+   Football: full 2026 schedule, verified against msuspartans.com.
+   Most kickoffs are still TBA — they are released roughly two weeks out,
+   so times are left null rather than invented.
+   Basketball: only three non-conference games are dated for 2026-27, and
+   NONE of them are at Breslin. Big Ten opponents are known but undated. */
+const EVENTS=[
+ {d:"2026-09-04",s:1200,e:1410,t:"Football vs Toledo",       w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-09-12",s:930, e:1140,t:"Football vs Eastern Michigan",w:"Spartan Stadium",      k:"fb",home:true},
+ {d:"2026-09-19",s:1170,e:1380,t:"Football at Notre Dame",   w:"South Bend, IN",          k:"fb",home:false},
+ {d:"2026-09-26",s:null,e:null,t:"Football vs Nebraska",     w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-10-03",s:null,e:null,t:"Football at Wisconsin",    w:"Madison, WI",             k:"fb",home:false},
+ {d:"2026-10-10",s:null,e:null,t:"Football vs Illinois",     w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-10-17",s:null,e:null,t:"Football vs Northwestern", w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-10-24",s:null,e:null,t:"Football at UCLA",         w:"Pasadena, CA",            k:"fb",home:false},
+ {d:"2026-11-07",s:null,e:null,t:"Football at Michigan",     w:"Ann Arbor, MI",           k:"fb",home:false},
+ {d:"2026-11-14",s:null,e:null,t:"Football vs Washington",   w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-11-20",s:1200,e:1410,t:"Football vs Oregon",       w:"Spartan Stadium",         k:"fb",home:true},
+ {d:"2026-11-28",s:null,e:null,t:"Football at Rutgers",      w:"Piscataway, NJ",          k:"fb",home:false},
+ {d:"2026-11-10",s:null,e:null,t:"Basketball vs Duke",       w:"Champions Classic · Chicago",k:"bb",home:false},
+ {d:"2026-11-26",s:null,e:null,t:"Basketball vs Arkansas",   w:"Detroit",                 k:"bb",home:false},
+ {d:"2026-12-19",s:null,e:null,t:"Basketball vs Gonzaga",    w:"Palm Desert, CA",         k:"bb",home:false}
+];
+/* No-class days, from the MSU registrar's Fall 2026 academic calendar.
+   Without these the app happily tells you that you have ISB 201 on Thanksgiving. */
+const BREAKS=[
+ {d:"2026-09-07",t:"Labor Day — University closed"},
+ {d:"2026-10-26",t:"Fall break — no classes"},
+ {d:"2026-10-27",t:"Fall break — no classes"},
+ {d:"2026-11-26",t:"Thanksgiving — University closed"},
+ {d:"2026-11-27",t:"Thanksgiving break — no classes"}
+];
+const isBreak=iso=>BREAKS.find(b=>b.d===iso)||null;
+const isoOf=dt=>{const d=new Date(dt);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  return d.toISOString().slice(0,10)};
+let myEvents=[];   /* anything you add yourself — parties, org meetings, DoorList invites */
+const LINKS=[
+ {t:"DoorList",     u:"https://www.doorlist.app/",              d:"Party invites, guest lists, formals"},
+ {t:"LineLeap",     u:"https://www.lineleap.com/locations",     d:"Bar cover in East Lansing · 21+"},
+ {t:"MSU Athletics",u:"https://msuspartans.com/tickets",        d:"Student tickets, kickoff times"},
+ {t:"MSU Events",   u:"https://events.msu.edu/",                d:"Free campus events, speakers, career fairs"}
+];
 
 let INBOX=[];
 
@@ -629,7 +710,8 @@ const TODOW=new Date().getDay();
 
 /* ================= NAV ================= */
 const TABS=[["today","Today","today"],["week","Week","week"],["work","Work","work"],
-            ["grades","Grades","grades"],["inbox","Inbox","inbox"],["info","Info","info"]];
+            ["events","Events","events"],["grades","Grades","grades"],["inbox","Inbox","inbox"],
+            ["info","Info","info"]];
 const nav=document.getElementById("nav"), sbnav=document.getElementById("sbnav");
 TABS.forEach(([id,label,ic],i)=>{
   const b=document.createElement("button");
@@ -673,6 +755,8 @@ document.getElementById("searchBtn").innerHTML=I(IC.search,18);
 /* ================= SCHEDULE HELPERS ================= */
 function dayItems(dow){const o=[];C.forEach(c=>c.meets.forEach(m=>{if(m.d===dow)o.push({c,m})}));
   return o.sort((a,b)=>a.m.s-b.m.s)}
+/* same, but aware of what date it actually is — returns nothing on a break day */
+function dayItemsOn(iso){ return isBreak(iso) ? [] : dayItems(new Date(iso+"T12:00:00").getDay()); }
 function walkTotal(dow){
   const it=dayItems(dow); if(!it.length)return 0;
   let t=mins(B[it[0].c.b]);                       // home -> first
@@ -718,7 +802,8 @@ function paintMast(){
   const {cur,next,dow,nm}=nowNext();
   const K=document.getElementById("mKick"),T=document.getElementById("mBig"),
         S=document.getElementById("mSub"),NB=document.getElementById("nowBar");
-  const it=dayItems(dow), wt=walkTotal(dow);
+  const todayISO=isoOf(new Date()), brkToday=isBreak(todayISO);
+  const it=dayItemsOn(todayISO), wt=brkToday?0:walkTotal(dow);
   if(curTab==="week"){
     const all=C.flatMap(c=>c.meets.map(m=>({c,m})));
     const wk=[1,2,3,4,5].reduce((a,d)=>a+walkTotal(d),0);
@@ -728,14 +813,16 @@ function paintMast(){
       new Set(C.filter(c=>B[c.b].q).map(c=>c.b)).size+" buildings";
   }else if(curTab==="today"){
     K.textContent=DAYFULL[dow]+" · Week 3";
-    T.textContent=it.length?(it.length+(it.length===1?" stop today":" stops today")):"Nothing today";
+    T.textContent=it.length?(it.length+(it.length===1?" stop today":" stops today"))
+                           :(brkToday?"No classes":"Nothing today");
     const lv=it.length?fm(it[0].m.s-mins(B[it[0].c.b])-5):null;
     S.textContent=it.length? wt+" min on foot · leave home by "+lv
-                           : "No classes. Good window for EC 201.";
+                           : (brkToday? brkToday.t : "No classes. Good window for EC 201.");
   }else{
     K.textContent="Fall 2026 · 15 credits";
-    T.textContent={work:"Work",grades:"Grades",inbox:"Inbox",info:"Info"}[curTab]||"MSU Assist";
+    T.textContent={work:"Work",events:"Events",grades:"Grades",inbox:"Inbox",info:"Info"}[curTab]||"MSU Assist";
     S.textContent={work:"Assignments, deadlines and exams",
+                   events:"Games, parties and campus events",
                    grades:"Points-based projection",
                    inbox:"Filtered Spartan Mail digest",
                    info:"Travel, gym and settings"}[curTab]||"";
@@ -743,7 +830,7 @@ function paintMast(){
   /* live bar */
   if(cur){
     NB.className="nowbar";
-    NB.innerHTML="<span>◉ In class now — "+esc(cur.c.c)+"</span><span>ends "+fm(cur.m.e)+"</span>";
+    NB.innerHTML="<span>◉ In class now · "+esc(cur.c.c)+"</span><span>ends "+fm(cur.m.e)+"</span>";
   }else if(next){
     const when=next.dd===0?"today":next.dd===1?"tomorrow":DAY[next.m.d];
     const b=B[next.c.b];
@@ -751,11 +838,11 @@ function paintMast(){
       const lv=next.m.s-mins(b)-5, left=lv-nm;
       NB.className="nowbar";
       NB.innerHTML=left<=0
-        ? "<span>▲ Leave now — "+esc(next.c.c)+"</span><span>~"+mins(b)+" min "+modeDef().label.toLowerCase()+"</span>"
-        : "<span>Next — "+esc(next.c.c)+" at "+fm(next.m.s)+"</span><span>leave "+fm(lv)+"</span>";
+        ? "<span>▲ Leave now · "+esc(next.c.c)+"</span><span>~"+mins(b)+" min</span>"
+        : "<span>Next · "+esc(next.c.c)+" "+fm(next.m.s)+"</span><span>leave "+fm(lv)+"</span>";
     }else{
       NB.className="nowbar quiet";
-      NB.innerHTML="<span>Next — "+esc(next.c.c)+" "+when+" at "+fm(next.m.s)+"</span><span>"+esc(B[next.c.b].n)+"</span>";
+      NB.innerHTML="<span>Next · "+esc(next.c.c)+" "+when+" "+fm(next.m.s)+"</span><span>"+esc(bname(next.c.b)||"")+"</span>";
     }
   }else{
     NB.className="nowbar quiet";
@@ -768,9 +855,12 @@ function paintMast(){
 function tileFor(c,extra){return "<span class='tile "+(isGym(c)?"alt":"")+" "+(extra||"")+"'>"+mono(c)+"</span>"}
 function renderToday(){
   const {cur,dow,nm}=nowNext();
-  const it=dayItems(dow), el=document.getElementById("routeStrip");
+  const today=isoOf(new Date()), brk=isBreak(today);
+  const it=dayItemsOn(today), el=document.getElementById("routeStrip");
   if(!it.length){
-    el.innerHTML="<div class='empty'>"+I(IC.clock,26)+"No classes today.<br>Good window for EC 201 lectures.</div>";
+    el.innerHTML="<div class='empty'>"+I(IC.clock,26)+
+      (brk?esc(brk.t)+".<br>Nothing on campus today."
+          :"No classes today.<br>Good window for EC 201 lectures.")+"</div>";
     document.getElementById("todayStat").innerHTML="";
     document.getElementById("todayTip").textContent="";
     return;
@@ -1039,6 +1129,10 @@ function renderDates(){
     const n=days(d.d);
     return dateRow(d.t,dfmt(d.d),n<0?"":n<=14?"w":"s",n<0?"passed":n===0?"today":n+"d");
   }).join("");
+  document.getElementById("breakList").innerHTML=BREAKS.map(b=>{
+    const n=days(b.d);
+    return dateRow(b.t,dfmt(b.d),n<0?"":"s",n<0?"passed":n+"d");
+  }).join("");
   document.getElementById("examList").innerHTML=EX.map(x=>{
     const n=days(x.d);
     return dateRow(x.t,dfmt(x.d)+" · "+x.w,n<0?"":n<=14?"w":"s",n<0?"passed":n+"d");
@@ -1211,6 +1305,100 @@ function loadGrades(ev){const f=ev.target.files[0];if(!f)return;const r=new File
 (function(){const s=document.getElementById("gC");
   GRADED.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c.c;s.appendChild(o)})})();
 
+
+/* ================= EVENTS ================= */
+const dPlus=(iso,n)=>{const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10)};
+function allEvents(){
+  return [...EVENTS,...myEvents].sort((a,b)=>a.d.localeCompare(b.d)||((a.s??1e4)-(b.s??1e4)));
+}
+/* The thing DoorList and LineLeap can't do: check an event against your own week. */
+function conflicts(ev){
+  const out=[], brk=isBreak(ev.d), it=dayItemsOn(ev.d);
+  if(brk){ out.push({lvl:"free",msg:brk.t}); }
+  if(ev.s!=null){
+    it.forEach(x=>{
+      if(ev.s < x.m.e && (ev.e||ev.s+180) > x.m.s)
+        out.push({lvl:"hard",msg:"Clashes with "+x.c.c+", "+fm(x.m.s)+"–"+fm(x.m.e)});
+    });
+  }else if(it.length){
+    out.push({lvl:"info",msg:"Time TBA · you have "+it.length+" class"+(it.length>1?"es":"")+" that day"});
+  }
+  EX.forEach(x=>{
+    if(x.d===ev.d) out.push({lvl:"hard",msg:"Same day as "+x.t});
+    else if(x.d===dPlus(ev.d,1) && (ev.s==null||ev.s>=1020))
+      out.push({lvl:"warn",msg:"Night before "+x.t});
+  });
+  DL.forEach(d=>{ if(d.d===ev.d) out.push({lvl:"warn",msg:"Same day: "+d.t}); });
+  return out;
+}
+let EVFILTER="Upcoming";
+function renderEvents(){
+  const w=document.getElementById("evFilter");
+  if(!w.children.length){
+    ["Upcoming","Home games","Football","Basketball","Mine","All"].forEach(v=>{
+      const b=document.createElement("button");
+      b.className="chip"+(v===EVFILTER?" on":""); b.textContent=v;
+      b.onclick=()=>{EVFILTER=v;w.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+        b.classList.add("on");renderEvents();persist()};
+      w.appendChild(b);
+    });
+  }
+  const keep=e=>{
+    const n=days(e.d);
+    if(EVFILTER==="Upcoming")   return n>=0;
+    if(EVFILTER==="Home games") return e.home===true;
+    if(EVFILTER==="Football")   return e.k==="fb";
+    if(EVFILTER==="Basketball") return e.k==="bb";
+    if(EVFILTER==="Mine")       return e.k==="mine";
+    return true;
+  };
+  const list=allEvents().filter(keep);
+  const el=document.getElementById("evList");
+  if(!list.length){el.innerHTML="<div class='empty'>"+I(IC.events,26)+"Nothing here yet.</div>";return}
+  el.innerHTML=list.map((e,i)=>{
+    const n=days(e.d), cf=conflicts(e);
+    const worst=cf.some(c=>c.lvl==="hard")?"d":cf.some(c=>c.lvl==="warn")?"w":"";
+    const mine=e.k==="mine";
+    const badge=n<0?"passed":n===0?"today":n===1?"tomorrow":n+"d";
+    return "<div class='row'>"+
+      "<span class='tile "+(e.home?"":"alt")+" xs'>"+(e.k==="fb"?"FB":e.k==="bb"?"BB":"YOU")+"</span>"+
+      "<div class='g'><b>"+esc(e.t)+"</b><span>"+dfmt(e.d)+
+        (e.s!=null?" · "+fm(e.s):" · time TBA")+" · "+esc(e.w)+"</span>"+
+        (e.home?"<span class='homeflag'>Home · Spartan Stadium</span>":"")+
+        cf.map(c=>"<span class='cf "+c.lvl+"'>"+esc(c.msg)+"</span>").join("")+
+      "</div>"+
+      "<span class='tag "+(n<0?"":worst||"s")+" mono'>"+badge+"</span>"+
+      (mine?"<button class='xbtn' onclick='delEvent("+myEvents.indexOf(e)+")' aria-label='Remove'>"+I(IC.x,14)+"</button>":"")+
+    "</div>";
+  }).join("");
+}
+function addEvent(){
+  const t=document.getElementById("eT"); if(!t.value.trim())return;
+  const d=document.getElementById("eD").value; if(!d)return;
+  const tm=document.getElementById("eS").value;
+  myEvents.push({d,s:tm?(+tm.slice(0,2)*60 + +tm.slice(3,5)):null,e:null,
+    t:t.value.trim(),w:document.getElementById("eW").value.trim()||"—",k:"mine",home:false});
+  ["eT","eD","eW","eS"].forEach(id=>document.getElementById(id).value="");
+  renderEvents();persist();closeForm("eForm");tick();
+}
+function delEvent(i){ myEvents.splice(i,1); renderEvents(); persist(); tick(); }
+function renderLinks(){
+  document.getElementById("linkList").innerHTML=LINKS.map(l=>
+    "<a class='row' href='"+l.u+"' target='_blank' rel='noopener' style='cursor:pointer'>"+
+    "<div class='g'><b>"+esc(l.t)+"</b><span>"+esc(l.d)+"</span></div>"+
+    "<span class='go'>"+I(IC.nav,15)+"</span></a>").join("");
+  document.getElementById("evNote").innerHTML=
+    "<b>Football is fully dated; most kickoffs are not.</b> Times get released about two weeks out, "+
+    "so anything marked <b>time TBA</b> only checks against your schedule by date until then."+
+    "<br><br><b>Basketball has no home dates yet.</b> Only three non-conference games are scheduled "+
+    "for 2026-27 — Duke in Chicago, Arkansas in Detroit, Gonzaga in Palm Desert — and none are at "+
+    "Breslin. Big Ten opponents are set but undated; the full schedule usually lands in the fall."+
+    "<br><br><b>DoorList and LineLeap have no public API</b>, so nothing imports automatically. "+
+    "Use the links above and add what you're going to — once it's in here it gets checked against "+
+    "your classes and exams. Worth knowing: East Lansing bars are 21+, so LineLeap won't do much yet.";
+}
+
 /* ================= SEARCH ================= */
 function searchIndex(){
   const ix=[];
@@ -1265,18 +1453,20 @@ function closeForm(id){
 const LSKEY="msu-spartan-v1"; let READY=false;
 function persist(){ if(!READY)return;
   try{localStorage.setItem(LSKEY,JSON.stringify({v:1,tasks,grades,inbox:INBOX,mode:MODE,
-    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab}))}catch(_){}}
+    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER}))}catch(_){}}
 function restore(){
   let s={};try{s=JSON.parse(localStorage.getItem(LSKEY)||"{}")||{}}catch(_){s={}}
   if(Array.isArray(s.tasks))tasks=s.tasks.filter(t=>t&&typeof t.title==="string");
   if(Array.isArray(s.grades))grades=s.grades.filter(g=>g&&typeof g.name==="string");
   if(Array.isArray(s.inbox))INBOX=s.inbox;
+  if(Array.isArray(s.myEvents))myEvents=s.myEvents.filter(e=>e&&e.d&&e.t);
+  if(typeof s.evfilter==="string")EVFILTER=s.evfilter;
   if(s.theme==="dark")dark=true;
   if(MODES.some(m=>m.k===s.mode))MODE=s.mode;
   if(s.weekview==="map"||s.weekview==="grid")WEEKVIEW=s.weekview;
 }
 function wipe(){try{localStorage.removeItem(LSKEY)}catch(_){}
-  tasks=[];grades=[];INBOX=[];renderTasks();renderGList();drawBars();renderInbox();tick()}
+  tasks=[];grades=[];INBOX=[];myEvents=[];renderTasks();renderGList();drawBars();renderInbox();renderEvents();tick()}
 function dismissA2HS(){document.getElementById("a2hs").classList.remove("on");
   try{localStorage.setItem(LSKEY+"-a2hs","1")}catch(_){}}
 (function(){
@@ -1323,6 +1513,7 @@ restore();
 paintTheme();
 renderModeChips(); setMode(MODE);
 renderCourses(); renderDates(); renderTasks(); renderInbox(); renderGList(); drawBars();
+renderEvents(); renderLinks();
 setWeekView(WEEKVIEW);
 tick();
 READY=true;
