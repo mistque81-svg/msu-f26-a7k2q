@@ -308,6 +308,18 @@ html[data-theme="dark"] .homeflag{background:rgba(123,189,0,.2);color:var(--lime
 .cf.free{color:var(--spartan);font-weight:600} .cf.free::before{background:var(--lime)}
 html[data-theme="dark"] .cf.free{color:var(--lime)}
 
+
+.whererow{display:flex;align-items:center;gap:10px;padding:12px 18px 2px}
+.whererow label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--t-sec);
+  font-weight:700;flex:none}
+.whererow select{flex:1;min-width:0;padding:9px 11px;font-size:14px;font-weight:600;
+  border-radius:var(--r2)}
+.wchip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,var(--line))}
+.wchip{flex:none;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--t-sec);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rc);padding:5px 10px;
+  white-space:nowrap}
+@media(max-width:400px){.wchip{display:none}}
+
 /* ---------------- nav ---------------- */
 nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--spartan);
   border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:repeat(7,1fr);
@@ -404,6 +416,11 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   <div class="nowbar" id="nowBar"></div>
 
   <section class="pane on" id="p-today">
+    <div class="whererow">
+      <label for="whereSel">I'm at</label>
+      <select id="whereSel" onchange="setWhere(this.value)"></select>
+      <span class="wchip" id="whereChip"></span>
+    </div>
     <div class="strip" id="routeStrip"></div>
     <div class="stat" id="todayStat"></div>
     <div class="tip" id="todayTip"></div>
@@ -532,6 +549,19 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <div class="note">Times are estimates from home, not measured. Walk or ride each route once
       before Aug 31 and correct them.<br><br>
       <a href="https://maps.msu.edu/interactive/" target="_blank" rel="noopener">Official MSU campus map ↗</a></div>
+    <h2 class="sec">Location</h2>
+    <div class="note" id="geoStatus"></div>
+    <div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <button class="btn sm" onclick="requestGeo(true)">Use my location</button>
+      <button class="btn ghost sm" onclick="geoOff()">Turn off</button>
+    </div>
+    <div class="note">Your position is used <b>on this phone only</b> — it is never sent anywhere
+      and never saved. With it on, every Go button and every walking leg opens Google Maps starting
+      from wherever you actually are instead of from your dorm.
+      <br><br>The minute estimates inside the app come from a fixed table, so they still measure from
+      the spot in <b>I'm at</b> above. Save a spot while you're standing at a building and the app can
+      set that for you automatically.</div>
+    <div class="card" id="spotList"></div>
     <h2 class="sec">Gym</h2>
     <div class="note warm"><b>IM West is closed.</b> It shut on April 24, 2026 and is being
       demolished. The replacement is the <b>Student Recreation and Wellness Center</b>, 810 Birch Rd.
@@ -675,7 +705,15 @@ const BREAKS=[
 const isBreak=iso=>BREAKS.find(b=>b.d===iso)||null;
 const isoOf=dt=>{const d=new Date(dt);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
   return d.toISOString().slice(0,10)};
-let myEvents=[];   /* anything you add yourself — parties, org meetings, DoorList invites */
+let myEvents=[];
+/* WHERE = the spot the in-app estimates are measured from. "HOME" or a building key.
+   GEO.on = hand navigation over to the phone's own location.
+   SPOTS  = coordinates you taught the app by standing somewhere and tapping save.
+   No building coordinates are shipped: none are published that I could verify,
+   and inventing them would produce confident, wrong walking times. */
+let WHERE="HOME";
+let GEO={on:false,pos:null,err:null,matched:null};
+let SPOTS={};   /* anything you add yourself — parties, org meetings, DoorList invites */
 const LINKS=[
  {t:"DoorList",     u:"https://www.doorlist.app/",              d:"Party invites, guest lists, formals"},
  {t:"LineLeap",     u:"https://www.lineleap.com/locations",     d:"Bar cover in East Lansing · 21+"},
@@ -693,8 +731,15 @@ const fm=v=>{const h=Math.floor(v/60),m=v%60,a=h>=12?"PM":"AM",hh=h%12||12;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const days=iso=>{const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(iso+"T00:00:00")-t)/864e5)};
 const dfmt=iso=>new Date(iso+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
-const dir=(q,m)=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(q)+"&travelmode="+(m||MODE);
-const dir2=(from,to,m)=>"https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(from)+
+/* Directions. Leaving `origin` OUT of a Maps link makes Maps start from the
+   phone's real position — it already has location permission and far better
+   positioning than a web page. So when "use my location" is on we simply omit
+   it. Only when it's off do we pin a starting point. */
+const dir=(q,m)=>"https://www.google.com/maps/dir/?api=1"+
+  (GEO.on?"":"&origin="+encodeURIComponent(originQ()))+
+  "&destination="+encodeURIComponent(q)+"&travelmode="+(m||MODE);
+const dir2=(from,to,m)=>"https://www.google.com/maps/dir/?api=1"+
+  (GEO.on?"":"&origin="+encodeURIComponent(from))+
   "&destination="+encodeURIComponent(to)+"&travelmode="+(m||MODE);
 const dur=m=>m<60?m+" min":(Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":""));
 const isGym=c=>c.kind==="gym";
@@ -759,7 +804,7 @@ function dayItems(dow){const o=[];C.forEach(c=>c.meets.forEach(m=>{if(m.d===dow)
 function dayItemsOn(iso){ return isBreak(iso) ? [] : dayItems(new Date(iso+"T12:00:00").getDay()); }
 function walkTotal(dow){
   const it=dayItems(dow); if(!it.length)return 0;
-  let t=mins(B[it[0].c.b]);                       // home -> first
+  let t=fromHere(it[0].c.b);                      // wherever you are -> first
   for(let i=1;i<it.length;i++) t+=hop(it[i-1].c.b,it[i].c.b);
   t+=mins(B[it[it.length-1].c.b]);                // last -> home
   return t;
@@ -785,6 +830,98 @@ function hop(a,b){
   if(MODE==="walking")return w;
   const ratio=mins(B[b])/Math.max(1,B[b].w);   // scale by this mode's speed
   return Math.max(2,Math.round(w*ratio));
+}
+
+
+/* ================= WHERE AM I ================= */
+const originQ=()=>WHERE==="HOME"?HOME_Q:(B[WHERE]&&B[WHERE].q)||HOME_Q;
+const whereName=()=>WHERE==="HOME"?"home":bname(WHERE);
+/* distance from the current spot to a building, using the calibrated table */
+function fromHere(dest){ return WHERE==="HOME" ? mins(B[dest]) : hop(WHERE,dest); }
+const R_EARTH=6371000;
+function metres(a,b){
+  const t=x=>x*Math.PI/180, dLa=t(b.lat-a.lat), dLo=t(b.lng-a.lng);
+  const h=Math.sin(dLa/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dLo/2)**2;
+  return 2*R_EARTH*Math.asin(Math.sqrt(h));
+}
+function nearestSpot(pos){
+  let best=null;
+  Object.keys(SPOTS).forEach(k=>{
+    const d=metres(pos,SPOTS[k]);
+    if(d<140 && (!best||d<best.d)) best={k,d};
+  });
+  return best;
+}
+function applyGeo(){
+  if(!GEO.pos){GEO.matched=null;return}
+  const n=nearestSpot(GEO.pos);
+  GEO.matched = n ? n.k : false;      // false = on, but not near anywhere it knows
+  if(n && n.k!==WHERE) WHERE=n.k;
+}
+/* force=true asks for a brand-new fix. A cached one is fine for a passive
+   refresh, but not when you have just tapped a button or are saving a spot —
+   a stale fix would quietly place you where you were a minute ago. */
+function requestGeo(force){
+  if(!navigator.geolocation){GEO.err="This browser has no location support.";paintGeo();return}
+  GEO.err="Locating…"; paintGeo();
+  navigator.geolocation.getCurrentPosition(
+    p=>{GEO.pos={lat:p.coords.latitude,lng:p.coords.longitude,acc:Math.round(p.coords.accuracy),ts:Date.now()};
+        GEO.on=true;GEO.err=null;applyGeo();persist();paintGeo();tick();renderBldgs()},
+    e=>{GEO.on=false;
+        GEO.err=e.code===1?"Permission denied — directions will start from home."
+              :e.code===2?"Position unavailable right now."
+              :"Timed out getting a fix.";
+        persist();paintGeo()},
+    {enableHighAccuracy:true,timeout:12000,maximumAge:force?0:15000});
+}
+function geoOff(){ GEO={on:false,pos:null,err:null,matched:null}; persist(); paintGeo(); tick(); renderBldgs(); }
+function saveSpot(k){
+  if(!GEO.on){GEO.err="Turn location on first, then tap save while you're there.";paintGeo();return}
+  GEO.err="Getting a fresh fix…"; paintGeo();
+  navigator.geolocation.getCurrentPosition(
+    pt=>{GEO.pos={lat:pt.coords.latitude,lng:pt.coords.longitude,acc:Math.round(pt.coords.accuracy),ts:Date.now()};
+         SPOTS[k]={lat:GEO.pos.lat,lng:GEO.pos.lng};
+         WHERE=k; GEO.err=null; persist(); paintGeo(); tick(); renderBldgs();},
+    ()=>{GEO.err="Couldn't get a fix to save that spot.";paintGeo()},
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0});
+}
+function setWhere(k){ WHERE=k; persist(); tick(); renderBldgs(); paintGeo(); }
+function paintGeo(){
+  const sel=document.getElementById("whereSel");
+  if(sel){
+    sel.innerHTML="<option value='HOME'>Home (Brody)</option>"+
+      Object.keys(B).filter(k=>B[k].q).map(k=>
+        "<option value='"+k+"'"+(k===WHERE?" selected":"")+">"+esc(bname(k))+"</option>").join("");
+    sel.value=WHERE;
+  }
+  const st=document.getElementById("geoStatus");
+  if(st){
+    const fresh=GEO.pos?Math.round((Date.now()-GEO.pos.ts)/60000):null;
+    st.innerHTML = GEO.err ? "<b>"+esc(GEO.err)+"</b>"
+      : GEO.on&&GEO.pos&&GEO.matched===false&&Object.keys(SPOTS).length
+        ? "<b>On.</b> Directions use your real position, but you're not within ~140 m of any saved "+
+          "spot — so the minute estimates are still measured from <b>"+esc(whereName())+"</b>."
+      : GEO.on&&GEO.pos ? "<b>On.</b> Directions start from your phone's position"+
+          (GEO.pos.acc?" (±"+GEO.pos.acc+" m":"")+(fresh!==null?", "+(fresh<1?"just now":fresh+" min ago"):"")+")."+
+          (Object.keys(SPOTS).length?"":" Save a spot below and it can also set “I'm at” automatically.")
+      : "<b>Off.</b> Directions start from "+esc(whereName())+".";
+  }
+  const chip=document.getElementById("whereChip");
+  if(chip){
+    chip.textContent = !GEO.on ? "From "+whereName()
+      : GEO.matched ? "Confirmed by GPS"
+      : GEO.matched===false ? "GPS on · spot not saved"
+      : "Using your location";
+    chip.classList.toggle("warn", GEO.on && GEO.matched===false);
+  }
+  const sp=document.getElementById("spotList");
+  if(sp){
+    sp.innerHTML=Object.keys(B).filter(k=>B[k].q).map(k=>
+      "<div class='row'><div class='g'><b>"+esc(bname(k))+"</b><span>"+
+      (SPOTS[k]?"Saved — auto-detects when you're within ~140 m":"Not saved yet")+"</span></div>"+
+      "<button class='btn ghost sm' onclick=\"saveSpot('"+k+"')\">"+(SPOTS[k]?"Re-save":"Save spot")+"</button></div>"
+    ).join("");
+  }
 }
 
 /* ================= MASTHEAD ================= */
@@ -815,8 +952,8 @@ function paintMast(){
     K.textContent=DAYFULL[dow]+" · Week 3";
     T.textContent=it.length?(it.length+(it.length===1?" stop today":" stops today"))
                            :(brkToday?"No classes":"Nothing today");
-    const lv=it.length?fm(it[0].m.s-mins(B[it[0].c.b])-5):null;
-    S.textContent=it.length? wt+" min on foot · leave home by "+lv
+    const lv=it.length?fm(it[0].m.s-fromHere(it[0].c.b)-5):null;
+    S.textContent=it.length? wt+" min on foot · leave "+whereName()+" by "+lv
                            : (brkToday? brkToday.t : "No classes. Good window for EC 201.");
   }else{
     K.textContent="Fall 2026 · 15 credits";
@@ -835,10 +972,10 @@ function paintMast(){
     const when=next.dd===0?"today":next.dd===1?"tomorrow":DAY[next.m.d];
     const b=B[next.c.b];
     if(next.dd===0&&b.q){
-      const lv=next.m.s-mins(b)-5, left=lv-nm;
+      const lv=next.m.s-fromHere(next.c.b)-5, left=lv-nm;
       NB.className="nowbar";
       NB.innerHTML=left<=0
-        ? "<span>▲ Leave now · "+esc(next.c.c)+"</span><span>~"+mins(b)+" min</span>"
+        ? "<span>▲ Leave now · "+esc(next.c.c)+"</span><span>~"+fromHere(next.c.b)+" min</span>"
         : "<span>Next · "+esc(next.c.c)+" "+fm(next.m.s)+"</span><span>leave "+fm(lv)+"</span>";
     }else{
       NB.className="nowbar quiet";
@@ -875,12 +1012,12 @@ function renderToday(){
   const homeRow=(t,s)=>"<div class='st'><div class='col'><span class='tile home sm'>⌂</span></div>"+
     "<div class='c'><b>Home</b><span>"+esc(s)+"</span></div><div class='m'></div></div>";
 
-  let h=homeRow("Home","leave by "+fm(it[0].m.s-mins(B[it[0].c.b])-5));
+  let h=homeRow(WHERE==="HOME"?"Home":bname(WHERE),"leave by "+fm(it[0].m.s-fromHere(it[0].c.b)-5));
   it.forEach((x,i)=>{
     const b=B[x.c.b], prev=i?it[i-1]:null;
-    const legMin = prev ? hop(prev.c.b,x.c.b) : mins(b);
+    const legMin = prev ? hop(prev.c.b,x.c.b) : fromHere(x.c.b);
     const legTxt = prev ? (prev.c.b===x.c.b?"same building":"to "+bname(x.c.b)) : "to "+bname(x.c.b);
-    h+=legRow(legTxt,legMin,isGym(x.c), prev?B[prev.c.b].q:HOME_Q, b.q);
+    h+=legRow(legTxt,legMin,isGym(x.c), prev?B[prev.c.b].q:originQ(), b.q);
     const live = cur && cur.c===x.c && cur.m===x.m;
     const idx=C.indexOf(x.c);
     h+="<div class='st stop"+(live?" live":"")+"' onclick='openSheet("+idx+")'>"+
@@ -1159,8 +1296,8 @@ function renderModeChips(){
 function renderBldgs(){
   document.getElementById("bldgList").innerHTML=Object.keys(B).filter(k=>B[k].q).map(k=>{
     const b=B[k];
-    return "<div class='row'><div class='g'><b>"+esc(b.n)+"</b><span>~"+mins(b)+" min by "+
-      modeDef().label.toLowerCase()+" from home · "+esc(b.note)+"</span></div>"+
+    return "<div class='row'><div class='g'><b>"+esc(b.n)+"</b><span>~"+fromHere(k)+" min by "+
+      modeDef().label.toLowerCase()+" from "+esc(whereName())+" · "+esc(b.note)+"</span></div>"+
       "<a class='go' href='"+dir(b.q)+"' target='_blank' rel='noopener' aria-label='Directions'>"+
       I(IC.nav,15)+"</a></div>";
   }).join("");
@@ -1453,7 +1590,8 @@ function closeForm(id){
 const LSKEY="msu-spartan-v1"; let READY=false;
 function persist(){ if(!READY)return;
   try{localStorage.setItem(LSKEY,JSON.stringify({v:1,tasks,grades,inbox:INBOX,mode:MODE,
-    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER}))}catch(_){}}
+    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER,
+    where:WHERE,geoOn:GEO.on,spots:SPOTS}))}catch(_){}}
 function restore(){
   let s={};try{s=JSON.parse(localStorage.getItem(LSKEY)||"{}")||{}}catch(_){s={}}
   if(Array.isArray(s.tasks))tasks=s.tasks.filter(t=>t&&typeof t.title==="string");
@@ -1461,12 +1599,15 @@ function restore(){
   if(Array.isArray(s.inbox))INBOX=s.inbox;
   if(Array.isArray(s.myEvents))myEvents=s.myEvents.filter(e=>e&&e.d&&e.t);
   if(typeof s.evfilter==="string")EVFILTER=s.evfilter;
+  if(s.where==="HOME"||B[s.where])WHERE=s.where;
+  if(s.spots&&typeof s.spots==="object")SPOTS=s.spots;
+  if(s.geoOn===true)GEO.on=true;
   if(s.theme==="dark")dark=true;
   if(MODES.some(m=>m.k===s.mode))MODE=s.mode;
   if(s.weekview==="map"||s.weekview==="grid")WEEKVIEW=s.weekview;
 }
 function wipe(){try{localStorage.removeItem(LSKEY)}catch(_){}
-  tasks=[];grades=[];INBOX=[];myEvents=[];renderTasks();renderGList();drawBars();renderInbox();renderEvents();tick()}
+  tasks=[];grades=[];INBOX=[];myEvents=[];SPOTS={};WHERE="HOME";GEO={on:false,pos:null,err:null};renderTasks();renderGList();drawBars();renderInbox();renderEvents();tick()}
 function dismissA2HS(){document.getElementById("a2hs").classList.remove("on");
   try{localStorage.setItem(LSKEY+"-a2hs","1")}catch(_){}}
 (function(){
@@ -1513,12 +1654,13 @@ restore();
 paintTheme();
 renderModeChips(); setMode(MODE);
 renderCourses(); renderDates(); renderTasks(); renderInbox(); renderGList(); drawBars();
-renderEvents(); renderLinks();
+renderEvents(); renderLinks(); paintGeo();
+if(GEO.on) requestGeo(false);   /* permission already granted once — refresh the fix */
 setWeekView(WEEKVIEW);
 tick();
 READY=true;
 setInterval(tick,30000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(GEO.on)requestGeo(true);tick()}});
 requestAnimationFrame(moveBar);
 if(document.fonts&&document.fonts.ready)
   document.fonts.ready.then(()=>{ if(WEEKVIEW==="map")drawMap(); moveBar(); });
