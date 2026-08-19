@@ -309,16 +309,37 @@ html[data-theme="dark"] .homeflag{background:rgba(123,189,0,.2);color:var(--lime
 html[data-theme="dark"] .cf.free{color:var(--lime)}
 
 
-.whererow{display:flex;align-items:center;gap:10px;padding:12px 18px 2px}
+
+.wherebox{margin:12px 18px 2px;border:1px solid var(--line);border-radius:var(--r2);
+  background:var(--surface);overflow:hidden}
+.whererow{display:flex;align-items:center;gap:10px;padding:9px 10px 9px 13px}
 .whererow label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--t-sec);
   font-weight:700;flex:none}
-.whererow select{flex:1;min-width:0;padding:9px 11px;font-size:14px;font-weight:600;
-  border-radius:var(--r2)}
-.wchip.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,var(--line))}
-.wchip{flex:none;font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--t-sec);
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--rc);padding:5px 10px;
-  white-space:nowrap}
-@media(max-width:400px){.wchip{display:none}}
+.whererow select{flex:1;min-width:0;padding:9px 10px;font-size:14.5px;font-weight:600;
+  border-radius:var(--r);background:var(--canvas)}
+.livebtn{flex:none;display:flex;align-items:center;gap:6px;height:40px;padding:0 12px;
+  border-radius:var(--r);border:1px solid var(--line);background:var(--canvas);
+  color:var(--t-sec);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;
+  letter-spacing:-.01em;white-space:nowrap}
+.livebtn.on{background:var(--spartan);border-color:var(--spartan);color:#fff}
+html[data-theme="dark"] .livebtn.on{background:var(--lime);border-color:var(--lime);color:#0A2A08}
+.livebtn .pin{width:8px;height:8px;border-radius:9px;background:currentColor;flex:none}
+.livebtn.on .pin{animation:pulse 2s var(--e) infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.livestrip{display:none;border-top:1px solid var(--line);padding:10px 13px;font-size:11.5px;
+  color:var(--t-sec);line-height:1.45}
+.livestrip.on{display:block}
+.livestrip b{color:var(--t-pri)}
+.livestrip .lsrow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:8px}
+.livestrip .mini{border:1px solid var(--line);background:var(--canvas);color:var(--t-pri);
+  border-radius:var(--r);padding:7px 11px;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
+.livestrip .mini.go{background:var(--spartan);color:#fff;border-color:var(--spartan)}
+html[data-theme="dark"] .livestrip .mini.go{background:var(--lime);color:#0A2A08;border-color:var(--lime)}
+.livestrip .warnline{color:var(--warn)}
+@media(max-width:392px){
+  .whererow label{display:none}
+  .livebtn{padding:0 10px}
+}
 
 /* ---------------- nav ---------------- */
 nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--spartan);
@@ -416,10 +437,13 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   <div class="nowbar" id="nowBar"></div>
 
   <section class="pane on" id="p-today">
-    <div class="whererow">
-      <label for="whereSel">I'm at</label>
-      <select id="whereSel" onchange="setWhere(this.value)"></select>
-      <span class="wchip" id="whereChip"></span>
+    <div class="wherebox">
+      <div class="whererow">
+        <label for="whereSel">I'm at</label>
+        <select id="whereSel" onchange="setWhere(this.value)"></select>
+        <button class="livebtn" id="liveBtn" onclick="toggleLive()" aria-pressed="false"></button>
+      </div>
+      <div class="livestrip" id="liveStrip"></div>
     </div>
     <div class="strip" id="routeStrip"></div>
     <div class="stat" id="todayStat"></div>
@@ -551,9 +575,8 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
       <a href="https://maps.msu.edu/interactive/" target="_blank" rel="noopener">Official MSU campus map ↗</a></div>
     <h2 class="sec">Location</h2>
     <div class="note" id="geoStatus"></div>
-    <div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <button class="btn sm" onclick="requestGeo(true)">Use my location</button>
-      <button class="btn ghost sm" onclick="geoOff()">Turn off</button>
+    <div class="pad" style="margin-bottom:10px">
+      <button class="btn full sm" onclick="go('today')">Open the Live control on Today</button>
     </div>
     <div class="note">Your position is used <b>on this phone only</b> — it is never sent anywhere
       and never saved. With it on, every Go button and every walking leg opens Google Maps starting
@@ -834,6 +857,7 @@ function hop(a,b){
 
 
 /* ================= WHERE AM I ================= */
+function toggleLive(){ GEO.on ? geoOff() : requestGeo(true); }
 const originQ=()=>WHERE==="HOME"?HOME_Q:(B[WHERE]&&B[WHERE].q)||HOME_Q;
 const whereName=()=>WHERE==="HOME"?"home":bname(WHERE);
 /* distance from the current spot to a building, using the calibrated table */
@@ -881,7 +905,8 @@ function saveSpot(k){
   navigator.geolocation.getCurrentPosition(
     pt=>{GEO.pos={lat:pt.coords.latitude,lng:pt.coords.longitude,acc:Math.round(pt.coords.accuracy),ts:Date.now()};
          SPOTS[k]={lat:GEO.pos.lat,lng:GEO.pos.lng};
-         WHERE=k; GEO.err=null; persist(); paintGeo(); tick(); renderBldgs();},
+         WHERE=k; GEO.err=null; applyGeo();      // re-match now that this spot exists
+         persist(); paintGeo(); tick(); renderBldgs();},
     ()=>{GEO.err="Couldn't get a fix to save that spot.";paintGeo()},
     {enableHighAccuracy:true,timeout:12000,maximumAge:0});
 }
@@ -906,13 +931,36 @@ function paintGeo(){
           (Object.keys(SPOTS).length?"":" Save a spot below and it can also set “I'm at” automatically.")
       : "<b>Off.</b> Directions start from "+esc(whereName())+".";
   }
-  const chip=document.getElementById("whereChip");
-  if(chip){
-    chip.textContent = !GEO.on ? "From "+whereName()
-      : GEO.matched ? "Confirmed by GPS"
-      : GEO.matched===false ? "GPS on · spot not saved"
-      : "Using your location";
-    chip.classList.toggle("warn", GEO.on && GEO.matched===false);
+  const btn=document.getElementById("liveBtn"), strip=document.getElementById("liveStrip");
+  if(btn){
+    btn.innerHTML="<span class='pin'></span>"+(GEO.on?"Live":"Live off");
+    btn.classList.toggle("on",GEO.on);
+    btn.setAttribute("aria-pressed",GEO.on?"true":"false");
+    btn.title=GEO.on?"Using your phone's location — tap to turn off"
+                    :"Use my location for directions";
+  }
+  if(strip){
+    strip.classList.toggle("on", GEO.on || !!GEO.err);
+    if(!GEO.on && !GEO.err){ strip.innerHTML=""; }
+    else if(GEO.err){
+      strip.innerHTML="<span class='warnline'>"+esc(GEO.err)+"</span>"+
+        "<div class='lsrow'><button class='mini go' onclick='requestGeo(true)'>Try again</button></div>";
+    }else{
+      const age=GEO.pos?Math.round((Date.now()-GEO.pos.ts)/60000):null;
+      const near=GEO.matched?bname(GEO.matched):null;
+      strip.innerHTML=
+        (near ? "You're at <b>"+esc(near)+"</b> — set automatically."
+              : Object.keys(SPOTS).length
+                ? "<span class='warnline'>Not within ~140 m of a saved spot.</span> Times below are measured from <b>"+esc(whereName())+"</b>."
+                : "Directions will start from your real position. Save this spot to have <b>I'm at</b> set itself next time.")+
+        (GEO.pos?"<br><span style='color:var(--t-mut)'>±"+GEO.pos.acc+" m · "+
+          (age<1?"just now":age+" min ago")+"</span>":"")+
+        "<div class='lsrow'>"+
+          "<button class='mini' onclick='requestGeo(true)'>Refresh</button>"+
+          (WHERE!=="HOME"?"<button class='mini go' onclick=\"saveSpot(WHERE)\">Save as "+esc(whereName())+"</button>":"")+
+          "<button class='mini' onclick='geoOff()'>Turn off</button>"+
+        "</div>";
+    }
   }
   const sp=document.getElementById("spotList");
   if(sp){
