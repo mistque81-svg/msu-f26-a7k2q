@@ -128,11 +128,14 @@ html[data-theme="dark"] .st .m{color:var(--lime)}
 .leg.per .bar{background:repeating-linear-gradient(180deg,var(--ink) 0 3px,transparent 3px 7px)}
 a.st.leg{text-decoration:none;color:inherit}
 .leg .c{font-size:11px;color:var(--t-mut);padding:3px 0;letter-spacing:-.002em}
+.leg .m::before{content:'walk ';font-weight:600;opacity:.7}
+html[data-theme='dark'] .leg .m::before{opacity:.65}
 .leg .m{font-size:11px;color:var(--t-sec);background:var(--surface);border:1px solid var(--line);
   border-radius:var(--rc);padding:3px 9px;font-weight:600;font-variant-numeric:tabular-nums}
 .st.live .c b{color:var(--spartan)}
 html[data-theme="dark"] .st.live .c b{color:var(--lime)}
 .st.live .tile{box-shadow:0 0 0 3px rgba(123,189,0,.5)}
+.st.onl{border-top:1px dashed var(--line);margin-top:8px;padding-top:8px}
 .go{flex:none;width:34px;height:34px;border-radius:var(--r2);border:1px solid var(--line);
   background:var(--surface);display:grid;place-items:center;color:var(--spartan)}
 html[data-theme="dark"] .go{color:var(--lime)}
@@ -233,6 +236,9 @@ html[data-theme="dark"] .tag.s{background:rgba(123,189,0,.16);color:var(--lime);
 html[data-theme="dark"] .note a{color:var(--lime)}
 
 /* ---------------- forms ---------------- */
+textarea{font:inherit;font-size:16px;padding:12px;border-radius:var(--r2);
+  border:1px solid var(--line);background:var(--canvas);color:var(--t-pri);width:100%;
+  resize:vertical;font-family:var(--mono);line-height:1.4}
 input,select{font:inherit;font-size:16px;padding:12px;border-radius:var(--r2);
   border:1px solid var(--line);background:var(--canvas);color:var(--t-pri);width:100%}
 input[type=date]{min-height:48px}
@@ -341,9 +347,35 @@ html[data-theme="dark"] .livestrip .mini.go{background:var(--lime);color:#0A2A08
   .livebtn{padding:0 10px}
 }
 
+
+.barnote{font-size:10.5px;color:var(--t-mut);padding:0 0 8px 84px;margin-top:-4px;line-height:1.35}
+.wrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--hair)}
+.wrow:first-child{border-top:0}
+.wrow .wn{flex:1;min-width:0;padding:9px 10px;font-size:14px}
+.wrow .ww{width:74px;flex:none;padding:9px 8px;font-size:14px;text-align:right;
+  font-variant-numeric:tabular-nums}
+.wrow .wpc{color:var(--t-mut);font-size:12.5px;font-weight:700;flex:none;margin-left:-4px}
+.wtot{font-size:11.5px;font-weight:700;color:var(--spartan);padding:10px 0 2px;line-height:1.4}
+.wtot.bad{color:var(--warn)}
+html[data-theme="dark"] .wtot{color:var(--lime)}
+
+
+.qbar{margin:12px 18px 0;border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));
+  background:color-mix(in srgb,var(--warn) 9%,var(--canvas));border-radius:var(--r2);padding:13px 14px}
+.qhead{display:flex;align-items:center;gap:8px;color:var(--warn)}
+.qhead b{flex:1;font-size:13.5px;font-weight:700;letter-spacing:-.015em;color:var(--t-pri)}
+.qx{flex:none;width:28px;height:28px;border-radius:var(--r);border:0;background:none;
+  color:var(--t-mut);display:grid;place-items:center;cursor:pointer}
+.qbar p{font-size:12.5px;line-height:1.5;color:var(--t-sec);margin-top:7px}
+.qbar p.qask{color:var(--t-pri);font-weight:600;border-top:1px solid var(--hair);
+  margin-top:9px;padding-top:9px}
+.mapwarn{display:flex;gap:7px;align-items:flex-start;padding:7px 18px 0;font-size:10px;
+  line-height:1.4;color:#F0C36A}
+.mapwarn svg{flex:none;margin-top:1px}
+
 /* ---------------- nav ---------------- */
 nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--spartan);
-  border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:repeat(7,1fr);
+  border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:repeat(6,1fr);
   padding-bottom:var(--safe-b)}
 nav.tabbar button{position:relative;background:none;border:0;color:rgba(255,255,255,.58);
   cursor:pointer;padding:9px 1px 8px;font:inherit;font-size:9.5px;font-weight:600;letter-spacing:-.015em;
@@ -436,6 +468,7 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   <div class="rule"><i id="ruleFill"></i></div>
   <div class="nowbar" id="nowBar"></div>
 
+  <div id="qBanner"></div>
   <section class="pane on" id="p-today">
     <div class="wherebox">
       <div class="whererow">
@@ -494,7 +527,13 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
       </div>
       <div id="taskGroups"></div>
       <p class="savednote">Saved automatically on this device.</p>
-      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 14px">
+      <button class="btn full sm" style="margin:8px 0 0" onclick="exportWorkIcs()">
+        Send deadlines to my calendar</button>
+      <p style="font-size:11.5px;color:var(--t-mut);margin:8px 0 0;line-height:1.45">
+        Adds every open assignment, deadline and exam to your phone's calendar with reminders —
+        1 day and 3 hours before. This app can't send notifications itself; your calendar can.
+        Re-export after adding things, and delete the old ones first so you don't get doubles.</p>
+      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px">
         <button class="btn ghost sm" onclick="saveTasks()">Export backup</button>
         <button class="btn ghost sm" onclick="document.getElementById('lf').click()">Import</button>
       </div>
@@ -505,6 +544,10 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <div class="card" id="dlList"></div>
     <h2 class="sec">Exams</h2>
     <div class="card" id="examList"></div>
+    <h2 class="sec">Morning digest</h2>
+    <div class="note" id="digestHint">The 8:45 AM check emails you a summary. Paste it in to see it
+      here — an Inbox tab appears once there's something in it.
+      <div style="margin-top:10px"><button class="btn ghost sm" onclick="go('inbox')">Open the digest box</button></div></div>
     <h2 class="sec">No-class days</h2>
     <div class="card" id="breakList"></div>
   </section>
@@ -537,12 +580,35 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <h2 class="sec">Current grade by course</h2>
     <div class="card"><div class="bars" id="bars"></div>
       <p style="color:var(--t-mut);font-size:11px;padding:4px 0 12px" id="scaleNote"></p></div>
+    <h2 class="sec">What you need</h2>
+    <div class="pad" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <label for="tgt" style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+        color:var(--t-sec);font-weight:700">Target</label>
+      <select id="tgt" onchange="setTarget(this.value)" style="flex:1">
+        <option value="4">4.0</option><option value="3.5" selected>3.5</option>
+        <option value="3">3.0</option><option value="2.5">2.5</option><option value="2">2.0</option>
+      </select>
+    </div>
+    <div class="card" id="needBox"></div>
+
+    <h2 class="sec">Syllabus weights</h2>
+    <div class="card">
+      <div class="pad" style="padding:12px 0 6px">
+        <select id="wCourse" onchange="renderWeights()"></select>
+      </div>
+      <div id="wList"></div>
+      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px">
+        <button class="btn ghost sm" onclick="addCat()">Add category</button>
+        <button class="btn ghost sm" onclick="resetCats()">Reset</button>
+      </div>
+    </div>
+
     <h2 class="sec">Add a score</h2>
     <div class="card">
       <button class="btn full addtoggle" id="gToggle" onclick="toggleForm('gForm',this,'New score')">New score</button>
       <div class="frm collapsible" id="gForm" style="margin-top:12px">
         <input id="gN" placeholder="e.g. Exam 1">
-        <select id="gC"></select>
+        <div class="two"><select id="gC"></select><select id="gCat"></select></div>
         <div class="two"><input id="gE" type="number" inputmode="decimal" placeholder="Earned">
           <input id="gP" type="number" inputmode="decimal" placeholder="Out of"></div>
         <button class="btn full" onclick="addGrade()">Add score</button>
@@ -561,7 +627,19 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <h2 class="sec">School email</h2>
     <div class="card" id="inboxList"></div>
     <div class="note warm" id="inboxNote"></div>
-    <div class="pad"><button class="btn ghost full" onclick="document.getElementById('df').click()">Load digest file</button></div>
+    <h2 class="sec">Paste the morning digest</h2>
+    <div class="card">
+      <p style="font-size:12.5px;color:var(--t-sec);padding:10px 0 0;line-height:1.5">
+        The 8:45 check runs in the cloud and can't write into this app directly. Copy the digest
+        JSON it sends you and paste it here — easier than saving a file on a phone.</p>
+      <div class="frm" style="margin-top:10px">
+        <textarea id="digestPaste" rows="4" placeholder='[{"from":"...","subject":"..."}]'></textarea>
+        <button class="btn full sm" onclick="pasteDigest()">Load pasted digest</button>
+      </div>
+      <p id="digestMsg" style="font-size:11.5px;color:var(--t-sec);padding-bottom:12px"></p>
+      <button class="btn ghost full sm" style="margin-bottom:12px"
+        onclick="document.getElementById('df').click()">…or load a digest file</button>
+    </div>
     <input type="file" id="df" accept=".json" hidden onchange="loadDigest(event)">
   </section>
 
@@ -573,6 +651,12 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <div class="note">Times are estimates from home, not measured. Walk or ride each route once
       before Aug 31 and correct them.<br><br>
       <a href="https://maps.msu.edu/interactive/" target="_blank" rel="noopener">Official MSU campus map ↗</a></div>
+    <h2 class="sec">EC 201</h2>
+    <div class="note">EC 201 is asynchronous — no meeting time, no attendance. Left alone it shows up
+      on no screen all semester, which is exactly how a 3-credit course that gates Broad admission
+      gets away from you. The app blocks <b>Tue and Thu, 10:00–11:30</b> for it, your only genuinely
+      free mornings.
+      <div style="margin-top:12px"><button class="btn ghost sm" id="studyBtn" onclick="toggleStudy()"></button></div></div>
     <h2 class="sec">Location</h2>
     <div class="note" id="geoStatus"></div>
     <div class="pad" style="margin-bottom:10px">
@@ -671,6 +755,11 @@ const C = [
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
    meets:[],prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
+  {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",
+   cls:"18650",sec:"740",cr:0,b:"ONL",
+   meets:[{d:2,s:600,e:690},{d:4,s:600,e:690}],
+   prof:"You",
+   extra:"EC 201 is asynchronous — it has no meeting time, so without a block like this it appears on no screen and nobody notices you skipped it. Tue and Thu mornings are your only genuinely free windows, and this course counts toward Broad admission. Turn these off on the Info tab if you'd rather schedule it yourself."},
   {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",cls:"—",sec:"—",cr:0,b:"SRW",
    meets:[{d:1,s:1010,e:1090},{d:3,s:615,e:695},{d:5,s:1010,e:1090}],
    prof:"You",
@@ -734,6 +823,17 @@ let myEvents=[];
    SPOTS  = coordinates you taught the app by standing somewhere and tapping save.
    No building coordinates are shipped: none are published that I could verify,
    and inventing them would produce confident, wrong walking times. */
+/* Things the app knows are contradictory and cannot resolve on its own.
+   These get a banner until dismissed, because a quiet footnote is how a
+   scheduling conflict survives all semester. */
+const OPEN_Q=[{
+  id:"ec201-day",
+  t:"EC 201 midterm days don't match",
+  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. If they really are Wednesdays, a 7 PM midterm runs into your COM 100 recitation, which ends 7:20 that night.",
+  a:"Ask Prof. Ackermann in week one: “Are the EC 201 midterms on Wednesday or Thursday? Sept 17 is a Thursday.”"
+}];
+let dismissedQ=[];
+let STUDY=true;   /* EC 201 self-scheduled blocks on/off */
 let WHERE="HOME";
 let GEO={on:false,pos:null,err:null,matched:null};
 let SPOTS={};   /* anything you add yourself — parties, org meetings, DoorList invites */
@@ -765,10 +865,12 @@ const dir2=(from,to,m)=>"https://www.google.com/maps/dir/?api=1"+
   (GEO.on?"":"&origin="+encodeURIComponent(from))+
   "&destination="+encodeURIComponent(to)+"&travelmode="+(m||MODE);
 const dur=m=>m<60?m+" min":(Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":""));
-const isGym=c=>c.kind==="gym";
+const isGym=c=>c.kind==="gym"||c.kind==="study";
+const isStudy=c=>c.kind==="study";
 const bname=k=>B[k]&&(B[k].s||B[k].n);   // short label where one exists
 /* the monogram: a course code broken onto at most two lines */
 function mono(c){
+  if(isStudy(c))return "EC<br>201";
   if(isGym(c))return "GYM";
   const p=c.c.split(" ");
   if(c.c==="COM 100 rec")return "REC";
@@ -777,18 +879,29 @@ function mono(c){
 const TODOW=new Date().getDay();
 
 /* ================= NAV ================= */
-const TABS=[["today","Today","today"],["week","Week","week"],["work","Work","work"],
+/* Inbox only earns a tab once it has something in it — until Microsoft 365 is
+   connected it is an empty room taking a seventh of the navigation. Its loader
+   lives on Work in the meantime. */
+const ALLTABS=[["today","Today","today"],["week","Week","week"],["work","Work","work"],
             ["events","Events","events"],["grades","Grades","grades"],["inbox","Inbox","inbox"],
             ["info","Info","info"]];
+let TABS=ALLTABS.filter(t=>t[0]!=="inbox");
 const nav=document.getElementById("nav"), sbnav=document.getElementById("sbnav");
-TABS.forEach(([id,label,ic],i)=>{
-  const b=document.createElement("button");
-  b.innerHTML=I(IC[ic],21)+"<span>"+label+"</span>";
-  b.className=i===0?"on":""; b.onclick=()=>go(id); nav.appendChild(b);
-  const s=document.createElement("button");
-  s.className="sbitem"+(i===0?" on":""); s.innerHTML=I(IC[ic],19)+"<span>"+label+"</span>";
-  s.onclick=()=>go(id); sbnav.appendChild(s);
-});
+function buildTabs(){
+  TABS = INBOX.length ? ALLTABS.slice() : ALLTABS.filter(t=>t[0]!=="inbox");
+  nav.querySelectorAll("button").forEach(b=>b.remove());
+  sbnav.innerHTML="";
+  nav.style.gridTemplateColumns="repeat("+TABS.length+",1fr)";
+  TABS.forEach(([id,label,ic])=>{
+    const b=document.createElement("button");
+    b.innerHTML=I(IC[ic],21)+"<span>"+label+"</span>";
+    b.className=id===curTab?"on":""; b.onclick=()=>go(id); nav.appendChild(b);
+    const s2=document.createElement("button");
+    s2.className="sbitem"+(id===curTab?" on":""); s2.innerHTML=I(IC[ic],19)+"<span>"+label+"</span>";
+    s2.onclick=()=>go(id); sbnav.appendChild(s2);
+  });
+  moveBar();
+}
 let curTab="today";
 function go(id){
   curTab=id;
@@ -821,12 +934,13 @@ document.getElementById("themeBtn").onclick=()=>{dark=!dark;paintTheme();persist
 document.getElementById("searchBtn").innerHTML=I(IC.search,18);
 
 /* ================= SCHEDULE HELPERS ================= */
-function dayItems(dow){const o=[];C.forEach(c=>c.meets.forEach(m=>{if(m.d===dow)o.push({c,m})}));
+function dayItems(dow){const o=[];C.forEach(c=>{if(isStudy(c)&&!STUDY)return;
+  c.meets.forEach(m=>{if(m.d===dow)o.push({c,m})})});
   return o.sort((a,b)=>a.m.s-b.m.s)}
 /* same, but aware of what date it actually is — returns nothing on a break day */
 function dayItemsOn(iso){ return isBreak(iso) ? [] : dayItems(new Date(iso+"T12:00:00").getDay()); }
 function walkTotal(dow){
-  const it=dayItems(dow); if(!it.length)return 0;
+  const it=dayItems(dow).filter(x=>B[x.c.b].q); if(!it.length)return 0;
   let t=fromHere(it[0].c.b);                      // wherever you are -> first
   for(let i=1;i<it.length;i++) t+=hop(it[i-1].c.b,it[i].c.b);
   t+=mins(B[it[it.length-1].c.b]);                // last -> home
@@ -857,6 +971,18 @@ function hop(a,b){
 
 
 /* ================= WHERE AM I ================= */
+function toggleStudy(){ STUDY=!STUDY; persist(); paintStudy(); tick(); drawGrid&&(WEEKVIEW==="grid"&&drawGrid()); }
+function renderQ(){
+  const el=document.getElementById("qBanner"); if(!el)return;
+  const open=OPEN_Q.filter(q=>!dismissedQ.includes(q.id));
+  el.innerHTML=open.map(q=>
+    "<div class='qbar'><div class='qhead'>"+I(IC.alert,16)+"<b>"+esc(q.t)+"</b>"+
+    "<button class='qx' onclick=\"dismissQ('"+q.id+"')\" aria-label='Dismiss'>"+I(IC.x,14)+"</button></div>"+
+    "<p>"+esc(q.d)+"</p><p class='qask'>"+esc(q.a)+"</p></div>").join("");
+}
+function dismissQ(id){ dismissedQ.push(id); persist(); renderQ(); }
+function paintStudy(){ const b=document.getElementById("studyBtn");
+  if(b)b.textContent=STUDY?"Turn these blocks off":"Turn these blocks on"; }
 function toggleLive(){ GEO.on ? geoOff() : requestGeo(true); }
 const originQ=()=>WHERE==="HOME"?HOME_Q:(B[WHERE]&&B[WHERE].q)||HOME_Q;
 const whereName=()=>WHERE==="HOME"?"home":bname(WHERE);
@@ -976,11 +1102,11 @@ function paintGeo(){
 function nowNext(){
   const n=new Date(),dow=n.getDay(),nm=n.getHours()*60+n.getMinutes();
   let cur=null,next=null,best=1e9;
-  C.forEach(c=>c.meets.forEach(m=>{
+  C.forEach(c=>{ if(isStudy(c)&&!STUDY)return; c.meets.forEach(m=>{
     if(m.d===dow&&nm>=m.s&&nm<m.e)cur={c,m};
     const dd=(m.d-dow+7)%7,delta=dd*1440+(m.s-nm);
     if(delta>0&&delta<best){best=delta;next={c,m,dd}}
-  }));
+  })});
   return {cur,next,dow,nm};
 }
 function paintMast(){
@@ -988,7 +1114,10 @@ function paintMast(){
   const K=document.getElementById("mKick"),T=document.getElementById("mBig"),
         S=document.getElementById("mSub"),NB=document.getElementById("nowBar");
   const todayISO=isoOf(new Date()), brkToday=isBreak(todayISO);
-  const it=dayItemsOn(todayISO), wt=brkToday?0:walkTotal(dow);
+  const allT=dayItemsOn(todayISO);
+  const it=allT.filter(x=>B[x.c.b].q);          // things you physically go to
+  const onl=allT.filter(x=>!B[x.c.b].q);        // online / self-scheduled
+  const wt=brkToday?0:walkTotal(dow);
   if(curTab==="week"){
     const all=C.flatMap(c=>c.meets.map(m=>({c,m})));
     const wk=[1,2,3,4,5].reduce((a,d)=>a+walkTotal(d),0);
@@ -998,17 +1127,20 @@ function paintMast(){
       new Set(C.filter(c=>B[c.b].q).map(c=>c.b)).size+" buildings";
   }else if(curTab==="today"){
     K.textContent=DAYFULL[dow]+" · Week 3";
-    T.textContent=it.length?(it.length+(it.length===1?" stop today":" stops today"))
-                           :(brkToday?"No classes":"Nothing today");
+    T.textContent = it.length ? (it.length+(it.length===1?" stop today":" stops today"))
+                  : onl.length ? (onl.length===1?"1 block today":onl.length+" blocks today")
+                  : (brkToday?"No classes":"Nothing today");
     const lv=it.length?fm(it[0].m.s-fromHere(it[0].c.b)-5):null;
-    S.textContent=it.length? wt+" min on foot · leave "+whereName()+" by "+lv
-                           : (brkToday? brkToday.t : "No classes. Good window for EC 201.");
+    const extra = onl.length ? " · "+onl.map(x=>x.c.c).join(", ")+" at "+fm(onl[0].m.s) : "";
+    S.textContent = it.length ? wt+" min on foot · leave "+whereName()+" by "+lv+extra
+                  : onl.length ? "Nowhere to be"+extra+" — no room, no attendance"
+                  : (brkToday? brkToday.t : "No classes. Good window for EC 201.");
   }else{
     K.textContent="Fall 2026 · 15 credits";
     T.textContent={work:"Work",events:"Events",grades:"Grades",inbox:"Inbox",info:"Info"}[curTab]||"MSU Assist";
     S.textContent={work:"Assignments, deadlines and exams",
                    events:"Games, parties and campus events",
-                   grades:"Points-based projection",
+                   grades:"Weighted by syllabus category",
                    inbox:"Filtered Spartan Mail digest",
                    info:"Travel, gym and settings"}[curTab]||"";
   }
@@ -1017,7 +1149,7 @@ function paintMast(){
     NB.className="nowbar";
     NB.innerHTML="<span>◉ In class now · "+esc(cur.c.c)+"</span><span>ends "+fm(cur.m.e)+"</span>";
   }else if(next){
-    const when=next.dd===0?"today":next.dd===1?"tomorrow":DAY[next.m.d];
+    const when=next.dd===0?"today":DAY[next.m.d];
     const b=B[next.c.b];
     if(next.dd===0&&b.q){
       const lv=next.m.s-fromHere(next.c.b)-5, left=lv-nm;
@@ -1041,7 +1173,8 @@ function tileFor(c,extra){return "<span class='tile "+(isGym(c)?"alt":"")+" "+(e
 function renderToday(){
   const {cur,dow,nm}=nowNext();
   const today=isoOf(new Date()), brk=isBreak(today);
-  const it=dayItemsOn(today), el=document.getElementById("routeStrip");
+  const all=dayItemsOn(today);
+  const it=all.filter(x=>B[x.c.b].q), el=document.getElementById("routeStrip");
   if(!it.length){
     el.innerHTML="<div class='empty'>"+I(IC.clock,26)+
       (brk?esc(brk.t)+".<br>Nothing on campus today."
@@ -1072,13 +1205,18 @@ function renderToday(){
        "<div class='col'>"+tileFor(x.c)+"</div>"+
        "<div class='c'><b>"+esc(b.n+(b.r?" "+b.r:""))+"</b>"+
        "<span>"+esc(x.c.c)+" · "+fm(x.m.s)+" – "+fm(x.m.e)+(live?" · now":"")+"</span></div>"+
-       "<div class='m'>"+(x.m.e-x.m.s)+"m</div></div>";
+       "<div class='m' title='class length'>"+dur(x.m.e-x.m.s)+"</div></div>";
   });
   const last=it[it.length-1];
   h+=legRow("home",mins(B[last.c.b]),isGym(last.c), B[last.c.b].q, HOME_Q);
   h+=homeRow("Home","back around "+fm(last.m.e+mins(B[last.c.b])+5));
   el.innerHTML=h;
 
+  const online=all.filter(x=>!B[x.c.b].q);
+  if(online.length) el.innerHTML+=online.map(x=>
+    "<div class='st onl'><div class='col'>"+tileFor(x.c)+"</div>"+
+    "<div class='c'><b>"+esc(x.c.c)+"</b><span>"+fm(x.m.s)+" – "+fm(x.m.e)+" · no room, no attendance</span></div>"+
+    "<div class='m'>"+dur(x.m.e-x.m.s)+"</div></div>").join("");
   const wt=walkTotal(dow);
   document.getElementById("todayStat").innerHTML=
     "<div><div class='n'>"+wt+"</div><div class='l'>min "+modeDef().label.toLowerCase()+"</div></div>"+
@@ -1097,7 +1235,8 @@ function renderToday(){
 function routes(){
   const seen={}, out=[];
   [1,2,3,4,5].forEach(d=>{
-    const it=dayItems(d); if(!it.length)return;
+    const it=dayItems(d).filter(x=>B[x.c.b].q);   // you don't walk to an online class
+    if(!it.length)return;
     const add=(from,to,min,gym)=>{
       const k=from+">"+to;
       if(!seen[k]){seen[k]={from,to,min,gym,days:[]};out.push(seen[k])}
@@ -1135,14 +1274,21 @@ const EDGE={
   "SRW>HOL":"M74 178 L160 146","SRW>WON":"M60 166 L90 149"
 };
 function drawMap(){
-  const rs=routes(), svc={};
+  const rs=routes(), svc={}, unplaced=new Set();
   C.forEach(c=>c.meets.forEach(m=>{
     if(!B[c.b].q)return;
     (svc[c.b]=svc[c.b]||{})[c.c]=(svc[c.b][c.c]||[]).concat(DAY[m.d]);
   }));
   let lines="";
   rs.forEach(r=>{
-    const d=EDGE[r.from+">"+r.to]||EDGE[r.to+">"+r.from]; if(!d)return;
+    /* Hand-drawn path if we have one; otherwise join the two nodes directly so a
+       new building still shows up instead of silently vanishing. */
+    let d=EDGE[r.from+">"+r.to]||EDGE[r.to+">"+r.from];
+    if(!d){
+      const A=NODE[r.from],Bn=NODE[r.to];
+      if(!A||!Bn){unplaced.add(NODE[r.from]?r.to:r.from);return}
+      d="M"+A.x+" "+A.y+" L"+Bn.x+" "+Bn.y;
+    }
     const w=r.days.length>=3?5:r.days.length===2?3.5:2.5;
     lines+="<path d='"+d+"' fill='none' stroke-linecap='round' stroke-linejoin='round' stroke='"+
       (r.gym?"#7BBD00":"#FFFFFF")+"' stroke-width='"+w+"' opacity='"+(r.gym?1:.92)+"'/>";
@@ -1171,7 +1317,10 @@ function drawMap(){
         "fill='#5A7A6E' font-family='Archivo,system-ui,sans-serif'>"+esc(sub)+"</text></g>";
   });
   document.getElementById("mapSvg").innerHTML=
-    "<svg viewBox='0 0 290 192' style='width:100%;display:block'>"+lines+tiles+"</svg>";
+    "<svg viewBox='0 0 290 192' style='width:100%;display:block'>"+lines+tiles+"</svg>"+
+    (unplaced.size?"<div class='mapwarn'>"+I(IC.alert,14)+"<span>Not on this map yet: "+
+      esc([...unplaced].map(k=>bname(k)||k).join(", ")+". The list below is still complete.")+
+      "</span></div>":"");
 
   document.getElementById("tripList").innerHTML=rs.slice(0,5).map(r=>{
     const nm=x=>x==="HOME"?"Home":bname(x);
@@ -1190,7 +1339,7 @@ function drawMap(){
 /* ================= WEEK — elastic grid ================= */
 const PXM=0.62, FOLDPX=15, MINGAP=45;
 function buildScale(){
-  const iv=C.flatMap(c=>c.meets.map(m=>[m.s,m.e])).sort((a,b)=>a[0]-b[0]);
+  const iv=C.filter(c=>!(isStudy(c)&&!STUDY)).flatMap(c=>c.meets.map(m=>[m.s,m.e])).sort((a,b)=>a[0]-b[0]);
   if(!iv.length)return {segs:[],total:0};
   const merged=[];
   iv.forEach(([s,e])=>{const L=merged[merged.length-1];
@@ -1229,13 +1378,13 @@ function drawGrid(){
   });
   for(let d=1;d<=5;d++){
     let inner="";
-    C.forEach((c,ci)=>c.meets.forEach(m=>{
+    C.forEach((c,ci)=>{ if(isStudy(c)&&!STUDY)return; c.meets.forEach(m=>{
       if(m.d!==d)return;
       const top=yOf(m.s), h=Math.max(20,yOf(m.e)-top-2);
       inner+="<div class='blk"+(isGym(c)?" per":"")+"' style='top:"+top+"px;height:"+h+"px' "+
         "onclick='openSheet("+ci+")'>"+esc(c.c)+
         (h>32&&B[c.b].r?"<small>"+esc(B[c.b].r)+"</small>":"")+"</div>";
-    }));
+    })});
     lanes+="<div class='glane"+(d===TODOW?" td":"")+"'>"+inner+"</div>";
   }
   document.getElementById("gCanvas").innerHTML=
@@ -1268,6 +1417,7 @@ function setWeekView(v){
 /* ================= COURSES + SHEET ================= */
 function renderCourses(){
   document.getElementById("courseList").innerHTML=C.map((c,i)=>{
+    if(isStudy(c))return "";        // same course as EC 201 below, not a second one
     const b=B[c.b];
     return "<div class='row' onclick='openSheet("+i+")' style='cursor:pointer'>"+
       tileFor(c,"sm")+"<div class='g'><b>"+esc(c.c)+"</b><span>"+esc(b.n)+(b.r?" "+b.r:"")+" · "+
@@ -1429,67 +1579,153 @@ function renderInbox(){
 }
 function loadDigest(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const d=JSON.parse(r.result);INBOX=Array.isArray(d)?d:(d.items||[]);
-    renderInbox();persist()}catch(_){}};r.readAsText(f)}
+    renderInbox();buildTabs();persist()}catch(_){}};r.readAsText(f)}
 
-/* ================= GRADES ================= */
+/* ================= GRADES =================
+   Weighted, because real syllabi are. A course is a set of categories with
+   percentage weights (Exams 40, Homework 30 ...). A score belongs to a category.
+   The course grade is the weighted average of the categories that actually have
+   scores — so an empty category never silently counts as a zero. */
 const GRADED=C.filter(c=>c.cr>0);
-const SCALE=[[90,4.0],[85,3.5],[80,3.0],[75,2.5],[70,2.0],[65,1.5],[60,1.0],[0,0.0]];
-let grades=[];
-function gp(pct){for(const [cut,v] of SCALE) if(pct>=cut) return v; return 0}
-function courseStats(){
-  return GRADED.map(c=>{
-    const g=grades.filter(x=>x.course===c.c);
-    const earned=g.reduce((a,x)=>a+(+x.earned||0),0), poss=g.reduce((a,x)=>a+(+x.possible||0),0);
-    return {c,pct:poss>0?(earned/poss)*100:null,n:g.length,cr:c.cr};
+const SCALE=[[93,4.0],[88,3.5],[83,3.0],[78,2.5],[73,2.0],[68,1.5],[63,1.0],[0,0.0]];
+const DEFAULT_CATS=[{n:"Exams",w:40},{n:"Homework",w:30},{n:"Quizzes",w:20},{n:"Participation",w:10}];
+let grades=[];                 /* {course,cat,name,earned,possible} */
+let weights={};                /* {course:[{n,w},...]} — from the syllabus */
+function catsFor(c){ return weights[c] && weights[c].length ? weights[c] : DEFAULT_CATS; }
+function usingDefaults(c){ return !(weights[c] && weights[c].length); }
+function gp(pct){ for(const [cut,v] of SCALE) if(pct>=cut) return v; return 0 }
+/* returns {pct, done, missing[]} — pct over the weight that has been graded */
+function courseGrade(code){
+  const cats=catsFor(code), out={pct:null,done:0,missing:[]};
+  let num=0,den=0;
+  cats.forEach(k=>{
+    const g=grades.filter(x=>x.course===code && (x.cat||cats[0].n)===k.n);
+    const e=g.reduce((a,x)=>a+(+x.earned||0),0), p=g.reduce((a,x)=>a+(+x.possible||0),0);
+    if(p>0){ num+=(e/p)*k.w; den+=k.w; } else out.missing.push(k.n);
   });
+  if(den>0){ out.pct=num/den*100; out.done=den; }
+  return out;
+}
+/* what average do the remaining categories need to land on a target? */
+function needFor(code,target){
+  const cats=catsFor(code), tot=cats.reduce((a,k)=>a+k.w,0);
+  const g=courseGrade(code);
+  if(g.pct==null) return null;
+  const have=g.pct/100*g.done;          // weighted points banked
+  const left=tot-g.done;
+  if(left<=0) return {left:0,need:null};
+  return {left, need:((target/100*tot)-have)/left*100};
 }
 function drawBars(){
-  const st=courseStats(), el=document.getElementById("bars");
-  el.innerHTML=st.map(s=>{
-    const p=s.pct;
-    return "<div class='barrow'><div class='lab'>"+esc(s.c.c)+"</div>"+
+  const el=document.getElementById("bars");
+  el.innerHTML=GRADED.map(c=>{
+    const g=courseGrade(c.c), p=g.pct;
+    return "<div class='barrow'><div class='lab'>"+esc(c.c)+"</div>"+
       "<div class='track'><div class='fill' data-w='"+(p==null?0:Math.min(100,p))+"'></div></div>"+
-      "<div class='val mono'>"+(p==null?"—":p.toFixed(1)+"%")+"</div></div>";
+      "<div class='val mono'>"+(p==null?"—":p.toFixed(1)+"%")+"</div></div>"+
+      (p!=null&&g.missing.length?"<div class='barnote'>"+g.done+"% of the grade counted · "+
+        esc(g.missing.join(", "))+" not graded yet</div>":"");
   }).join("");
   const fills=el.querySelectorAll(".fill");
   fills.forEach(f=>f.style.width="0%");
-  requestAnimationFrame(()=>requestAnimationFrame(()=>
-    fills.forEach(f=>{f.style.width=f.dataset.w+"%"})));
-  const have=st.filter(s=>s.pct!=null);
-  const crTot=have.reduce((a,s)=>a+s.cr,0);
-  const gpa=crTot?have.reduce((a,s)=>a+gp(s.pct)*s.cr,0)/crTot:null;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>fills.forEach(f=>{f.style.width=f.dataset.w+"%"})));
+  const have=GRADED.map(c=>({c,g:courseGrade(c.c)})).filter(x=>x.g.pct!=null);
+  const crTot=have.reduce((a,x)=>a+x.c.cr,0);
+  const gpa=crTot?have.reduce((a,x)=>a+gp(x.g.pct)*x.c.cr,0)/crTot:null;
   document.getElementById("gpaVal").textContent=gpa==null?"—":gpa.toFixed(2);
-  document.getElementById("gpaSub").textContent=gpa==null
-    ? "Add a score below and this fills in."
-    : "From "+have.length+" of "+GRADED.length+" courses · "+crTot+" of 15 credits counted. Projection only.";
+  document.getElementById("gpaSub").textContent = gpa==null
+    ? "Enter your syllabus weights and a score, and this fills in."
+    : have.length===1
+      ? "Based on one course and only part of its grade — not meaningful yet."
+      : "From "+have.length+" of "+GRADED.length+" courses · "+crTot+" of 15 credits. Projection only.";
+  const anyDefault=GRADED.some(c=>usingDefaults(c.c)&&grades.some(x=>x.course===c.c));
   document.getElementById("scaleNote").innerHTML=
-    "Points-based (earned ÷ possible). Scale assumed 90=4.0, 85=3.5, 80=3.0, 75=2.5, 70=2.0 — "+
-    "<b>instructors set their own cutoffs</b>, so treat these as estimates until you see a syllabus.";
+    "Weighted by category. MSU's 4.0 scale is assumed at 93=4.0, 88=3.5, 83=3.0, 78=2.5, 73=2.0 — "+
+    "<b>instructors set their own cutoffs</b>, so treat these as estimates until you have a syllabus."+
+    (anyDefault?"<br><b>Some courses are using placeholder weights.</b> Set the real ones below.":"");
+  renderNeed();
 }
+/* ---- syllabus weights editor ---- */
+let WCOURSE=null;
+function renderWeights(){
+  const sel=document.getElementById("wCourse");
+  if(sel&&!sel.children.length){
+    GRADED.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c.c;sel.appendChild(o)});
+    WCOURSE=GRADED[0]&&GRADED[0].c;
+  }
+  if(sel) WCOURSE=sel.value||WCOURSE;
+  const cats=catsFor(WCOURSE), tot=cats.reduce((a,k)=>a+k.w,0);
+  const box=document.getElementById("wList");
+  if(!box)return;
+  box.innerHTML=cats.map((k,i)=>
+    "<div class='wrow'><input class='wn' value='"+esc(k.n)+"' onchange=\"editCat("+i+",'n',this.value)\">"+
+    "<input class='ww' type='number' inputmode='numeric' value='"+k.w+"' onchange=\"editCat("+i+",'w',this.value)\">"+
+    "<span class='wpc'>%</span>"+
+    "<button class='xbtn' onclick='delCat("+i+")' aria-label='Remove'>"+I(IC.x,14)+"</button></div>").join("")+
+    "<div class='wtot"+(tot===100?"":" bad")+"'>Total "+tot+"%"+(tot===100?"":" — should be 100")+
+    (usingDefaults(WCOURSE)?" · placeholder weights, edit to make them yours":"")+"</div>";
+}
+function ensureCats(){ if(!weights[WCOURSE]) weights[WCOURSE]=catsFor(WCOURSE).map(k=>({n:k.n,w:k.w})); }
+function editCat(i,f,v){ ensureCats();
+  weights[WCOURSE][i][f]= f==="w" ? Math.max(0,Math.min(100,parseInt(v)||0)) : String(v).slice(0,24);
+  persist();renderWeights();drawBars();fillCatSelect() }
+function delCat(i){ ensureCats(); weights[WCOURSE].splice(i,1); persist();renderWeights();drawBars();fillCatSelect() }
+function addCat(){ ensureCats(); weights[WCOURSE].push({n:"New category",w:0}); persist();renderWeights();fillCatSelect() }
+function resetCats(){ delete weights[WCOURSE]; persist();renderWeights();drawBars();fillCatSelect() }
+/* ---- what do I need ---- */
+let TARGET=3.5;
+function renderNeed(){
+  const box=document.getElementById("needBox"); if(!box)return;
+  const cut=SCALE.find(([,v])=>v===TARGET);
+  const targetPct=cut?cut[0]:88;
+  const rows=GRADED.map(c=>{
+    const n=needFor(c.c,targetPct);
+    if(!n) return "<div class='row'><div class='g'><b>"+esc(c.c)+"</b><span>No scores yet</span></div></div>";
+    if(n.left<=0) return "<div class='row'><div class='g'><b>"+esc(c.c)+"</b><span>Everything is graded</span></div></div>";
+    const need=n.need;
+    const cls=need>100?"d":need>90?"w":"s";
+    const txt=need>100?"Not reachable — "+need.toFixed(0)+"% needed"
+            :need<=0?"Already locked in"
+            :need.toFixed(0)+"% on the last "+n.left+"%";
+    return "<div class='row'><div class='g'><b>"+esc(c.c)+"</b><span>"+esc(txt)+"</span></div>"+
+      "<span class='tag "+cls+" mono'>"+(need>0?Math.min(999,Math.round(need))+"%":"✓")+"</span></div>";
+  }).join("");
+  box.innerHTML=rows;
+}
+function setTarget(v){ TARGET=parseFloat(v); persist(); renderNeed(); }
+/* ---- score list ---- */
 function renderGList(){
   const el=document.getElementById("gList");
   el.innerHTML=grades.length
-    ? grades.map((g,i)=>"<div class='gitem'><span class='gn'><b>"+esc(g.name)+"</b> · "+esc(g.course)+"</span>"+
+    ? grades.map((g,i)=>"<div class='gitem'><span class='gn'><b>"+esc(g.name)+"</b> · "+esc(g.course)+
+      " <em style='color:var(--t-mut);font-style:normal'>"+esc(g.cat||"")+"</em></span>"+
       "<span class='gs mono'>"+g.earned+"/"+g.possible+"</span>"+
       "<button class='xbtn' onclick='delGrade("+i+")' aria-label='Delete'>"+I(IC.x,14)+"</button></div>").join("")
     : "<div class='empty' style='padding:18px'>No scores entered.</div>";
+}
+function fillCatSelect(){
+  const cs=document.getElementById("gCat"), course=document.getElementById("gC").value;
+  if(!cs)return;
+  cs.innerHTML=catsFor(course).map(k=>"<option>"+esc(k.n)+"</option>").join("");
 }
 function addGrade(){
   const n=document.getElementById("gN"),e=document.getElementById("gE"),p=document.getElementById("gP");
   const earned=parseFloat(e.value), poss=parseFloat(p.value);
   if(!n.value.trim()||isNaN(earned)||isNaN(poss)||poss<=0)return;
-  grades.push({course:document.getElementById("gC").value,name:n.value.trim(),earned,possible:poss});
+  grades.push({course:document.getElementById("gC").value,cat:document.getElementById("gCat").value,
+    name:n.value.trim(),earned,possible:poss});
   n.value="";e.value="";p.value="";
   renderGList();drawBars();persist();closeForm("gForm");
 }
 function delGrade(i){grades.splice(i,1);renderGList();drawBars();persist()}
-function saveGrades(){const b=new Blob([JSON.stringify(grades,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="msu-grades.json";a.click()}
+function saveGrades(){download("msu-grades.json",JSON.stringify({grades,weights},null,2),"application/json")}
 function loadGrades(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{grades=JSON.parse(r.result)||[];renderGList();drawBars();persist()}catch(_){}};r.readAsText(f)}
-(function(){const s=document.getElementById("gC");
-  GRADED.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c.c;s.appendChild(o)})})();
-
+  r.onload=()=>{try{const d=JSON.parse(r.result);
+    if(Array.isArray(d)){grades=d}else{grades=d.grades||[];weights=d.weights||{}}
+    renderGList();drawBars();renderWeights();fillCatSelect();persist()}catch(_){}};r.readAsText(f)}
+(function(){const sel=document.getElementById("gC");
+  GRADED.forEach(c=>{const o=document.createElement("option");o.value=o.textContent=c.c;sel.appendChild(o)});
+  sel.onchange=fillCatSelect;})();
 
 /* ================= EVENTS ================= */
 const dPlus=(iso,n)=>{const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);
@@ -1584,6 +1820,76 @@ function renderLinks(){
     "your classes and exams. Worth knowing: East Lansing bars are 21+, so LineLeap won't do much yet.";
 }
 
+/* ================= CALENDAR EXPORT =================
+   The app runs on your phone; the 8:45 task runs in the cloud. They cannot see
+   each other's data, so the task can never remind you about an assignment you
+   typed in here. What CAN carry a reminder is your phone's own calendar — so we
+   hand it an .ics. That closes the loop in the direction that matters. */
+function pad(n){return String(n).padStart(2,"0")}
+function icsEsc(t){return String(t).replace(/[\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n")}
+const VTZ=["BEGIN:VTIMEZONE","TZID:America/Detroit",
+ "BEGIN:DAYLIGHT","TZOFFSETFROM:-0500","TZOFFSETTO:-0400","TZNAME:EDT",
+ "DTSTART:19700308T020000","RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU","END:DAYLIGHT",
+ "BEGIN:STANDARD","TZOFFSETFROM:-0400","TZOFFSETTO:-0500","TZNAME:EST",
+ "DTSTART:19701101T020000","RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU","END:STANDARD",
+ "END:VTIMEZONE"];
+function download(name,text,mime){
+  const b=new Blob([text],{type:mime||"text/calendar;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function exportWorkIcs(){
+  const open=tasks.filter(t=>!t.done&&t.date);
+  if(!open.length && !DL.length){alert("Nothing dated to export yet.");return}
+  let L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//MSU Assist//Work//EN","CALSCALE:GREGORIAN",
+         "METHOD:PUBLISH","X-WR-CALNAME:MSU Assist — assignments & deadlines",
+         "X-WR-TIMEZONE:America/Detroit",...VTZ];
+  const stamp=new Date(),ds=stamp.getUTCFullYear()+pad(stamp.getUTCMonth()+1)+pad(stamp.getUTCDate())+
+    "T"+pad(stamp.getUTCHours())+pad(stamp.getUTCMinutes())+"00Z";
+  open.forEach((t,i)=>{
+    const d=t.date.replace(/-/g,"");
+    L=L.concat(["BEGIN:VEVENT","UID:msu-task-"+i+"-"+d+"@msuassist","DTSTAMP:"+ds,
+      "SUMMARY:"+icsEsc(t.title+" — "+t.course),
+      "DTSTART;TZID=America/Detroit:"+d+"T090000",
+      "DTEND;TZID=America/Detroit:"+d+"T093000",
+      "DESCRIPTION:"+icsEsc("Assignment from MSU Assist. Course: "+t.course),
+      "BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("Due tomorrow: "+t.title),"END:VALARM",
+      "BEGIN:VALARM","TRIGGER:-PT3H","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("Due today: "+t.title),"END:VALARM",
+      "END:VEVENT"]);
+  });
+  DL.filter(d=>days(d.d)>=0).forEach((d,i)=>{
+    const dd=d.d.replace(/-/g,"");
+    L=L.concat(["BEGIN:VEVENT","UID:msu-dl-"+i+"@msuassist","DTSTAMP:"+ds,
+      "SUMMARY:"+icsEsc("⚠ "+d.t),"DTSTART;VALUE=DATE:"+dd,"TRANSP:TRANSPARENT",
+      "BEGIN:VALARM","TRIGGER:-P2D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(d.t),"END:VALARM",
+      "END:VEVENT"]);
+  });
+  EX.filter(x=>days(x.d)>=0).forEach((x,i)=>{
+    const dd=x.d.replace(/-/g,"");
+    L=L.concat(["BEGIN:VEVENT","UID:msu-ex-"+i+"@msuassist","DTSTAMP:"+ds,
+      "SUMMARY:"+icsEsc(x.t),"DTSTART;VALUE=DATE:"+dd,"TRANSP:TRANSPARENT",
+      "DESCRIPTION:"+icsEsc(x.w),
+      "BEGIN:VALARM","TRIGGER:-P3D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.t),"END:VALARM",
+      "END:VEVENT"]);
+  });
+  L.push("END:VCALENDAR");
+  download("msu-work.ics",L.join("\r\n")+"\r\n");
+}
+/* Digest: pasting is far easier than file-picking on iOS. */
+function pasteDigest(){
+  const el=document.getElementById("digestPaste"); if(!el)return;
+  const raw=el.value.trim(); if(!raw)return;
+  try{
+    const d=JSON.parse(raw);
+    INBOX=Array.isArray(d)?d:(d.items||[]);
+    el.value=""; renderInbox(); buildTabs(); persist();
+    document.getElementById("digestMsg").textContent="Loaded "+INBOX.length+" item"+(INBOX.length===1?"":"s")+".";
+  }catch(_){
+    document.getElementById("digestMsg").textContent="That doesn't look like the digest JSON — paste the whole thing including the [ ] brackets.";
+  }
+}
+
 /* ================= SEARCH ================= */
 function searchIndex(){
   const ix=[];
@@ -1594,6 +1900,9 @@ function searchIndex(){
   DL.forEach(d=>ix.push({t:d.t,s:dfmt(d.d),k:"Deadline",go:()=>go("work")}));
   EX.forEach(x=>ix.push({t:x.t,s:dfmt(x.d)+" · "+x.w,k:"Exam",go:()=>go("work")}));
   tasks.forEach(t=>ix.push({t:t.title,s:t.course+(t.date?" · "+dfmt(t.date):""),k:"Task",go:()=>go("work")}));
+  allEvents().forEach(e=>ix.push({t:e.t,s:dfmt(e.d)+(e.s!=null?" · "+fm(e.s):" · time TBA")+" · "+e.w,
+    k:e.k==="fb"?"Football":e.k==="bb"?"Basketball":"Event",go:()=>go("events")}));
+  BREAKS.forEach(b=>ix.push({t:b.t,s:dfmt(b.d),k:"No class",go:()=>go("work")}));
   return ix;
 }
 let skSel=0, skHits=[];
@@ -1638,7 +1947,7 @@ function closeForm(id){
 const LSKEY="msu-spartan-v1"; let READY=false;
 function persist(){ if(!READY)return;
   try{localStorage.setItem(LSKEY,JSON.stringify({v:1,tasks,grades,inbox:INBOX,mode:MODE,
-    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER,
+    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER,weights,target:TARGET,study:STUDY,dismissedQ,
     where:WHERE,geoOn:GEO.on,spots:SPOTS}))}catch(_){}}
 function restore(){
   let s={};try{s=JSON.parse(localStorage.getItem(LSKEY)||"{}")||{}}catch(_){s={}}
@@ -1649,13 +1958,17 @@ function restore(){
   if(typeof s.evfilter==="string")EVFILTER=s.evfilter;
   if(s.where==="HOME"||B[s.where])WHERE=s.where;
   if(s.spots&&typeof s.spots==="object")SPOTS=s.spots;
+  if(s.weights&&typeof s.weights==="object")weights=s.weights;
+  if(typeof s.target==="number")TARGET=s.target;
+  if(s.study===false)STUDY=false;
+  if(Array.isArray(s.dismissedQ))dismissedQ=s.dismissedQ;
   if(s.geoOn===true)GEO.on=true;
   if(s.theme==="dark")dark=true;
   if(MODES.some(m=>m.k===s.mode))MODE=s.mode;
   if(s.weekview==="map"||s.weekview==="grid")WEEKVIEW=s.weekview;
 }
 function wipe(){try{localStorage.removeItem(LSKEY)}catch(_){}
-  tasks=[];grades=[];INBOX=[];myEvents=[];SPOTS={};WHERE="HOME";GEO={on:false,pos:null,err:null};renderTasks();renderGList();drawBars();renderInbox();renderEvents();tick()}
+  tasks=[];grades=[];INBOX=[];myEvents=[];weights={};dismissedQ=[];SPOTS={};WHERE="HOME";GEO={on:false,pos:null,err:null};renderTasks();renderGList();drawBars();renderInbox();renderEvents();renderWeights();fillCatSelect();renderQ();tick()}
 function dismissA2HS(){document.getElementById("a2hs").classList.remove("on");
   try{localStorage.setItem(LSKEY+"-a2hs","1")}catch(_){}}
 (function(){
@@ -1702,7 +2015,10 @@ restore();
 paintTheme();
 renderModeChips(); setMode(MODE);
 renderCourses(); renderDates(); renderTasks(); renderInbox(); renderGList(); drawBars();
+buildTabs();
 renderEvents(); renderLinks(); paintGeo();
+renderWeights(); fillCatSelect(); paintStudy(); renderQ();
+document.getElementById("tgt").value=String(TARGET);
 if(GEO.on) requestGeo(false);   /* permission already granted once — refresh the fix */
 setWeekView(WEEKVIEW);
 tick();
