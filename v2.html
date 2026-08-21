@@ -446,6 +446,11 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   box-shadow:var(--shadow);padding:14px 15px;font-size:13px;color:var(--t-sec);gap:12px}
 #a2hs.on{display:flex}
 #a2hs b{color:var(--t-pri)}
+#updbar{display:none;position:fixed;left:12px;right:12px;bottom:calc(84px + var(--safe-b));z-index:56;
+  background:var(--canvas);border:1px solid var(--lime);border-radius:var(--r2);
+  box-shadow:var(--shadow);padding:14px 15px;font-size:13px;color:var(--t-sec);gap:12px;align-items:center}
+#updbar.on{display:flex}
+#updbar b{color:var(--t-pri)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -676,6 +681,12 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
     <h2 class="sec">Install</h2>
     <div class="note"><b>iPhone:</b> Safari → Share → Add to Home Screen.<br>
       <b>Android:</b> Chrome → ⋮ → Add to Home screen.</div>
+    <h2 class="sec">App version</h2>
+    <div class="note">You are on build <b class="mono" id="buildNow">—</b>.
+      Edits only reach your phone after the new version is published — this checks the server for one
+      and loads it. <b>Your assignments, scores and saved spots are kept.</b>
+      <div style="margin-top:12px"><button class="btn ghost sm" id="updBtn" onclick="checkUpdate(true)">Check for update</button></div>
+      <div id="updMsg" style="margin-top:10px"></div></div>
     <h2 class="sec">Your data</h2>
     <div class="note">Assignments and scores are saved on <b>this device only</b> — never uploaded.
       Use Export backup to move them.
@@ -690,6 +701,13 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   <div style="flex:1"><b>Add this to your Home Screen.</b><br>
     Tap Share, then “Add to Home Screen”.</div>
   <button class="xbtn" onclick="dismissA2HS()" id="a2hsX" aria-label="Dismiss"></button>
+</div>
+
+<div id="updbar">
+  <div style="flex:1"><b>A newer version is available.</b><br>
+    Your saved work is kept.</div>
+  <button class="btn sm" onclick="applyUpdate()">Update</button>
+  <button class="xbtn" onclick="document.getElementById('updbar').classList.remove('on')" id="updX" aria-label="Dismiss"></button>
 </div>
 
 <div class="sk" id="sk" onclick="if(event.target===this)closeSearch()">
@@ -747,10 +765,6 @@ const C = [
    meets:[{d:1,s:620,e:730}],prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
    meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],prof:"G. Ording",extra:""},
-  {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
-   meets:[{d:3,s:760,e:840}],prof:"D. Carnahan",extra:""},
-  {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14282",sec:"012",cr:0,b:"CAB",
-   meets:[{d:3,s:1080,e:1160}],prof:"Y. Sun",extra:"You're #2 on the waitlist for the Friday 12:40 section (015)."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
@@ -763,8 +777,54 @@ const C = [
   {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",cls:"—",sec:"—",cr:0,b:"SRW",
    meets:[{d:1,s:1010,e:1090},{d:3,s:615,e:695},{d:5,s:1010,e:1090}],
    prof:"You",
-   extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. Wednesday is a MORNING slot on purpose: Wednesday evening only leaves about 65 minutes between ISS 205 and your 6 PM COM 100 recitation, which is not enough to train, shower and cross campus. Tue/Thu mornings are wide open if you want to move a day."}
+   extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. The Wednesday morning slot was chosen to dodge the old 6 PM COM 100 recitation; you no longer hold that section, so Wednesday evening is free now and you could move this block there. Tue/Thu mornings are also wide open."}
 ];
+const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
+
+/* ===== VERSION / UPDATE =====
+   The app is a single static file. Nothing changes on this phone until a new
+   copy of that file is published and downloaded. This fetches the live file,
+   reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
+   grades and saved spots survive an update. */
+const BUILD="2026-08-20-1";
+let UPD_FOUND=null;
+
+function setUpdMsg(t,warm){
+  const el=document.getElementById("updMsg"); if(!el)return;
+  el.textContent=t||"";
+  el.className=t?("note"+(warm?" warm":"")):"";
+  el.style.marginTop=t?"10px":"0";
+}
+
+async function checkUpdate(loud){
+  const btn=document.getElementById("updBtn");
+  if(location.protocol==="file:"){ if(loud)setUpdMsg("Opened as a local file — update checking only works on the published link.",true); return; }
+  if(loud&&btn){btn.disabled=true;btn.textContent="Checking…"}
+  if(loud)setUpdMsg("");
+  try{
+    const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const t=await r.text();
+    const m=t.match(/const BUILD="([^"]+)"/);
+    if(!m) throw new Error("no build stamp");
+    if(m[1]!==BUILD){
+      UPD_FOUND=m[1];
+      document.getElementById("updbar").classList.add("on");
+      if(loud)setUpdMsg("Update found (build "+m[1]+"). Tap Update to load it.");
+    }else if(loud){
+      setUpdMsg("You are on the latest version.");
+    }
+  }catch(e){
+    if(loud)setUpdMsg("Could not reach the server. Check your connection and try again.",true);
+  }finally{
+    if(loud&&btn){btn.disabled=false;btn.textContent="Check for update"}
+  }
+}
+
+function applyUpdate(){
+  try{persist()}catch(_){}
+  location.replace(location.pathname+"?v="+Date.now());
+}
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
@@ -772,14 +832,14 @@ const EX=[{d:"2026-09-17",t:"EC 201 midterm 1",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-10-29",t:"EC 201 midterm 2",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-12-03",t:"EC 201 midterm 3",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
-  {d:"2026-12-15",t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
+  {d:"2026-12-15",t:"COM 100 final (only if you get a seat)",w:"3:10–5:10 PM · room TBA",k:"w"},
   {d:"2026-12-16",t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
   {d:"2026-12-17",t:"EC 201 final",w:"3:10–5:10 PM · room TBA",k:"w"}];
 const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
   ["Three 7 PM midterms","Sept 17, Oct 29, Dec 3. Off-campus exams are not offered. SIS labels them “Wednesdays” but all three dates are Thursdays — ask Prof. Ackermann in week one."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
-  ["COM 100 waitlist","You're #2 for the Friday 12:40 section. The blocking seat was reserved for the NSO August cohort; that hold expires Aug 21."]];
+  ["COM 100 — you hold no seat","On Aug 20 a swap-with-waitlist dropped you from section 012 immediately instead of holding it. You are now #2 on the waitlist for the Friday 12:40 section (015) and enrolled in nothing else for COM 100. That puts you at 12 credits — exactly the full-time floor. Adds close Fri Sept 4. If the waitlist has not moved by about Aug 28, take any open section."]];
 
 
 /* ===== ATHLETICS =====
@@ -829,8 +889,13 @@ let myEvents=[];
 const OPEN_Q=[{
   id:"ec201-day",
   t:"EC 201 midterm days don't match",
-  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. If they really are Wednesdays, a 7 PM midterm runs into your COM 100 recitation, which ends 7:20 that night.",
+  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. Worth pinning down before you pick a COM 100 section — an evening recitation would collide with a 7 PM midterm.",
   a:"Ask Prof. Ackermann in week one: “Are the EC 201 midterms on Wednesday or Thursday? Sept 17 is a Thursday.”"
+},{
+  id:"com100-seat",
+  t:"You have no COM 100 seat",
+  d:"A swap-with-waitlist on Aug 20 dropped you out of section 012 the moment it was submitted, rather than holding it until section 015 opened. You are #2 on the 015 waitlist (Fri 12:40–2:00) and enrolled in no COM 100 section. That leaves you at 12 credits, exactly the full-time minimum, with no margin.",
+  a:"Adds close Fri Sept 4. Call Spartan One-Stop at (517) 353-3200 and ask whether they can place you in 015. If nothing moves by about Aug 28, enroll in any open section — section 020 (Fri 8:00–9:20) keeps your Wed 12:40 lecture."
 }];
 let dismissedQ=[];
 let STUDY=true;   /* EC 201 self-scheduled blocks on/off */
@@ -1136,7 +1201,7 @@ function paintMast(){
                   : onl.length ? "Nowhere to be"+extra+" — no room, no attendance"
                   : (brkToday? brkToday.t : "No classes. Good window for EC 201.");
   }else{
-    K.textContent="Fall 2026 · 15 credits";
+    K.textContent="Fall 2026 · "+TOTCR+" credits";
     T.textContent={work:"Work",events:"Events",grades:"Grades",inbox:"Inbox",info:"Info"}[curTab]||"MSU Assist";
     S.textContent={work:"Assignments, deadlines and exams",
                    events:"Games, parties and campus events",
@@ -1637,7 +1702,7 @@ function drawBars(){
     ? "Enter your syllabus weights and a score, and this fills in."
     : have.length===1
       ? "Based on one course and only part of its grade — not meaningful yet."
-      : "From "+have.length+" of "+GRADED.length+" courses · "+crTot+" of 15 credits. Projection only.";
+      : "From "+have.length+" of "+GRADED.length+" courses · "+crTot+" of "+TOTCR+" credits. Projection only.";
   const anyDefault=GRADED.some(c=>usingDefaults(c.c)&&grades.some(x=>x.course===c.c));
   document.getElementById("scaleNote").innerHTML=
     "Weighted by category. MSU's 4.0 scale is assumed at 93=4.0, 88=3.5, 83=3.0, 78=2.5, 73=2.0 — "+
@@ -2023,6 +2088,9 @@ if(GEO.on) requestGeo(false);   /* permission already granted once — refresh t
 setWeekView(WEEKVIEW);
 tick();
 READY=true;
+{const bn=document.getElementById("buildNow"); if(bn)bn.textContent=BUILD;}
+setTimeout(()=>checkUpdate(false),2500);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdate(false)});
 setInterval(tick,30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(GEO.on)requestGeo(true);tick()}});
 requestAnimationFrame(moveBar);
