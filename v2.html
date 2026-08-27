@@ -451,6 +451,48 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   box-shadow:var(--shadow);padding:14px 15px;font-size:13px;color:var(--t-sec);gap:12px;align-items:center}
 #updbar.on{display:flex}
 #updbar b{color:var(--t-pri)}
+
+/* ---- course load ramp (sequential, one hue, light->dark) ----
+   4 steps, not 5: five could not clear the normal-vision floor on the dark
+   surface. Validated with the dataviz palette checker — worst adjacent pair
+   is dE 19.5 light / 17.6 dark (floor 15), CVD 18.5 / 16.1 (floor 8).
+   Every chip carries a word as well as a colour: the ramp sits under 3:1
+   against the surface, so the label is the required relief, not decoration. */
+:root{
+  --load1:#FCE7C8; --load1t:#4A2205;
+  --load2:#EDA044; --load2t:#3F1D05;
+  --load3:#B85409; --load3t:#FFFFFF;
+  --load4:#3F1D05; --load4t:#FFFFFF;
+}
+html[data-theme="dark"]{
+  --load1:#4E351A; --load1t:#F0DFC8;
+  --load2:#8F5D20; --load2t:#FFF1DC;
+  --load3:#D68C24; --load3t:#2A1605;
+  --load4:#FFD9A0; --load4t:#2A1605;
+}
+.lchip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--rc);
+  padding:3px 9px 3px 5px;font-size:10.5px;font-weight:800;letter-spacing:.01em;
+  border:1px solid var(--line);background:var(--surface);color:var(--t-sec);flex:none}
+.lchip i{width:11px;height:11px;border-radius:3px;flex:none;
+  box-shadow:inset 0 0 0 1px rgba(10,10,10,.14)}
+.lchip.l1 i{background:var(--load1)} .lchip.l2 i{background:var(--load2)}
+.lchip.l3 i{background:var(--load3)} .lchip.l4 i{background:var(--load4)}
+.ltag{display:inline-flex;align-items:center;border-radius:var(--rc);padding:3px 8px;
+  font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;flex:none;
+  border:1px solid var(--line);background:var(--surface);color:var(--t-sec)}
+.ltag.req{background:color-mix(in srgb,var(--spartan) 12%,transparent);
+  color:var(--spartan);border-color:color-mix(in srgb,var(--spartan) 26%,transparent)}
+html[data-theme="dark"] .ltag.req{background:rgba(123,189,0,.16);color:var(--lime);
+  border-color:rgba(123,189,0,.4)}
+.ltag.onl{background:color-mix(in srgb,#2563EB 12%,transparent);color:#1D4ED8;
+  border-color:color-mix(in srgb,#2563EB 28%,transparent)}
+html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
+  border-color:rgba(96,165,250,.42)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.lgnd{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 4px}
+.lbar{display:flex;height:8px;border-radius:var(--rc);overflow:hidden;
+  border:1px solid var(--line);margin:0 18px 8px}
+.lbar i{flex:1;height:100%}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -518,6 +560,12 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
       <div class="tip" id="gridTip"></div>
     </div>
     <h2 class="sec">Courses</h2>
+    <div class="lbar"><i style="background:var(--load1)"></i><i style="background:var(--load2)"></i><i style="background:var(--load3)"></i><i style="background:var(--load4)"></i></div>
+    <div class="lgnd">
+      <span class="lchip l1"><i></i>Lighter</span><span class="lchip l2"><i></i>Moderate</span>
+      <span class="lchip l3"><i></i>Heavy</span><span class="lchip l4"><i></i>Heaviest</span>
+    </div>
+    <div class="note" style="margin-bottom:10px">Load is ranked by what each course <b>demands</b> — credits, contact hours, labs, exam load, whether it is asynchronous, and whether the grade counts toward Broad. It is not a prediction of how hard it will feel; nobody has a grade yet.</div>
     <div class="card" id="courseList"></div>
   </section>
 
@@ -762,17 +810,22 @@ const modeDef=()=>MODES.find(m=>m.k===MODE);
 const mins=b=>modeDef().f(b);
 const C = [
   {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",
-   meets:[{d:1,s:620,e:730}],prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
+   meets:[{d:1,s:620,e:730}],load:2,req:1,mode:"hybrid",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
+   prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
-   meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],prof:"G. Ording",extra:""},
+   meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],load:1,req:1,mode:null,why:"Integrative Studies gen-ed lecture, twice a week, no lab attached to this component.",
+   prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
-   meets:[{d:3,s:760,e:840}],prof:"D. Carnahan",extra:""},
+   meets:[{d:3,s:760,e:840}],load:1,req:0,mode:null,why:"Intro communication — one lecture and one recitation a week. The only course on your schedule that is not required for anything.",
+   prof:"D. Carnahan",extra:""},
   {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",
    meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
-   meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
+   meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
+   prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
-   meets:[],prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
+   meets:[],load:4,req:1,mode:"online",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
+   prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
   {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",
    cls:"18650",sec:"740",cr:0,b:"ONL",
    meets:[{d:2,s:600,e:690},{d:4,s:600,e:690}],
@@ -790,7 +843,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-21-1";
+const BUILD="2026-08-21-2";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -1315,6 +1368,22 @@ function routes(){
 /* Fixed schematic layout — the seven places are known. Lines and labels come from data. */
 const DSHORT=["","M","Tu","W","Th","F"];
 function shortCourse(c){ return c==="COM 100 rec" ? "COM rec" : c; }
+/* Course load is ranked by how much the course DEMANDS, not by how hard it will
+   feel — nobody has a grade yet. The inputs are structural: credits, contact
+   hours, whether there is a lab, whether it is asynchronous, exam load, and
+   whether the grade counts toward Broad admission. Adjust freely. */
+const LOADNAME={1:"Lighter",2:"Moderate",3:"Heavy",4:"Heaviest"};
+function loadOf(c){ return c.load||null }
+function metaHtml(c){
+  const L=loadOf(c); if(L==null&&c.req==null&&!c.mode) return "";
+  let h="<div class='meta'>";
+  if(L) h+="<span class='lchip l"+L+"' title='Course load: "+LOADNAME[L]+"'><i></i>"+LOADNAME[L]+"</span>";
+  if(c.req===1) h+="<span class='ltag req'>Required</span>";
+  else if(c.req===0) h+="<span class='ltag'>Elective</span>";
+  if(c.mode==="online") h+="<span class='ltag onl'>Online</span>";
+  else if(c.mode==="hybrid") h+="<span class='ltag onl'>Hybrid</span>";
+  return h+"</div>";
+}
 /* measure text in the real font so tiles can be sized to fit */
 const _mctx=document.createElement("canvas").getContext("2d");
 function svgTextW(str,px,weight){
@@ -1486,7 +1555,7 @@ function renderCourses(){
     return "<div class='row' onclick='openSheet("+i+")' style='cursor:pointer'>"+
       tileFor(c,"sm")+"<div class='g'><b>"+esc(c.c)+"</b><span>"+esc(b.n)+(b.r?" "+b.r:"")+" · "+
       (c.meets.length?c.meets.map(m=>DAY[m.d]).join(", ")+" "+fm(c.meets[0].s):"no set time")+
-      "</span></div><span class='tag'>"+(c.cr||0)+" cr</span></div>";
+      "</span>"+metaHtml(c)+"</div><span class='tag'>"+(c.cr||0)+" cr</span></div>";
   }).join("");
 }
 function openSheet(i){
