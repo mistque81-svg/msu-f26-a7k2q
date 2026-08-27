@@ -745,7 +745,7 @@ const B = {
   NKZ:{n:"North Kedzie Hall",s:"N. Kedzie",r:"N220",q:"North Kedzie Hall, 354 Farm Ln, East Lansing, MI 48824",w:20,bus:15,drive:7,note:"North-central campus, on Farm Lane."},
   SKZ:{n:"South Kedzie Hall",s:"S. Kedzie",r:"S105",q:"South Kedzie Hall, Michigan State University, East Lansing, MI",w:20,bus:15,drive:7,note:"Next door to North Kedzie, about 5 min apart."},
   HOL:{n:"Holden Hall",s:"Holden",r:"G8",q:"Holden Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood."},
-  CAB:{n:"Communication Arts Bldg",s:"Comm Arts",r:"171",q:"Communication Arts Building, 404 Wilson Rd, East Lansing, MI 48824",w:15,bus:12,drive:6,note:"On Wilson Road, central campus."},
+  CAB:{n:"Communication Arts Bldg",s:"Comm Arts",r:"173",q:"Communication Arts Building, 404 Wilson Rd, East Lansing, MI 48824",w:15,bus:12,drive:6,note:"On Wilson Road, central campus."},
   WON:{n:"Wonders Hall",s:"Wonders",r:"C100",q:"Wonders Hall, Michigan State University, East Lansing, MI",w:22,bus:15,drive:8,note:"South Neighborhood, near Holden."},
   SRW:{n:"Rec & Wellness Center",s:"Rec Center",r:"",q:"Student Recreation and Wellness Center, 810 Birch Rd, East Lansing, MI 48825",w:24,bus:16,drive:8,note:"Southwest campus, straight down Harrison Rd. Opened 2026 — replaced IM West, which closed in April and is being torn down. Weights, 50 m pool, elevated track, climbing wall."},
   ONL:{n:"Online — asynchronous",r:"",q:null,w:0,bus:0,drive:0,note:"No room. Watch lectures on your own schedule."}
@@ -765,6 +765,10 @@ const C = [
    meets:[{d:1,s:620,e:730}],prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
    meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],prof:"G. Ording",extra:""},
+  {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
+   meets:[{d:3,s:760,e:840}],prof:"D. Carnahan",extra:""},
+  {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",
+   meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
@@ -777,7 +781,7 @@ const C = [
   {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",cls:"—",sec:"—",cr:0,b:"SRW",
    meets:[{d:1,s:1010,e:1090},{d:3,s:615,e:695},{d:5,s:1010,e:1090}],
    prof:"You",
-   extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. The Wednesday morning slot was chosen to dodge the old 6 PM COM 100 recitation; you no longer hold that section, so Wednesday evening is free now and you could move this block there. Tue/Thu mornings are also wide open."}
+   extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. The Wednesday morning slot was chosen to dodge a 6 PM COM 100 recitation you are no longer in, so Wednesday evening is free now if you would rather train then. Tue/Thu mornings are also wide open. Friday now starts with an 8 AM class, so the Friday afternoon block is the right side of the day."}
 ];
 const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
 
@@ -786,7 +790,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-20-1";
+const BUILD="2026-08-21-1";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -832,14 +836,14 @@ const EX=[{d:"2026-09-17",t:"EC 201 midterm 1",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-10-29",t:"EC 201 midterm 2",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-12-03",t:"EC 201 midterm 3",w:"7:00 PM · room TBA",k:"w"},
   {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
-  {d:"2026-12-15",t:"COM 100 final (only if you get a seat)",w:"3:10–5:10 PM · room TBA",k:"w"},
+  {d:"2026-12-15",t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
   {d:"2026-12-16",t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
   {d:"2026-12-17",t:"EC 201 final",w:"3:10–5:10 PM · room TBA",k:"w"}];
 const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
   ["Three 7 PM midterms","Sept 17, Oct 29, Dec 3. Off-campus exams are not offered. SIS labels them “Wednesdays” but all three dates are Thursdays — ask Prof. Ackermann in week one."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
-  ["COM 100 — you hold no seat","On Aug 20 a swap-with-waitlist dropped you from section 012 immediately instead of holding it. You are now #2 on the waitlist for the Friday 12:40 section (015) and enrolled in nothing else for COM 100. That puts you at 12 credits — exactly the full-time floor. Adds close Fri Sept 4. If the waitlist has not moved by about Aug 28, take any open section."]];
+  ["Friday starts at 8:00","COM 100 recitation 024 meets Fri 8:00–9:20 AM in Comm Arts 173 — about a 15 minute walk, so leave by ~7:40. It is the only 8 AM on your schedule and the only thing standing between you and a free Friday morning."]];
 
 
 /* ===== ATHLETICS =====
@@ -889,13 +893,8 @@ let myEvents=[];
 const OPEN_Q=[{
   id:"ec201-day",
   t:"EC 201 midterm days don't match",
-  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. Worth pinning down before you pick a COM 100 section — an evening recitation would collide with a 7 PM midterm.",
+  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. Your COM 100 recitation is Friday morning, so a 7 PM midterm on either day does not collide with class — but you still want the right date on your calendar.",
   a:"Ask Prof. Ackermann in week one: “Are the EC 201 midterms on Wednesday or Thursday? Sept 17 is a Thursday.”"
-},{
-  id:"com100-seat",
-  t:"You have no COM 100 seat",
-  d:"A swap-with-waitlist on Aug 20 dropped you out of section 012 the moment it was submitted, rather than holding it until section 015 opened. You are #2 on the 015 waitlist (Fri 12:40–2:00) and enrolled in no COM 100 section. That leaves you at 12 credits, exactly the full-time minimum, with no margin.",
-  a:"Adds close Fri Sept 4. Call Spartan One-Stop at (517) 353-3200 and ask whether they can place you in 015. If nothing moves by about Aug 28, enroll in any open section — section 020 (Fri 8:00–9:20) keeps your Wed 12:40 lecture."
 }];
 let dismissedQ=[];
 let STUDY=true;   /* EC 201 self-scheduled blocks on/off */
