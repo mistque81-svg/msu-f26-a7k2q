@@ -222,12 +222,6 @@ html[data-theme="dark"] .row .mn{color:var(--lime)}
 .tag.s{background:color-mix(in srgb,var(--spartan) 12%,transparent);color:var(--spartan);
   border-color:color-mix(in srgb,var(--spartan) 30%,transparent)}
 html[data-theme="dark"] .tag.s{background:rgba(123,189,0,.16);color:var(--lime);border-color:rgba(123,189,0,.4)}
-/* mail rows: one-line body preview, and a dot for unread */
-.row .g .pv{display:block;font-size:11.5px;color:var(--t-mut);margin-top:3px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.udot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--spartan);
-  margin-right:6px;vertical-align:middle}
-html[data-theme="dark"] .udot{background:var(--lime)}
 .card{background:var(--canvas);border:1px solid var(--line);border-radius:var(--r2);
   padding:4px 15px;margin:0 18px 10px}
 .empty{color:var(--t-mut);text-align:center;padding:28px 14px;font-size:13px}
@@ -499,6 +493,21 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
 .lbar{display:flex;height:8px;border-radius:var(--rc);overflow:hidden;
   border:1px solid var(--line);margin:0 18px 8px}
 .lbar i{flex:1;height:100%}
+
+/* ---- syllabus summary ---- */
+.syl{margin-top:20px}
+.syl h4{font-size:9.5px;color:var(--t-mut);letter-spacing:.15em;text-transform:uppercase;
+  font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.sylbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:13px 14px}
+.sylrow{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0;
+  border-bottom:1px solid var(--hair)}
+.sylrow:last-child{border-bottom:0}
+.sylrow .n{color:var(--t-pri);font-weight:600}
+.sylrow .w{color:var(--t-sec);font-variant-numeric:tabular-nums;flex:none}
+.sylnote{font-size:12.5px;color:var(--t-sec);line-height:1.5;margin-top:4px}
+.sylnote+.sylnote{margin-top:8px}
+.sylpend{font-size:12.5px;color:var(--warn);line-height:1.5}
+.sylsrc{font-size:10.5px;color:var(--t-mut);margin-top:9px;font-style:italic}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -603,10 +612,10 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
     <div class="card" id="dlList"></div>
     <h2 class="sec">Exams</h2>
     <div class="card" id="examList"></div>
-    <h2 class="sec">School email</h2>
-    <div class="note" id="digestHint">Run <span class="mono">Scan-Outlook.bat</span> on your PC and load
-      the file it writes. An Inbox tab appears once there's mail in it.
-      <div style="margin-top:10px"><button class="btn ghost sm" onclick="go('inbox')">Load a mail scan</button></div></div>
+    <h2 class="sec">Morning digest</h2>
+    <div class="note" id="digestHint">The 8:45 AM check emails you a summary. Paste it in to see it
+      here — an Inbox tab appears once there's something in it.
+      <div style="margin-top:10px"><button class="btn ghost sm" onclick="go('inbox')">Open the digest box</button></div></div>
     <h2 class="sec">No-class days</h2>
     <div class="card" id="breakList"></div>
   </section>
@@ -686,19 +695,18 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
     <h2 class="sec">School email</h2>
     <div class="card" id="inboxList"></div>
     <div class="note warm" id="inboxNote"></div>
-    <h2 class="sec">Load a mail scan</h2>
+    <h2 class="sec">Paste the morning digest</h2>
     <div class="card">
       <p style="font-size:12.5px;color:var(--t-sec);padding:10px 0 0;line-height:1.5">
-        On your PC, <span class="mono">Scan-Outlook.bat</span> writes
-        <span class="mono">outlook-scan.json</span> to your Downloads. Load that file below.
-        On a phone, where saving a file is fiddly, paste the contents here instead.</p>
+        The 8:45 check runs in the cloud and can't write into this app directly. Copy the digest
+        JSON it sends you and paste it here — easier than saving a file on a phone.</p>
       <div class="frm" style="margin-top:10px">
-        <textarea id="digestPaste" rows="4" placeholder='[{"received":"...","from":"...","subject":"..."}]'></textarea>
-        <button class="btn full sm" onclick="pasteDigest()">Load pasted mail</button>
+        <textarea id="digestPaste" rows="4" placeholder='[{"from":"...","subject":"..."}]'></textarea>
+        <button class="btn full sm" onclick="pasteDigest()">Load pasted digest</button>
       </div>
       <p id="digestMsg" style="font-size:11.5px;color:var(--t-sec);padding-bottom:12px"></p>
       <button class="btn ghost full sm" style="margin-bottom:12px"
-        onclick="document.getElementById('df').click()">…or load outlook-scan.json</button>
+        onclick="document.getElementById('df').click()">…or load a digest file</button>
     </div>
     <input type="file" id="df" accept=".json" hidden onchange="loadDigest(event)">
   </section>
@@ -818,20 +826,56 @@ const mins=b=>modeDef().f(b);
 const C = [
   {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",
    meets:[{d:1,s:620,e:730}],load:2,req:1,mode:"hybrid",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
+   syl:{
+     status:"pending",
+     notes:["$35 lab fee.","Hybrid — an in-person lab plus an online asynchronous component."],
+     exams:[]
+   },
    prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
    meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],load:1,req:1,mode:null,why:"Integrative Studies gen-ed lecture, twice a week, no lab attached to this component.",
+   syl:{
+     status:"partial",
+     src:"Prof. Ording's email, Aug 27 2026. Full syllabus (Syllabus FS 26.doc) attached but not yet read.",
+     notes:["No course materials to purchase — he says so explicitly.",
+            "D2L space is not set up yet; he will post all materials there once it is.",
+            "Short readings to do before the first class.",
+            "He asked everyone to email him back: excitement 1–10, how much you like insects 1–10, and your favourite insect."],
+     exams:["Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"]
+   },
    prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
    meets:[{d:3,s:760,e:840}],load:1,req:0,mode:null,why:"Intro communication — one lecture and one recitation a week. The only course on your schedule that is not required for anything.",
+   syl:{
+     status:"pending",
+     notes:["Two components: the Wednesday lecture and your Friday recitation. They are graded as one course."],
+     exams:["Final: Tue Dec 15, 3:10–5:10 PM, room TBA"]
+   },
    prof:"D. Carnahan",extra:""},
   {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",
    meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
+   syl:{
+     status:"pending",
+     notes:[],
+     exams:["Final: Mon Dec 14, 3:10–5:10 PM, Wonders Hall C100"]
+   },
    prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
    meets:[],load:4,req:1,mode:"online",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
+   syl:{
+     status:"partial",
+     src:"MSU SIS class notes. No instructor syllabus received yet.",
+     notes:["Asynchronous — no meeting time and no attendance. Nothing external makes you keep up.",
+            "Counts toward Broad admission, so this grade carries weight the others do not.",
+            "Exams are in person and in the evening. Off-campus exams are not offered."],
+     exams:["Midterm 1: Thu Sep 17, 7:00 PM · room TBA",
+            "Midterm 2: Thu Oct 29, 7:00 PM · room TBA",
+            "Midterm 3: Thu Dec 3, 7:00 PM · room TBA",
+            "Final: Thu Dec 17, 3:10–5:10 PM · room TBA",
+            "SIS calls the midterms Wednesdays but all three dates are Thursdays — confirm with Prof. Ackermann."]
+   },
    prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
   {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",
    cls:"18650",sec:"740",cr:0,b:"ONL",
@@ -850,7 +894,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-28-1";
+const BUILD="2026-08-21-3";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -1381,6 +1425,24 @@ function shortCourse(c){ return c==="COM 100 rec" ? "COM rec" : c; }
    whether the grade counts toward Broad admission. Adjust freely. */
 const LOADNAME={1:"Lighter",2:"Moderate",3:"Heavy",4:"Heaviest"};
 function loadOf(c){ return c.load||null }
+function sylHtml(c){
+  const y=c.syl; if(!y) return "";
+  let h="<div class='syl'><h4>Syllabus</h4><div class='sylbox'>";
+  if(y.grading&&y.grading.length){
+    h+=y.grading.map(g=>"<div class='sylrow'><span class='n'>"+esc(g.n)+"</span><span class='w mono'>"+g.w+"%</span></div>").join("");
+  }else{
+    h+="<div class='sylpend'><b>Grade weights not in yet.</b> "+
+       (y.status==="partial"?"Some of the syllabus has landed, but not the grading breakdown — so the Grades tab is still using a default split for this course."
+        :"No syllabus published for this course yet. The Grades tab is using a default split until one arrives.")+"</div>";
+  }
+  (y.notes||[]).forEach(n=>{h+="<div class='sylnote'>"+esc(n)+"</div>"});
+  if(y.exams&&y.exams.length){
+    h+="<div class='sylnote' style='margin-top:10px'><b>Exams</b></div>";
+    y.exams.forEach(e=>{h+="<div class='sylnote' style='margin-top:3px'>· "+esc(e)+"</div>"});
+  }
+  if(y.src) h+="<div class='sylsrc'>Source: "+esc(y.src)+"</div>";
+  return h+"</div></div>";
+}
 function metaHtml(c){
   const L=loadOf(c); if(L==null&&c.req==null&&!c.mode) return "";
   let h="<div class='meta'>";
@@ -1579,6 +1641,7 @@ function openSheet(i){
     "<div class='kv'><div class='k'>Class nbr</div><div class='v mono'>"+esc(c.cls)+" · Sec "+esc(c.sec)+"</div></div>"+
     "<div class='kv'><div class='k'>Credits</div><div class='v mono'>"+(c.cr||0)+"</div></div>"+
     (c.extra?"<p style='margin-top:14px;font-size:13px;color:var(--t-sec)'>"+esc(c.extra)+"</p>":"")+
+    sylHtml(c)+
     (b.q?"<div style='margin-top:20px'><div style='font-size:9.5px;color:var(--t-mut);letter-spacing:.15em;"+
       "text-transform:uppercase;font-weight:800;margin-bottom:8px'>Directions</div>"+
       "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'>"+
@@ -1701,100 +1764,25 @@ function loadTasks(e){const f=e.target.files[0];if(!f)return;const r=new FileRea
   r.onload=()=>{try{tasks=JSON.parse(r.result)||[];renderTasks();persist()}catch(_){}};r.readAsText(f)}
 document.getElementById("aT").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
 
-/* ================= INBOX =================
-   Fed by Scan-Outlook.ps1, which reads classic desktop Outlook over COM and
-   writes outlook-scan.json. Its rows look like:
-     {received,from,fromAddress,subject,unread,attachments[],body}
-   Older hand-made digests used {from,subject,why,tag} (or {f,t}). mailNorm()
-   flattens either shape into one canonical row so the renderer stays simple.
-   Nothing here talks to the network — the file is chosen by you and parsed
-   in the page. */
-
-/* Professor surnames -> course code, built from the schedule so it can't drift.
-   Placeholders matter here: the self-scheduled study and gym blocks carry
-   prof:"You", and a bare "You" would tag mail from anyone named Young or
-   Yousef. Anything that isn't a real surname is dropped. */
-const NOTPROF=/^(you|me|self|staff|tba|tbd|none|n\/a)$/i;
-const PROFTAG=(()=>{const out=[];
-  C.forEach(c=>{
-    if(!c.prof||/announced/i.test(c.prof)||!c.c) return;
-    const last=c.prof.replace(/^[A-Z]\.\s*/,"").trim();
-    if(last.length<4||NOTPROF.test(last)) return;
-    if(!out.some(x=>x.last===last&&x.code===c.c)) out.push({last,code:c.c});
-  });
-  /* longest surname first, so "Kimbirauskas" can't lose to a shorter match */
-  return out.sort((a,b)=>b.last.length-a.last.length);
-})();
-function courseTag(from,addr,subject){
-  const hay=(String(from)+" "+String(addr)).toLowerCase();
-  for(const p of PROFTAG) if(hay.includes(p.last.toLowerCase())) return p.code;
-  const m=String(subject).toUpperCase().match(/\b(ISB\s*201L|ISB\s*201|COM\s*100|ISS\s*205|EC\s*201)\b/);
-  return m?m[1].replace(/\s+/g,"").replace(/^([A-Z]+)(\d.*)$/,"$1 $2"):"";
-}
-/* "2026-08-27 14:32" -> "2:32 PM" today, "Aug 27" otherwise. Never throws. */
-function mailDate(s){
-  const m=String(s||"").match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
-  if(!m) return String(s||"");
-  const d=new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0));
-  if(isNaN(d.getTime())) return String(s);
-  return d.toDateString()===new Date().toDateString()
-    ? d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})
-    : d.toLocaleDateString([],{month:"short",day:"numeric"});
-}
-function mailNorm(d){
-  const a=Array.isArray(d)?d:(d&&Array.isArray(d.items)?d.items:[]);
-  return a.filter(m=>m&&typeof m==="object").map(m=>{
-    const subject=m.subject||m.t||"", from=m.from||m.f||"",
-          addr=m.fromAddress||m.addr||"",
-          atts=Array.isArray(m.attachments)?m.attachments:(Array.isArray(m.atts)?m.atts:[]);
-    return {subject,from,addr,date:m.received||m.date||m.d||"",
-            unread:!!m.unread,atts,body:m.body||m.preview||"",
-            why:m.why||"",tag:m.tag||courseTag(from,addr,subject)};
-  });
-}
+/* ================= INBOX ================= */
 function renderInbox(){
   const el=document.getElementById("inboxList");
   el.innerHTML=INBOX.length
-    ? INBOX.map(m=>{
-        const meta=[];
-        if(m.date) meta.push(esc(mailDate(m.date)));
-        if(m.from) meta.push(esc(m.from));
-        if(m.atts.length) meta.push(m.atts.length+(m.atts.length===1?" file":" files"));
-        if(m.why) meta.push(esc(m.why));
-        const pv=String(m.body||"").replace(/\s+/g," ").trim().slice(0,110);
-        return "<div class='row'><div class='g'>"+
-          "<b>"+(m.unread?"<span class='udot'></span>":"")+esc(m.subject||"(no subject)")+"</b>"+
-          "<span>"+meta.join(" · ")+"</span>"+
-          (pv?"<span class='pv'>"+esc(pv)+"</span>":"")+
-          "</div>"+
-          (m.tag?"<span class='tag s'>"+esc(m.tag)+"</span>":"")+"</div>";
-      }).join("")
-    : "<div class='empty'>"+I(IC.inbox0,26)+"No mail loaded.<br>Run the scan on your PC, then load the file below.</div>";
-  const un=INBOX.filter(m=>m.unread).length;
+    ? INBOX.map(m=>"<div class='row'><div class='g'><b>"+esc(m.subject||m.t||"(no subject)")+"</b>"+
+        "<span>"+esc(m.from||m.f||"")+(m.why?" · "+esc(m.why):"")+"</span></div>"+
+        (m.tag?"<span class='tag w'>"+esc(m.tag)+"</span>":"")+"</div>").join("")
+    : "<div class='empty'>"+I(IC.inbox0,26)+"No digest loaded.<br>Nothing to review right now.</div>";
   document.getElementById("inboxNote").innerHTML=
-    (INBOX.length
-      ? "<b>"+INBOX.length+" message"+(INBOX.length===1?"":"s")+" loaded"+
-        (un?", "+un+" unread":"")+".</b> This is a snapshot, not a live feed — rerun the scan to refresh it."
-      : "<b>No mail loaded yet.</b> Your school mail is <b>Spartan Mail on Microsoft 365</b>, not Gmail.")+
-    "<ol><li>On your PC, run <span class='mono'>Scan-Outlook.bat</span>. It reads <b>classic desktop "+
-    "Outlook</b> — already signed in, never expires, and strictly read-only.</li>"+
-    "<li>It writes <span class='mono'>outlook-scan.json</span> to your Downloads.</li>"+
-    "<li>Load that file below, or paste its contents on a phone.</li></ol>"+
-    "<p style='margin-top:10px'><b>Heads up:</b> the Microsoft 365 connector at claude.ai will not work — "+
-    "MSU blocks third-party app consent. The scan script is the way in, and it needs "+
-    "<b>classic</b> Outlook, not the Microsoft Store “new Outlook”.</p>"+
-    "<p style='margin-top:8px'><b>On your phone:</b> install <b>Outlook mobile</b>, sign into Spartan Mail, "+
+    "<b>Not connected yet.</b> Your school mail is <b>Spartan Mail on Microsoft 365 (Outlook)</b>, not Gmail."+
+    "<ol><li>Add the <b>Microsoft 365</b> connector at claude.ai → Settings → Connectors.</li>"+
+    "<li>A scheduled check runs each morning at <span class='mono'>8:45 AM</span> and pushes a summary to your phone.</li>"+
+    "<li>It can also hand you a digest file — tap <b>Load digest file</b> below.</li></ol>"+
+    "<p style='margin-top:10px'><b>Free right now:</b> install <b>Outlook mobile</b>, sign into Spartan Mail, "+
     "and set notifications to VIP senders only — add your professors and the registrar.</p>";
 }
 function loadDigest(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{INBOX=mailNorm(JSON.parse(r.result));
-    renderInbox();buildTabs();persist();
-    document.getElementById("digestMsg").textContent=
-      "Loaded "+INBOX.length+" message"+(INBOX.length===1?"":"s")+" from "+f.name+".";
-  }catch(_){
-    document.getElementById("digestMsg").textContent=
-      "Could not read that file — it should be the outlook-scan.json the script wrote.";
-  }};r.readAsText(f)}
+  r.onload=()=>{try{const d=JSON.parse(r.result);INBOX=Array.isArray(d)?d:(d.items||[]);
+    renderInbox();buildTabs();persist()}catch(_){}};r.readAsText(f)}
 
 /* ================= GRADES =================
    Weighted, because real syllabi are. A course is a set of categories with
@@ -2036,9 +2024,9 @@ function renderLinks(){
 }
 
 /* ================= CALENDAR EXPORT =================
-   This app has no server and no notifications — a mail scan is a file you load,
-   not a live feed, so nothing here can ever buzz your phone about an assignment
-   you typed in. What CAN carry a reminder is your phone's own calendar, so we
+   The app runs on your phone; the 8:45 task runs in the cloud. They cannot see
+   each other's data, so the task can never remind you about an assignment you
+   typed in here. What CAN carry a reminder is your phone's own calendar — so we
    hand it an .ics. That closes the loop in the direction that matters. */
 function pad(n){return String(n).padStart(2,"0")}
 function icsEsc(t){return String(t).replace(/[\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n")}
@@ -2096,11 +2084,12 @@ function pasteDigest(){
   const el=document.getElementById("digestPaste"); if(!el)return;
   const raw=el.value.trim(); if(!raw)return;
   try{
-    INBOX=mailNorm(JSON.parse(raw));
+    const d=JSON.parse(raw);
+    INBOX=Array.isArray(d)?d:(d.items||[]);
     el.value=""; renderInbox(); buildTabs(); persist();
-    document.getElementById("digestMsg").textContent="Loaded "+INBOX.length+" message"+(INBOX.length===1?"":"s")+".";
+    document.getElementById("digestMsg").textContent="Loaded "+INBOX.length+" item"+(INBOX.length===1?"":"s")+".";
   }catch(_){
-    document.getElementById("digestMsg").textContent="That doesn't look like the scan JSON — paste the whole thing including the [ ] brackets.";
+    document.getElementById("digestMsg").textContent="That doesn't look like the digest JSON — paste the whole thing including the [ ] brackets.";
   }
 }
 
@@ -2167,7 +2156,7 @@ function restore(){
   let s={};try{s=JSON.parse(localStorage.getItem(LSKEY)||"{}")||{}}catch(_){s={}}
   if(Array.isArray(s.tasks))tasks=s.tasks.filter(t=>t&&typeof t.title==="string");
   if(Array.isArray(s.grades))grades=s.grades.filter(g=>g&&typeof g.name==="string");
-  if(Array.isArray(s.inbox))INBOX=mailNorm(s.inbox);   /* re-normalize: upgrades mail saved by an older build */
+  if(Array.isArray(s.inbox))INBOX=s.inbox;
   if(Array.isArray(s.myEvents))myEvents=s.myEvents.filter(e=>e&&e.d&&e.t);
   if(typeof s.evfilter==="string")EVFILTER=s.evfilter;
   if(s.where==="HOME"||B[s.where])WHERE=s.where;
