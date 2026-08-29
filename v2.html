@@ -508,6 +508,7 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
 .sylnote+.sylnote{margin-top:8px}
 .sylpend{font-size:12.5px;color:var(--warn);line-height:1.5}
 .sylsrc{font-size:10.5px;color:var(--t-mut);margin-top:9px;font-style:italic}
+.sylflag{font-size:12.5px;line-height:1.5;color:var(--warn);border-left:3px solid var(--warn);padding:2px 0 2px 9px;margin:0 0 10px 0;font-weight:600}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -827,21 +828,51 @@ const C = [
   {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",
    meets:[{d:1,s:620,e:730}],load:2,req:1,mode:"hybrid",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
    syl:{
-     status:"pending",
-     notes:["$35 lab fee.","Hybrid — an in-person lab plus an online asynchronous component."],
-     exams:[]
+     status:"full",
+     src:"ISB 201L Fall 2026 syllabus, section 001 — Dr. Ryan Kimbirauskas (kimbira1@msu.edu).",
+     flag:"Four unexcused absences = automatically dropped from the course with a 0.0. There are only 12 labs. Do not miss one casually.",
+     unit:" pts",
+     grading:[{n:"In-lab activities (10+ × 25 pts)",w:"250+"},
+              {n:"Homework assignments (10+ × 20 pts)",w:"200+"},
+              {n:"Final project",w:"100"},
+              {n:"Surveys, pop quizzes, group evals",w:"varies"}],
+     gnote:"Straight points, not weighted categories — final grade is points earned ÷ points possible. Nothing is dropped, but an optional 25-pt bonus lab runs the last week of class (Dec 7–11) and can replace points you lost.",
+     scale:"90=4.0 · 85=3.5 · 80=3.0 · 75=2.5 · 70=2.0 · 65=1.5 · 60=1.0. Rounds up from .5 — an 89.5 becomes a 4.0.",
+     notes:["No textbook and no lab fee. Everything is handed out in class or posted to D2L.",
+            "Late work is not graded at all — zero points, no partial credit. Extensions must be requested BEFORE the deadline.",
+            "In-lab worksheets are collected at the end of each class. Homework goes to D2L and is due before the next week's lab.",
+            "You need Microsoft Excel on a laptop for labs 4, 5, 6 and 7 (Sept 21 – Oct 16). Free through Spartan 365 — install it before Sept 21.",
+            "No lab meets the week of Sept 7–11 — it is a take-home assignment week on pseudoscience.",
+            "Oct 19–23 the lab is outdoors at the Red Cedar River, rain or shine. Nov 9–13 meets at the Teaching Greenhouses, not North Kedzie.",
+            "The final project is announced around Oct 5 and you get 5–6 weeks. Most of it happens outside class.",
+            "Office hours are by appointment over Zoom — you have to ask.",
+            "Grade disputes must be raised within one week of the grade posting, and you must show the original graded paper."],
+     exams:["No exams. Announced D2L checkpoint quizzes plus the final project.",
+            "Finals week (Dec 14–18): no lab meets. The final is submitted electronically."]
    },
-   prof:"R. Kimbirauskas",extra:"Hybrid — also an online asynchronous component. $35 lab fee."},
+   prof:"R. Kimbirauskas",extra:"Weekly in-person lab. No textbook, no lab fee — but four unexcused absences drops you from the course."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
    meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],load:1,req:1,mode:null,why:"Integrative Studies gen-ed lecture, twice a week, no lab attached to this component.",
    syl:{
-     status:"partial",
-     src:"Prof. Ording's email, Aug 27 2026. Full syllabus (Syllabus FS 26.doc) attached but not yet read.",
-     notes:["No course materials to purchase — he says so explicitly.",
-            "D2L space is not set up yet; he will post all materials there once it is.",
-            "Short readings to do before the first class.",
+     status:"full",
+     src:"ISB 201 Fall 2026 syllabus, section 009 — Dr. Gabe Ording (ordingga@msu.edu, 353-8599).",
+     grading:[{n:"Participation, D2L quizzes & checkpoints, homework",w:30},
+              {n:"Test 1",w:20},
+              {n:"Test 2",w:20},
+              {n:"Test 3",w:20},
+              {n:"Final exam",w:10}],
+     scale:"90=4.0 · 85=3.5 · 80=3.0 · 75=2.5 · 70=2.0 · 65=1.5 · 60=1.0.",
+     notes:["The lecture and the lab have SEPARATE sets of D2L assignments. Both must be completed. Doing the lab work does not cover the lecture work.",
+            "Attendance is not taken — but in-class exercises and quizzes cannot be made up, and they sit inside the 30% category.",
+            "Late D2L work is accepted up to 24 hours late for half credit. After 24 hours it is a zero.",
+            "Submit only .doc or .pdf files. Other formats are not graded.",
+            "Extra credit is only awarded if you are already at 75%+ in the in-class category — it rewards showing up, it does not rescue you.",
+            "AI text generators may be treated as plagiarism unless he explicitly permits them for that assignment.",
+            "No course materials to purchase.",
+            "Coffee hour Mon & Wed 9–10 AM. Undergrad assistants: Kate Enlow (enlowkat@msu.edu), Trent Jones (jones804@msu.edu).",
             "He asked everyone to email him back: excitement 1–10, how much you like insects 1–10, and your favourite insect."],
-     exams:["Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"]
+     exams:["Three tests during the term, dates announced in class.",
+            "Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"]
    },
    prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
@@ -865,18 +896,31 @@ const C = [
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
    meets:[],load:4,req:1,mode:"online",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
    syl:{
-     status:"partial",
-     src:"MSU SIS class notes. No instructor syllabus received yet.",
+     status:"full",
+     src:"EC 201 Fall 2026 syllabus, section 740 — Prof. Jeff Ackermann (jaa@msu.edu). Admin: Jairui Wang (wangj328@msu.edu).",
+     flag:"Midterm dates corrected — they are Sept 24, Nov 5 and Dec 10, not the Sept 17 / Oct 29 / Dec 3 the app showed. The syllabus is the authority. All four exam dates are Thursdays.",
+     grading:[{n:"Exams — best 3 of 4, equally weighted",w:70},
+              {n:"Online quizzes — best 5 of 6",w:15},
+              {n:"Macmillan Achieve adaptive — best 13 of 16",w:15}],
+     scale:"4.0=88 · 3.5=82 · 3.0=74 · 2.5=67 · 2.0=60 · 1.5=56 · 1.0=52. Lower than the usual scale, and strict — an 81.99 is a 3.0.",
+     gnote:"Exams are 70% of the grade. Only your best three of the four count, so if you're happy after three midterms you can skip the final — but a missed exam IS your dropped exam, and there are no make-ups.",
      notes:["Asynchronous — no meeting time and no attendance. Nothing external makes you keep up.",
             "Counts toward Broad admission, so this grade carries weight the others do not.",
-            "Exams are in person and in the evening. Off-campus exams are not offered."],
-     exams:["Midterm 1: Thu Sep 17, 7:00 PM · room TBA",
-            "Midterm 2: Thu Oct 29, 7:00 PM · room TBA",
-            "Midterm 3: Thu Dec 3, 7:00 PM · room TBA",
-            "Final: Thu Dec 17, 3:10–5:10 PM · room TBA",
-            "SIS calls the midterms Wednesdays but all three dates are Thursdays — confirm with Prof. Ackermann."]
+            "You must buy Macmillan Achieve — there is a purchase link in D2L. Budget for it before the first assignment.",
+            "Every exam is in person. There are no online or off-campus exams, and no make-ups after the fact.",
+            "An early sitting is offered at 7 PM the night before each midterm, but only with a documented excuse arranged in advance.",
+            "Exams are closed book, closed note, closed internet, and NO CALCULATORS.",
+            "Quizzes are open-book and you get unlimited submissions, but only the last one is graded and you don't see the score until after the deadline.",
+            "Everything is due 11:59 PM Eastern. Nothing late is accepted — one minute past is a zero.",
+            "Your 3 lowest adaptive assignments and 1 lowest quiz drop automatically.",
+            "Quiz due dates: Sep 16 · Sep 23 · Oct 14 · Nov 2 · Nov 18 · Dec 7. Adaptive assignments for those chapters are due at the same moment.",
+            "Send administrative questions to Jairui Wang, not Prof. Ackermann, and put \"EC 201 740\" in the subject line."],
+     exams:["Midterm 1: Thu Sep 24, 7:00 PM · 50 min · room TBA · Ch. 1–4",
+            "Midterm 2: Thu Nov 5, 7:00 PM · 50 min · room TBA · Ch. 5–10",
+            "Midterm 3: Thu Dec 10, 7:00 PM · 50 min · room TBA · Ch. 11–14, 17, 18",
+            "Final: Thu Dec 17, 3:10 PM · cumulative · room announced by email"]
    },
-   prof:"J. Ackermann",extra:"Hybrid, no weekly meeting. Three 7 PM in-person midterms."},
+   prof:"J. Ackermann",extra:"Online asynchronous, no weekly meeting. Three 7 PM in-person midterms (Sept 24, Nov 5, Dec 10) plus a final."},
   {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",
    cls:"18650",sec:"740",cr:0,b:"ONL",
    meets:[{d:2,s:600,e:690},{d:4,s:600,e:690}],
@@ -894,7 +938,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-21-3";
+const BUILD="2026-08-29-1";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -936,15 +980,15 @@ function applyUpdate(){
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
-const EX=[{d:"2026-09-17",t:"EC 201 midterm 1",w:"7:00 PM · room TBA",k:"w"},
-  {d:"2026-10-29",t:"EC 201 midterm 2",w:"7:00 PM · room TBA",k:"w"},
-  {d:"2026-12-03",t:"EC 201 midterm 3",w:"7:00 PM · room TBA",k:"w"},
+const EX=[{d:"2026-09-24",t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-11-05",t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-12-10",t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
   {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
   {d:"2026-12-15",t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
   {d:"2026-12-16",t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
-  {d:"2026-12-17",t:"EC 201 final",w:"3:10–5:10 PM · room TBA",k:"w"}];
+  {d:"2026-12-17",t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
 const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
-  ["Three 7 PM midterms","Sept 17, Oct 29, Dec 3. Off-campus exams are not offered. SIS labels them “Wednesdays” but all three dates are Thursdays — ask Prof. Ackermann in week one."],
+  ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
   ["Friday starts at 8:00","COM 100 recitation 024 meets Fri 8:00–9:20 AM in Comm Arts 173 — about a 15 minute walk, so leave by ~7:40. It is the only 8 AM on your schedule and the only thing standing between you and a free Friday morning."]];
@@ -995,11 +1039,16 @@ let myEvents=[];
    These get a banner until dismissed, because a quiet footnote is how a
    scheduling conflict survives all semester. */
 const OPEN_Q=[{
-  id:"ec201-day",
-  t:"EC 201 midterm days don't match",
-  d:"SIS labels the three 7 PM midterms as Wednesdays, but the dates given (Sep 17, Oct 29, Dec 3) are all Thursdays. Your COM 100 recitation is Friday morning, so a 7 PM midterm on either day does not collide with class — but you still want the right date on your calendar.",
-  a:"Ask Prof. Ackermann in week one: “Are the EC 201 midterms on Wednesday or Thursday? Sept 17 is a Thursday.”"
-}];
+  id:"isb201l-absence",
+  t:"ISB 201L drops you after 4 unexcused absences",
+  d:"Four unexcused absences means an automatic drop from the lab with a 0.0 on your transcript — and there are only 12 labs. It is the harshest single policy on your schedule. Excused absences need documentation, and make-ups must happen within one week.",
+  a:"If you have to miss a Monday lab, email Dr. Kimbirauskas (kimbira1@msu.edu) BEFORE it and ask to sit in on another section that same week."
+},{
+  id:"ec201-achieve",
+  t:"EC 201 needs a Macmillan Achieve purchase",
+  d:"15% of the EC 201 grade is Macmillan Achieve adaptive assignments, and Achieve is a paid platform you have to buy. The purchase link is in D2L. The first quiz and its adaptive assignments are due Wed Sept 16 at 11:59 PM, and nothing late is accepted.",
+  a:"Buy Achieve through the D2L link in week one — do not leave it until the night of Sept 16."
+}]
 let dismissedQ=[];
 let STUDY=true;   /* EC 201 self-scheduled blocks on/off */
 let WHERE="HOME";
@@ -1428,8 +1477,11 @@ function loadOf(c){ return c.load||null }
 function sylHtml(c){
   const y=c.syl; if(!y) return "";
   let h="<div class='syl'><h4>Syllabus</h4><div class='sylbox'>";
+  if(y.flag) h+="<div class='sylflag'>"+esc(y.flag)+"</div>";
   if(y.grading&&y.grading.length){
-    h+=y.grading.map(g=>"<div class='sylrow'><span class='n'>"+esc(g.n)+"</span><span class='w mono'>"+g.w+"%</span></div>").join("");
+    h+=y.grading.map(g=>"<div class='sylrow'><span class='n'>"+esc(g.n)+"</span><span class='w mono'>"+g.w+(/[0-9+]$/.test(String(g.w))?(y.unit||"%"):"")+"</span></div>").join("");
+    if(y.gnote) h+="<div class='sylnote' style='margin-top:8px'>"+esc(y.gnote)+"</div>";
+    if(y.scale) h+="<div class='sylnote' style='margin-top:8px'><b>Grade scale</b> · "+esc(y.scale)+"</div>";
   }else{
     h+="<div class='sylpend'><b>Grade weights not in yet.</b> "+
        (y.status==="partial"?"Some of the syllabus has landed, but not the grading breakdown — so the Grades tab is still using a default split for this course."
@@ -1792,10 +1844,21 @@ function loadDigest(e){const f=e.target.files[0];if(!f)return;const r=new FileRe
 const GRADED=C.filter(c=>c.cr>0);
 const SCALE=[[93,4.0],[88,3.5],[83,3.0],[78,2.5],[73,2.0],[68,1.5],[63,1.0],[0,0.0]];
 const DEFAULT_CATS=[{n:"Exams",w:40},{n:"Homework",w:30},{n:"Quizzes",w:20},{n:"Participation",w:10}];
+/* Real weights lifted from the actual syllabi. These beat DEFAULT_CATS, and the
+   calculator stops calling itself a placeholder for these courses. Editing a
+   course still overrides them — weights[] wins over everything. */
+const SYL_CATS={
+  "ISB 201":[{n:"Participation / quizzes / homework",w:30},{n:"Test 1",w:20},{n:"Test 2",w:20},{n:"Test 3",w:20},{n:"Final exam",w:10}],
+  "EC 201":[{n:"Exams (best 3 of 4)",w:70},{n:"Online quizzes (best 5 of 6)",w:15},{n:"Achieve adaptive (best 13 of 16)",w:15}],
+  /* ISB 201L is straight points, not weighted categories. These percentages are
+     derived from the syllabus point totals (250 in-lab + 200 homework + 100 project)
+     so the calculator has something honest to work with. */
+  "ISB 201L":[{n:"In-lab activities (~250 pts)",w:46},{n:"Homework (~200 pts)",w:36},{n:"Final project (100 pts)",w:18}]
+};
 let grades=[];                 /* {course,cat,name,earned,possible} */
 let weights={};                /* {course:[{n,w},...]} — from the syllabus */
-function catsFor(c){ return weights[c] && weights[c].length ? weights[c] : DEFAULT_CATS; }
-function usingDefaults(c){ return !(weights[c] && weights[c].length); }
+function catsFor(c){ if(weights[c] && weights[c].length) return weights[c]; return SYL_CATS[c] || DEFAULT_CATS; }
+function usingDefaults(c){ return !(weights[c] && weights[c].length) && !SYL_CATS[c]; }
 function gp(pct){ for(const [cut,v] of SCALE) if(pct>=cut) return v; return 0 }
 /* returns {pct, done, missing[]} — pct over the weight that has been graded */
 function courseGrade(code){
@@ -1866,7 +1929,8 @@ function renderWeights(){
     "<span class='wpc'>%</span>"+
     "<button class='xbtn' onclick='delCat("+i+")' aria-label='Remove'>"+I(IC.x,14)+"</button></div>").join("")+
     "<div class='wtot"+(tot===100?"":" bad")+"'>Total "+tot+"%"+(tot===100?"":" — should be 100")+
-    (usingDefaults(WCOURSE)?" · placeholder weights, edit to make them yours":"")+"</div>";
+    (usingDefaults(WCOURSE)?" · placeholder weights, edit to make them yours"
+      :(!weights[WCOURSE]&&SYL_CATS[WCOURSE]?" · from the "+WCOURSE+" syllabus":""))+"</div>";
 }
 function ensureCats(){ if(!weights[WCOURSE]) weights[WCOURSE]=catsFor(WCOURSE).map(k=>({n:k.n,w:k.w})); }
 function editCat(i,f,v){ ensureCats();
