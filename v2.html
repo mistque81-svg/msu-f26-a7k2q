@@ -529,6 +529,12 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
 .attrow .v .an.conflict{border-left:3px solid var(--warn);padding-left:9px;margin-top:9px}
 .attrow .v .an.conflict b{display:inline;background:none;border:0;padding:0;font-size:12px;color:var(--warn);font-weight:700}
 .sylflag{font-size:12.5px;line-height:1.5;color:var(--warn);border-left:3px solid var(--warn);padding:2px 0 2px 9px;margin:0 0 10px 0;font-weight:600}
+.sylsched{margin-top:5px}
+.sylsched .scrow{display:flex;gap:9px;padding:4px 0;border-top:1px solid var(--hair);font-size:12px;line-height:1.45}
+.sylsched .scrow:first-child{border-top:0}
+.sylsched .scrow .w{flex:none;width:74px;color:var(--t-mut);font-size:10.5px;padding-top:1px}
+.sylsched .scrow .t{color:var(--t-sec)}
+.sylsched .scrow.off .t{color:var(--t-mut);font-style:italic}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -871,8 +877,27 @@ const C = [
             "The final project is announced around Oct 5 and you get 5–6 weeks. Most of it happens outside class.",
             "Office hours are by appointment over Zoom — you have to ask.",
             "Grade disputes must be raised within one week of the grade posting, and you must show the original graded paper."],
+     examLabel:"Assessments",
      exams:["No exams. Announced D2L checkpoint quizzes plus the final project.",
-            "Finals week (Dec 14–18): no lab meets. The final is submitted electronically."]
+            "Numerology homework due Mon Sept 14, 10:20 AM (D2L dropbox) — the take-home from the no-meeting week.",
+            "Finals week (Dec 14–18): no lab meets. The final is submitted electronically."],
+     schedLabel:"Lab schedule (12 labs + bonus)",
+     sched:[{w:"Lab 1 · 8/31",t:"Course introduction. Syllabus, expectations, what it means to think like a scientist."},
+            {w:"Lab 2 · 9/07",t:"Pseudoscience & confirmation bias — TAKE-HOME, no class meets this week.",off:1},
+            {w:"Lab 3 · 9/14",t:"The nature and practice of science. Scientific method, live termites."},
+            {w:"Lab 4 · 9/21",t:"Nature's numbers & standard deviation. BRING A LAPTOP WITH EXCEL. Hissing cockroaches."},
+            {w:"Lab 5 · 9/28",t:"Correlation vs causation. BRING A LAPTOP — scatterplots, trend lines, R²."},
+            {w:"Lab 6 · 10/05",t:"Project introduction. BRING A LAPTOP. Final project details land here."},
+            {w:"Lab 7 · 10/12",t:"Information literacy & discussion. BRING A LAPTOP."},
+            {w:"Lab 8 · 10/19",t:"Aquatic insects & biomonitoring — OUTSIDE at the Red Cedar River, rain or shine. Dress for it."},
+            {w:"10/26",t:"Fall break — no lab.",off:1},
+            {w:"Lab 9 · 11/02",t:"Natural selection & bead bug evolution."},
+            {w:"Lab 10 · 11/09",t:"Greenhouse & natural selection — MEETS AT THE TEACHING GREENHOUSES, not North Kedzie."},
+            {w:"Lab 11 · 11/16",t:"Insects, nutrition & extrapolation. You may end up eating crickets."},
+            {w:"11/23",t:"Thanksgiving break — no lab.",off:1},
+            {w:"Lab 12 · 11/30",t:"Epidemiology. Tracking an E. coli outbreak. No laptop needed."},
+            {w:"Bonus · 12/07",t:"Optional bonus lab, up to 25 pts added to your total. Take it even if you missed nothing."},
+            {w:"12/14",t:"Finals week — no lab. Final submitted electronically.",off:1}]
    },
    prof:"R. Kimbirauskas",extra:"Weekly in-person lab. No textbook, no lab fee — but four unexcused absences drops you from the course."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
@@ -896,8 +921,15 @@ const C = [
             "No course materials to purchase.",
             "Coffee hour Mon & Wed 9–10 AM. Undergrad assistants: Kate Enlow (enlowkat@msu.edu), Trent Jones (jones804@msu.edu).",
             "He asked everyone to email him back: excitement 1–10, how much you like insects 1–10, and your favourite insect."],
-     exams:["Three tests during the term, dates announced in class.",
-            "Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"]
+     exams:["Two comprehension checkpoints open now — both due Mon Sept 8, 3:00 PM. One attempt each.",
+            "Three tests during the term, dates announced in class.",
+            "Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"],
+     schedLabel:"Posted on D2L so far",
+     sched:[{w:"Reading",t:"Easter Island (Word doc) — read before the Sept 1 class."},
+            {w:"Reading",t:"\u201cResearchers make the case for shift from economic growth to human well-being within planetary limits\u201d (link) — also for Sept 1."},
+            {w:"Quiz",t:"Easter Island comprehension checkpoint — titled \u201cDue 9/1\u201d but the real D2L deadline is Sept 8, 3:00 PM."},
+            {w:"Quiz",t:"Planetary-limits comprehension checkpoint — same, actually due Sept 8, 3:00 PM."},
+            {w:"Empty",t:"Course Homework, Presentations, Helpful Stuff and Extra Credit Opportunities are set up but still empty.",off:1}]
    },
    prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
@@ -926,15 +958,47 @@ const C = [
             "Miss a recitation without telling your TA first and you may lose the ability to submit that week's work at all. Peer reviews and practice speeches cannot be made up.",
             "He does not answer grading questions more than two weeks after an assignment was due.",
             "Athletes must give schedules to their TA by Fri Sept 11."],
+     examLabel:"Dated so far",
      exams:["Informative speech outline due: Sun Sept 27, 11:59 PM (30 pts)",
             "Persuasive speech outline due: Sun Nov 15, 11:59 PM (40 pts)",
             "Research requirement / alternative assignments due: Mon Nov 23, 11:59 PM",
-            "Final: Tue Dec 15, 3:10\u20135:10 PM, room TBA (150 pts, in Connect)"]
+            "Final: Tue Dec 15, 3:10\u20135:10 PM, room TBA (150 pts, in Connect)"],
+     schedLabel:"The four speeches (all in recitation)",
+     sched:[{w:"Week 2",t:"Icebreaker — 50 pts (speech 30, peer review 20). Lands the week of Sept 7."},
+            {w:"Weeks 3\u20136",t:"Informative — 130 pts (topic 10, outline 30, practice 20, speech 50, peer 20). Outline due Sept 27."},
+            {w:"Weeks 7\u20138",t:"Tribute — 70 pts (topic 10, speech 40, peer 20)."},
+            {w:"Weeks 10\u201315",t:"Persuasive — 140 pts (topic 10, outline 40, speech 70, peer 20). Outline due Nov 15."}],
+     extraLabel:"On D2L",
+     extras:["Syllabus and Course Information (15 topics, incl. Typical Week, Office Hours, all course policies)",
+             "Textbook \u00b7 Chapter Readings \u00b7 Chapter Quizzes \u00b7 Lecture Slides",
+             "Recitation Readings \u00b7 Recitation Slides \u00b7 Speech Assignments",
+             "Research Requirement \u00b7 Help and support"]
    },
    prof:"D. Carnahan",extra:""},
   {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",att:"campus",
    attNote:"Recitations are where participation is graded — this is the component you cannot phone in.",
-   meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week, and worth 400 of COM 100's 1000 points. Four graded speeches happen here. Work from recitation is due the following SUNDAY at 11:59 PM. From home it is about a 15 minute walk, so leave by ~7:40."},
+   syl:{
+     status:"full",
+     src:"COM 100 D2L site, read Aug 31 2026. Graded as part of COM 100 \u2014 no separate grade.",
+     flag:"This hour carries 400 of COM 100's 1000 points. It is the single highest-stakes block on your timetable.",
+     unit:" pts",
+     grading:[{n:"Persuasive speech",w:140},
+              {n:"Informative speech",w:130},
+              {n:"Tribute speech",w:70},
+              {n:"Icebreaker speech",w:50},
+              {n:"Get-to-know Connect activity",w:10}],
+     gnote:"400 points, all earned in this room. Every speech splits into topic, outline, delivery and peer review \u2014 so points accrue over weeks, not on one day.",
+     notes:["Speeches are recorded and uploaded through GoReact.",
+            "Everything assigned in recitation is due two days later. Your recitation is Friday, so the deadline is SUNDAY 11:59 PM.",
+            "If you have to miss, email your TA BEFORE class. Skip that and you may lose the right to submit that week's work at all.",
+            "Peer reviews and practice speeches cannot be made up under any circumstances \u2014 those points are simply gone.",
+            "Your TA is Sebastian Paige Lubert; contact details are under Content \u203a Syllabus and Course Information on D2L.",
+            "It is a 15 minute walk from home, so leave by about 7:40."],
+     examLabel:"Dated so far",
+     exams:["Informative speech outline: Sun Sept 27, 11:59 PM (30 pts)",
+            "Persuasive speech outline: Sun Nov 15, 11:59 PM (40 pts)"]
+   },
+   meets:[{d:5,s:480,e:560}],prof:"S. P. Lubert (TA)",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week, and worth 400 of COM 100's 1000 points. Four graded speeches happen here. Work from recitation is due the following SUNDAY at 11:59 PM. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,att:"campus",
    attNote:"Wonders C100, three times a week. Attendance is a graded category worth 15 of the course\u2019s 100 points.",why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
@@ -947,12 +1011,20 @@ const C = [
               {n:"Weekly quizzes",w:20},
               {n:"Class attendance",w:15}],
      gnote:"100 points total. Attendance is 15 of them, so showing up to all three meetings a week is worth a letter step on its own.",
-     notes:["This section's topic is Big Ideas in Human Resources and Labor Relations \u2014 the closest thing on your schedule to a business course.",
-            "Quizzes are weekly. Nothing has been posted to D2L yet beyond the syllabus.",
-            "Office hours Mon & Tue 1:00\u20132:00 PM, in person or by Zoom."],
-     exams:["Final: Mon Dec 14, 3:10\u20135:10 PM, Wonders Hall C100"]
+     notes:["This section's topic is Big Ideas in Human Resources and Labor Relations \u2014 the closest thing on your schedule to a business course, and the most directly useful one for Broad.",
+            "Quizzes are weekly, so there is something due most weeks even when nothing big is.",
+            "Attendance is its own graded line. Three meetings a week means a lot of small chances to lose those 15 points.",
+            "Office hours Mon & Tue 1:00\u20132:00 PM \u2014 in person at S418 South Kedzie, or by Zoom.",
+            "As of Aug 31 the only thing posted to D2L is the syllabus. No assignments, no quizzes yet."],
+     exams:["Final: Mon Dec 14, 3:10\u20135:10 PM, Wonders Hall C100",
+            "Midterm dates are in the syllabus course schedule and have not been announced separately yet."],
+     extraLabel:"Also in the syllabus",
+     extras:["Course schedule (week by week), learning environment and civil discourse",
+             "Academic honesty and use of AI \u00b7 accessibility and accommodations",
+             "Technology \u00b7 student well-being \u00b7 bereavement \u00b7 religious observances",
+             "Email and office hours \u00b7 limits to confidentiality"]
    },
-   prof:"G. Ericksen",extra:""},
+   prof:"J. Ericksen",extra:"Attendance is a graded category — 15 of the course's 100 points."},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
    meets:[],load:4,req:1,mode:"online",att:"online",
    sisMode:"Days and Times: To be Announced",
@@ -976,12 +1048,18 @@ const C = [
             "Quizzes are open-book and you get unlimited submissions, but only the last one is graded and you don't see the score until after the deadline.",
             "Everything is due 11:59 PM Eastern. Nothing late is accepted — one minute past is a zero.",
             "Your 3 lowest adaptive assignments and 1 lowest quiz drop automatically.",
-            "Quiz due dates: Sep 16 · Sep 23 · Oct 14 · Nov 2 · Nov 18 · Dec 7. Adaptive assignments for those chapters are due at the same moment.",
             "Send administrative questions to Jairui Wang, not Prof. Ackermann, and put \"EC 201 740\" in the subject line."],
      exams:["Midterm 1: Thu Sep 24, 7:00 PM · 50 min · room TBA · Ch. 1–4",
             "Midterm 2: Thu Nov 5, 7:00 PM · 50 min · room TBA · Ch. 5–10",
             "Midterm 3: Thu Dec 10, 7:00 PM · 50 min · room TBA · Ch. 11–14, 17, 18",
-            "Final: Thu Dec 17, 3:10 PM · cumulative · room announced by email"]
+            "Final: Thu Dec 17, 3:10 PM · cumulative · room announced by email"],
+     schedLabel:"Quiz + adaptive deadlines (all 11:59 PM)",
+     sched:[{w:"Wed 9/16",t:"Ch. 1 Core Principles · Ch. 2 Demand — plus both chapter adaptive assignments."},
+            {w:"Wed 9/23",t:"Ch. 3 Supply · Ch. 4 Equilibrium."},
+            {w:"Wed 10/14",t:"Ch. 5 Elasticity · Ch. 6 Government Intervention · Ch. 7 Welfare and Efficiency."},
+            {w:"Mon 11/02",t:"Ch. 8 Gains from Trade · Ch. 9 International Trade · Ch. 10 Externalities."},
+            {w:"Wed 11/18",t:"Ch. 11 Labor Markets · Ch. 12 Wages and Management · Ch. 13 Inequality."},
+            {w:"Mon 12/07",t:"Ch. 14 Market Power · Ch. 18 Game Theory · Ch. 17 Advanced Pricing."}]
    },
    prof:"J. Ackermann",extra:"Online asynchronous, no weekly meeting. Three 7 PM in-person midterms (Sept 24, Nov 5, Dec 10) plus a final."},
   {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",att:"online",
@@ -1004,7 +1082,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-2";
+const BUILD="2026-08-31-3";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -1582,8 +1660,18 @@ function sylHtml(c){
   }
   (y.notes||[]).forEach(n=>{h+="<div class='sylnote'>"+esc(n)+"</div>"});
   if(y.exams&&y.exams.length){
-    h+="<div class='sylnote' style='margin-top:10px'><b>Exams</b></div>";
+    h+="<div class='sylnote' style='margin-top:10px'><b>"+esc(y.examLabel||"Exams")+"</b></div>";
     y.exams.forEach(e=>{h+="<div class='sylnote' style='margin-top:3px'>· "+esc(e)+"</div>"});
+  }
+  if(y.sched&&y.sched.length){
+    h+="<div class='sylnote' style='margin-top:12px'><b>"+esc(y.schedLabel||"Week by week")+"</b></div>"+
+       "<div class='sylsched'>"+y.sched.map(r=>
+         "<div class='scrow"+(r.off?" off":"")+"'><span class='w mono'>"+esc(r.w)+"</span>"+
+         "<span class='t'>"+esc(r.t)+"</span></div>").join("")+"</div>";
+  }
+  if(y.extras&&y.extras.length){
+    h+="<div class='sylnote' style='margin-top:12px'><b>"+esc(y.extraLabel||"Also posted")+"</b></div>";
+    y.extras.forEach(e=>{h+="<div class='sylnote' style='margin-top:3px'>· "+esc(e)+"</div>"});
   }
   if(y.src) h+="<div class='sylsrc'>Source: "+esc(y.src)+"</div>";
   return h+"</div></div>";
