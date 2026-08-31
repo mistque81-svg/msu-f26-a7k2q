@@ -888,6 +888,7 @@ const C = [
      gnote:"Straight points, not weighted categories — final grade is points earned ÷ points possible. Nothing is dropped, but an optional 25-pt bonus lab runs the last week of class (Dec 7–11) and can replace points you lost.",
      scale:"90=4.0 · 85=3.5 · 80=3.0 · 75=2.5 · 70=2.0 · 65=1.5 · 60=1.0. Rounds up from .5 — an 89.5 becomes a 4.0.",
      notes:["No textbook and no lab fee. Everything is handed out in class or posted to D2L.",
+            "Quizzes are take-home in D2L: about 10 multiple-choice questions, 10 points, 30 minute limit. The first comes after lab 3 or 4 and is announced at the end of class.",
             "Late work is not graded at all — zero points, no partial credit. Extensions must be requested BEFORE the deadline.",
             "In-lab worksheets are collected at the end of each class. Homework goes to D2L and is due before the next week's lab.",
             "You need Microsoft Excel on a laptop for labs 4, 5, 6 and 7 (Sept 21 – Oct 16). Free through Spartan 365 — install it before Sept 21.",
@@ -967,7 +968,8 @@ const C = [
               {n:"Research participation (25 pts/hr)",w:50}],
      gnote:"1000 points total. Your Friday recitation is 400 of them \u2014 40% of the grade, and the biggest single block in any course you have.",
      scale:"900=4.0 \u00b7 850=3.5 \u00b7 800=3.0 \u00b7 750=2.5 \u00b7 700=2.0 \u00b7 650=1.5 \u00b7 600=1.0 \u00b7 below 600=0.0. He does not round.",
-     notes:["You need McGraw-Hill Connect \u2014 the textbook, book exercises, quizzes and the final exam all live there. Buy it in week one.",
+     notes:["Textbook: Communication Matters by Kory Floyd, 4th edition \u2014 bought as a McGraw-Hill Connect course pack, which also carries the book exercises, quizzes and the final exam. Register it with your msu.edu address or it will not link to the course.",
+            "First Connect assignment is due Fri Sept 4 \u2014 it exists to teach you the platform.",
             "Speeches are recorded and submitted through GoReact.",
             "Four speeches: Icebreaker (week 2), Informative (weeks 3\u20136), Tribute (weeks 7\u20138), Persuasive (weeks 10\u201315).",
             "Research participation is 50 points \u2014 two hours of taking part in department studies. There are alternative written assignments if you would rather not, all due Nov 23.",
@@ -1101,7 +1103,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-4";
+const BUILD="2026-08-31-5";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1148,7 +1150,8 @@ function applyUpdate(){
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
-const EX=[{d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
+const EX=[{d:"2026-09-04",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
+  {d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
   {d:"2026-09-14",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
   {d:"2026-09-16",t:"EC 201 · quiz 1 + Ch.1–2 adaptive",w:"due 11:59 PM · buy Achieve first",k:"w"},
   {d:"2026-09-27",t:"COM 100 · Informative speech outline",w:"due 11:59 PM · 30 pts",k:"w"},
@@ -1215,10 +1218,10 @@ let myEvents=[];
    These get a banner until dismissed, because a quiet footnote is how a
    scheduling conflict survives all semester. */
 const OPEN_Q=[{
-  id:"ec201-nod2l",
-  t:"EC 201 has no D2L site yet",
-  d:"Your D2L account lists five course sites \u2014 COM 100, ISB 201, ISB 201L, ISS 205 \u2014 plus two non-course shells. There is no EC 201 site. The EC 201 syllabus says the lecture videos, the workbook, the quizzes and the Achieve purchase link all live in D2L, and the first quiz is due Wed Sept 16 at 11:59 PM with no late submissions accepted.",
-  a:"Instructors often publish the D2L site on or just after the first day, so give it until Wed Sept 2. If it is still missing, email Jairui Wang (wangj328@msu.edu) with \u201cEC 201 740\u201d in the subject: \u201cI am enrolled in section 740 but the D2L site is not showing in my course list.\u201d Quiz 1 is due Sept 16 and the Achieve link lives behind that site, so do not let it drift past that."
+  id:"com100-connect",
+  t:"COM 100: a Connect assignment is due this Friday",
+  d:"Your TA Sebastian Paige Lubert emailed that there is one assignment this week, designed to teach you the Connect platform, due Fri Sept 4. Connect is also where the textbook lives \u2014 Communication Matters by Kory Floyd, 4th edition, bought as a Connect course pack. You must register it with your msu.edu address.",
+  a:"Buy the Connect course pack through the purchase link in D2L before Friday. McGraw-Hill reps are in lecture this week if you would rather do it in person, and your TA walks through the platform in Friday's recitation."
 },{
   id:"com100-icebreaker",
   t:"COM 100 icebreaker speech is week 2",
