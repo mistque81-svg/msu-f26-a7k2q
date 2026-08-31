@@ -889,6 +889,7 @@ const C = [
      scale:"90=4.0 · 85=3.5 · 80=3.0 · 75=2.5 · 70=2.0 · 65=1.5 · 60=1.0. Rounds up from .5 — an 89.5 becomes a 4.0.",
      notes:["No textbook and no lab fee. Everything is handed out in class or posted to D2L.",
             "Quizzes are take-home in D2L: about 10 multiple-choice questions, 10 points, 30 minute limit. The first comes after lab 3 or 4 and is announced at the end of class.",
+            "STANDING RULE, confirmed with him in person: email Dr. Kimbirauskas BEFORE each D2L quiz so he can set your time limit. He does not do it automatically and it cannot be fixed afterwards. Quizzes are announced at the end of the lab \u2014 that is your cue to send the email that day.",
             "Late work is not graded at all — zero points, no partial credit. Extensions must be requested BEFORE the deadline.",
             "In-lab worksheets are collected at the end of each class. Homework goes to D2L and is due before the next week's lab.",
             "You need Microsoft Excel on a laptop for labs 4, 5, 6 and 7 (Sept 21 – Oct 16). Free through Spartan 365 — install it before Sept 21.",
@@ -1103,7 +1104,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-5";
+const BUILD="2026-08-31-6";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1151,6 +1152,7 @@ const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end �
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
 const EX=[{d:"2026-09-04",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
+  {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
   {d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
   {d:"2026-09-14",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
   {d:"2026-09-16",t:"EC 201 · quiz 1 + Ch.1–2 adaptive",w:"due 11:59 PM · buy Achieve first",k:"w"},
@@ -1168,6 +1170,7 @@ const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and 
   ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
+  ["Email DrK before every ISB 201L quiz","He sets your D2L time limit by hand, only when asked, and only before the quiz opens. Quizzes get announced at the end of lab \u2014 send the email the same day. First one lands after lab 3 or 4."],
   ["Two platforms to buy","COM 100 needs McGraw-Hill Connect (textbook, quizzes, final \u2014 450 of 1000 pts) and EC 201 needs Macmillan Achieve (15%). Both in week one; EC 201's first deadline is Sept 16."],
   ["Your Friday 8 AM is 40% of COM 100","Recitation activities are 400 of the 1000 points \u2014 four graded speeches. It is the highest-stakes hour on your timetable, not the one to sleep through."],
   ["Friday starts at 8:00","COM 100 recitation 024 meets Fri 8:00–9:20 AM in Comm Arts 173 — about a 15 minute walk, so leave by ~7:40. It is the only 8 AM on your schedule and the only thing standing between you and a free Friday morning."]];
