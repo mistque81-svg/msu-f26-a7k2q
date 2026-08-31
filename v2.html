@@ -194,12 +194,20 @@ html[data-theme="dark"] .glane.td{background:rgba(123,189,0,.07)}
   overflow:hidden;font-size:8.5px;font-weight:800;line-height:1.1;letter-spacing:-.02em;
   color:#fff;background:var(--spartan);cursor:pointer}
 .blk.per{background:var(--ink);color:var(--canvas)}
+/* Online blocks are drawn hollow on purpose: there is no room to walk to, so the
+   tile is an outline, not a solid place. Fill vs outline survives greyscale and
+   colour blindness, and it does not borrow a hue from the course-load ramp. */
+.blk.onl{background:transparent;border:1.5px dashed var(--spartan);color:var(--spartan)}
+html[data-theme="dark"] .blk.onl{border-color:var(--lime);color:var(--lime)}
+.blk.onl small{opacity:1;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .blk small{display:block;font-weight:500;opacity:.82;font-size:7.5px;margin-top:1px;letter-spacing:0}
 .gnow{position:absolute;left:38px;right:0;height:1.5px;background:var(--danger);z-index:4}
 .gnow::before{content:"";position:absolute;left:-3px;top:-2.5px;width:7px;height:7px;
   border-radius:9px;background:var(--danger)}
 .gkey{display:flex;gap:14px;padding:9px 18px 0;font-size:9.5px;color:var(--t-mut);flex-wrap:wrap}
 .gkey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.gkey i.hollow{background:transparent;border:1.5px dashed var(--spartan)}
+html[data-theme="dark"] .gkey i.hollow{border-color:var(--lime)}
 .gkey i.hatch{background:repeating-linear-gradient(115deg,transparent 0 2px,var(--t-mut) 2px 4px);
   border:1px dashed var(--line)}
 
@@ -484,10 +492,13 @@ html[data-theme="dark"]{
   color:var(--spartan);border-color:color-mix(in srgb,var(--spartan) 26%,transparent)}
 html[data-theme="dark"] .ltag.req{background:rgba(123,189,0,.16);color:var(--lime);
   border-color:rgba(123,189,0,.4)}
-.ltag.onl{background:color-mix(in srgb,#2563EB 12%,transparent);color:#1D4ED8;
-  border-color:color-mix(in srgb,#2563EB 28%,transparent)}
-html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
-  border-color:rgba(96,165,250,.42)}
+/* Online is drawn hollow with a dashed edge, the same language the week grid uses
+   for "there is no room to walk to". In person is solid — a real place. Neither
+   reuses the green that already means Required. */
+.ltag.onl{background:transparent;color:#1D4ED8;border:1.5px dashed #2563EB}
+html[data-theme="dark"] .ltag.onl{background:transparent;color:#93C5FD;border-color:#60A5FA}
+.ltag.inp{background:#334155;color:#fff;border-color:#334155}
+html[data-theme="dark"] .ltag.inp{background:#CBD5E1;color:#0F172A;border-color:#CBD5E1}
 .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
 .lgnd{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 4px}
 .lbar{display:flex;height:8px;border-radius:var(--rc);overflow:hidden;
@@ -508,6 +519,15 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
 .sylnote+.sylnote{margin-top:8px}
 .sylpend{font-size:12.5px;color:var(--warn);line-height:1.5}
 .sylsrc{font-size:10.5px;color:var(--t-mut);margin-top:9px;font-style:italic}
+.attrow .v b{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;line-height:1.5}
+.attrow.campus .v b{background:var(--spartan);color:#fff}
+html[data-theme="dark"] .attrow.campus .v b{background:var(--lime);color:#0A0A0A}
+.attrow.online .v b{background:transparent;border:1.5px dashed var(--spartan);color:var(--spartan);padding:1px 8px}
+html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(--lime)}
+.attrow.own .v b{background:var(--ink);color:var(--canvas)}
+.attrow .v .an{display:block;font-size:12px;color:var(--t-sec);line-height:1.5;margin-top:6px;font-weight:400}
+.attrow .v .an.conflict{border-left:3px solid var(--warn);padding-left:9px;margin-top:9px}
+.attrow .v .an.conflict b{display:inline;background:none;border:0;padding:0;font-size:12px;color:var(--warn);font-weight:700}
 .sylflag{font-size:12.5px;line-height:1.5;color:var(--warn);border-left:3px solid var(--warn);padding:2px 0 2px 9px;margin:0 0 10px 0;font-weight:600}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
@@ -568,7 +588,8 @@ html[data-theme="dark"] .ltag.onl{background:rgba(96,165,250,.18);color:#93C5FD;
     <div id="weekGrid">
       <div class="gwrap"><div class="ghead" id="gHead"></div><div class="gcanvas" id="gCanvas"></div></div>
       <div class="gkey">
-        <span><i style="background:#18453B"></i>class</span>
+        <span><i style="background:#18453B"></i>be there in person</span>
+        <span><i class="hollow"></i>online — no meeting</span>
         <span><i style="background:#0A0A0A"></i>your own time</span>
         <span><i class="hatch"></i>folded</span>
         <span><i style="background:#B91C1C"></i>now</span>
@@ -826,7 +847,10 @@ const modeDef=()=>MODES.find(m=>m.k===MODE);
 const mins=b=>modeDef().f(b);
 const C = [
   {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",
-   meets:[{d:1,s:620,e:730}],load:2,req:1,mode:"hybrid",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
+   meets:[{d:1,s:620,e:730}],load:2,req:1,mode:null,att:"campus",
+   sisMode:"Hybrid",
+   attNote:"Four unexcused absences drops you from the course with a 0.0, and there are only 12 labs. Two weeks have no meeting: Sept 7–11 is take-home, and there is no lab over Fall or Thanksgiving break.",
+   modeNote:"MSU's system lists this section as Hybrid. The syllabus Dr. Kimbirauskas sent says \u201cCourse modality: Face-to-face\u201d and that the lab meets in person every week. The two disagree — but not about you: both put you in N220 on Mondays. Hybrid at MSU means at least half the instruction is delivered online, never that attendance is optional.",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
    syl:{
      status:"full",
      src:"ISB 201L Fall 2026 syllabus, section 001 — Dr. Ryan Kimbirauskas (kimbira1@msu.edu).",
@@ -852,7 +876,8 @@ const C = [
    },
    prof:"R. Kimbirauskas",extra:"Weekly in-person lab. No textbook, no lab fee — but four unexcused absences drops you from the course."},
   {c:"ISB 201",name:"Insects, Globalization & Sustainability — Lecture",cls:"23418",sec:"009",cr:3,b:"SKZ",
-   meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],load:1,req:1,mode:null,why:"Integrative Studies gen-ed lecture, twice a week, no lab attached to this component.",
+   meets:[{d:2,s:900,e:980},{d:4,s:900,e:980}],load:1,req:1,mode:null,att:"campus",
+   attNote:"No roll is taken, but the in-class exercises and quizzes cannot be made up and they sit inside the 30% participation category.",why:"Integrative Studies gen-ed lecture, twice a week, no lab attached to this component.",
    syl:{
      status:"full",
      src:"ISB 201 Fall 2026 syllabus, section 009 — Dr. Gabe Ording (ordingga@msu.edu, 353-8599).",
@@ -876,25 +901,61 @@ const C = [
    },
    prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
-   meets:[{d:3,s:760,e:840}],load:1,req:0,mode:null,why:"Intro communication — one lecture and one recitation a week. The only course on your schedule that is not required for anything.",
+   meets:[{d:3,s:760,e:840}],load:1,req:0,mode:null,att:"campus",
+   attNote:"In person in Holden G8, and attendance is taken every lecture \u2014 100 points, two free absences, then 10 points each.",why:"Intro communication — one lecture and one recitation a week. The only course on your schedule that is not required for anything.",
    syl:{
-     status:"pending",
-     notes:["Two components: the Wednesday lecture and your Friday recitation. They are graded as one course."],
-     exams:["Final: Tue Dec 15, 3:10–5:10 PM, room TBA"]
+     status:"full",
+     src:"COM 100 D2L site, read Aug 31 2026 \u2014 Prof. Dustin Carnahan (carnaha9@msu.edu). TA: Sebastian Paige Lubert.",
+     flag:"Attendance is taken at every lecture and is worth 100 points. You may miss two without penalty; every one after that costs 10 points.",
+     unit:" pts",
+     grading:[{n:"Recitation activities (4 speeches)",w:400},
+              {n:"Quizzes \u2014 Connect (12\u00d720, drop 2)",w:200},
+              {n:"Final exam \u2014 Connect",w:150},
+              {n:"Lecture attendance (12\u00d710, drop 2)",w:100},
+              {n:"Book exercises \u2014 Connect (12\u00d710, drop 2)",w:100},
+              {n:"Research participation (25 pts/hr)",w:50}],
+     gnote:"1000 points total. Your Friday recitation is 400 of them \u2014 40% of the grade, and the biggest single block in any course you have.",
+     scale:"900=4.0 \u00b7 850=3.5 \u00b7 800=3.0 \u00b7 750=2.5 \u00b7 700=2.0 \u00b7 650=1.5 \u00b7 600=1.0 \u00b7 below 600=0.0. He does not round.",
+     notes:["You need McGraw-Hill Connect \u2014 the textbook, book exercises, quizzes and the final exam all live there. Buy it in week one.",
+            "Speeches are recorded and submitted through GoReact.",
+            "Four speeches: Icebreaker (week 2), Informative (weeks 3\u20136), Tribute (weeks 7\u20138), Persuasive (weeks 10\u201315).",
+            "Research participation is 50 points \u2014 two hours of taking part in department studies. There are alternative written assignments if you would rather not, all due Nov 23.",
+            "Lecture/reading work is due the Friday of that week at 11:59 PM.",
+            "Recitation work is due two days after your recitation. Yours is Friday, so everything is due SUNDAY 11:59 PM.",
+            "No late work without an excuse cleared BEFORE the due date \u2014 Carnahan for lecture work, your TA for recitation work.",
+            "Miss a recitation without telling your TA first and you may lose the ability to submit that week's work at all. Peer reviews and practice speeches cannot be made up.",
+            "He does not answer grading questions more than two weeks after an assignment was due.",
+            "Athletes must give schedules to their TA by Fri Sept 11."],
+     exams:["Informative speech outline due: Sun Sept 27, 11:59 PM (30 pts)",
+            "Persuasive speech outline due: Sun Nov 15, 11:59 PM (40 pts)",
+            "Research requirement / alternative assignments due: Mon Nov 23, 11:59 PM",
+            "Final: Tue Dec 15, 3:10\u20135:10 PM, room TBA (150 pts, in Connect)"]
    },
    prof:"D. Carnahan",extra:""},
-  {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",
-   meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week. From home it is about a 15 minute walk, so leave by ~7:40."},
+  {c:"COM 100 rec",name:"Human Communication — Recitation",cls:"14291",sec:"024",cr:0,b:"CAB",att:"campus",
+   attNote:"Recitations are where participation is graded — this is the component you cannot phone in.",
+   meets:[{d:5,s:480,e:560}],prof:"To be announced",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week, and worth 400 of COM 100's 1000 points. Four graded speeches happen here. Work from recitation is due the following SUNDAY at 11:59 PM. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
-   meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
+   meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,att:"campus",
+   attNote:"Wonders C100, three times a week. Attendance is a graded category worth 15 of the course\u2019s 100 points.",why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
    syl:{
-     status:"pending",
-     notes:[],
-     exams:["Final: Mon Dec 14, 3:10–5:10 PM, Wonders Hall C100"]
+     status:"full",
+     src:"ISS 205 syllabus on D2L, read Aug 31 2026 \u2014 Dr. Jeff Ericksen (erickse8@msu.edu), office S418 South Kedzie.",
+     unit:" pts",
+     grading:[{n:"Exams",w:40},
+              {n:"Final case project",w:25},
+              {n:"Weekly quizzes",w:20},
+              {n:"Class attendance",w:15}],
+     gnote:"100 points total. Attendance is 15 of them, so showing up to all three meetings a week is worth a letter step on its own.",
+     notes:["This section's topic is Big Ideas in Human Resources and Labor Relations \u2014 the closest thing on your schedule to a business course.",
+            "Quizzes are weekly. Nothing has been posted to D2L yet beyond the syllabus.",
+            "Office hours Mon & Tue 1:00\u20132:00 PM, in person or by Zoom."],
+     exams:["Final: Mon Dec 14, 3:10\u20135:10 PM, Wonders Hall C100"]
    },
    prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
-   meets:[],load:4,req:1,mode:"online",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
+   meets:[],load:4,req:1,mode:"online",att:"online",
+   attNote:"Nothing to attend weekly — no meeting, no attendance, no Zoom. You watch the lectures whenever you want. The exception is the four exams, which are in person on campus in the evening.",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
    syl:{
      status:"full",
      src:"EC 201 Fall 2026 syllabus, section 740 — Prof. Jeff Ackermann (jaa@msu.edu). Admin: Jairui Wang (wangj328@msu.edu).",
@@ -921,12 +982,15 @@ const C = [
             "Final: Thu Dec 17, 3:10 PM · cumulative · room announced by email"]
    },
    prof:"J. Ackermann",extra:"Online asynchronous, no weekly meeting. Three 7 PM in-person midterms (Sept 24, Nov 5, Dec 10) plus a final."},
-  {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",
+  {c:"EC 201",name:"Introduction to Microeconomics — self-scheduled lecture block",kind:"study",att:"online",
+   attNote:"You invented this block — nobody is expecting you. It is time set aside to watch the EC 201 videos, which have no meeting of their own.",
    cls:"18650",sec:"740",cr:0,b:"ONL",
    meets:[{d:2,s:600,e:690},{d:4,s:600,e:690}],
    prof:"You",
    extra:"EC 201 is asynchronous — it has no meeting time, so without a block like this it appears on no screen and nobody notices you skipped it. Tue and Thu mornings are your only genuinely free windows, and this course counts toward Broad admission. Turn these off on the Info tab if you'd rather schedule it yourself."},
-  {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",cls:"—",sec:"—",cr:0,b:"SRW",
+  {c:"Gym",name:"Rec & Wellness Center — training block",kind:"gym",att:"own",
+   attNote:"Your own time. Move it, skip it, nobody grades it.",
+   cls:"—",sec:"—",cr:0,b:"SRW",
    meets:[{d:1,s:1010,e:1090},{d:3,s:615,e:695},{d:5,s:1010,e:1090}],
    prof:"You",
    extra:"Mon and Fri start 10 min after ISS 205 lets out in Wonders — the rec center is the next stop south, so it costs almost no extra travel. The Wednesday morning slot was chosen to dodge a 6 PM COM 100 recitation you are no longer in, so Wednesday evening is free now if you would rather train then. Tue/Thu mornings are also wide open. Friday now starts with an 8 AM class, so the Friday afternoon block is the right side of the day."}
@@ -938,7 +1002,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-29-1";
+const BUILD="2026-08-31-1";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -980,7 +1044,13 @@ function applyUpdate(){
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
-const EX=[{d:"2026-09-24",t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
+const EX=[{d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
+  {d:"2026-09-14",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
+  {d:"2026-09-16",t:"EC 201 · quiz 1 + Ch.1–2 adaptive",w:"due 11:59 PM · buy Achieve first",k:"w"},
+  {d:"2026-09-27",t:"COM 100 · Informative speech outline",w:"due 11:59 PM · 30 pts",k:"w"},
+  {d:"2026-11-15",t:"COM 100 · Persuasive speech outline",w:"due 11:59 PM · 40 pts",k:"w"},
+  {d:"2026-11-23",t:"COM 100 · research requirement",w:"due 11:59 PM · 50 pts",k:"w"},
+  {d:"2026-09-24",t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
   {d:"2026-11-05",t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
   {d:"2026-12-10",t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
   {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
@@ -991,6 +1061,8 @@ const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and 
   ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
+  ["Two platforms to buy","COM 100 needs McGraw-Hill Connect (textbook, quizzes, final \u2014 450 of 1000 pts) and EC 201 needs Macmillan Achieve (15%). Both in week one; EC 201's first deadline is Sept 16."],
+  ["Your Friday 8 AM is 40% of COM 100","Recitation activities are 400 of the 1000 points \u2014 four graded speeches. It is the highest-stakes hour on your timetable, not the one to sleep through."],
   ["Friday starts at 8:00","COM 100 recitation 024 meets Fri 8:00–9:20 AM in Comm Arts 173 — about a 15 minute walk, so leave by ~7:40. It is the only 8 AM on your schedule and the only thing standing between you and a free Friday morning."]];
 
 
@@ -1039,6 +1111,21 @@ let myEvents=[];
    These get a banner until dismissed, because a quiet footnote is how a
    scheduling conflict survives all semester. */
 const OPEN_Q=[{
+  id:"ec201-nod2l",
+  t:"EC 201 has no D2L site yet",
+  d:"Your D2L account lists five course sites \u2014 COM 100, ISB 201, ISB 201L, ISS 205 \u2014 plus two non-course shells. There is no EC 201 site. The EC 201 syllabus says the lecture videos, the workbook, the quizzes and the Achieve purchase link all live in D2L, and the first quiz is due Wed Sept 16 at 11:59 PM with no late submissions accepted.",
+  a:"Email Jairui Wang (wangj328@msu.edu), the course administrator, with \u201cEC 201 740\u201d in the subject: \u201cI am enrolled in section 740 but the D2L site is not showing in my course list.\u201d Do not wait \u2014 the Achieve purchase is behind that link."
+},{
+  id:"com100-icebreaker",
+  t:"COM 100 icebreaker speech is week 2",
+  d:"COM 100 has four graded speeches, and the icebreaker lands in week two \u2014 the week of Sept 7. It is 50 points (30 speech, 20 peer review). Recitation work is due two days after your recitation, so for a Friday recitation that is Sunday at 11:59 PM.",
+  a:"Check Content \u203a Speech Assignments \u203a Icebreaker in D2L this week so the topic is not a surprise on Friday."
+},{
+  id:"isb201l-modality",
+  t:"ISB 201L: SIS says Hybrid, the syllabus says Face-to-face",
+  d:"MSU's enrollment system lists section 001 as Hybrid with an online component. Dr. Kimbirauskas's syllabus says \u201cCourse modality: Face-to-face\u201d and that the lab is delivered in person once a week. MSU defines hybrid as at least 50% of instruction online, which does not match a course meeting 110 minutes a week for 12 weeks — so the SIS tag looks stale. It does not change what you do: you are expected in North Kedzie N220 every Monday either way.",
+  a:"Worth one email to Dr. Kimbirauskas (kimbira1@msu.edu) in week one: \u201cSIS lists section 001 as hybrid but the syllabus says face-to-face \u2014 is any part of the lab delivered online?\u201d"
+},{
   id:"isb201l-absence",
   t:"ISB 201L drops you after 4 unexcused absences",
   d:"Four unexcused absences means an automatic drop from the lab with a 0.0 on your transcript — and there are only 12 labs. It is the harshest single policy on your schedule. Excused absences need documentation, and make-ups must happen within one week.",
@@ -1083,6 +1170,10 @@ const dir2=(from,to,m)=>"https://www.google.com/maps/dir/?api=1"+
   "&destination="+encodeURIComponent(to)+"&travelmode="+(m||MODE);
 const dur=m=>m<60?m+" min":(Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":""));
 const isGym=c=>c.kind==="gym"||c.kind==="study";
+/* Where do you actually have to be? "campus" = a room and a time someone notices
+   you missed. "online" = no room, no attendance. "own" = you scheduled it. */
+const attOf=c=>c.att||(isGym(c)?"own":"campus");
+const ATTNAME={campus:"Be there",online:"Online — no meeting",own:"Your own time"};
 const isStudy=c=>c.kind==="study";
 const bname=k=>B[k]&&(B[k].s||B[k].n);   // short label where one exists
 /* the monogram: a course code broken onto at most two lines */
@@ -1496,13 +1587,16 @@ function sylHtml(c){
   return h+"</div></div>";
 }
 function metaHtml(c){
-  const L=loadOf(c); if(L==null&&c.req==null&&!c.mode) return "";
+  const L=loadOf(c), A=attOf(c);
+  /* The recitation carries no load/required metadata of its own (that lives on the
+     lecture row), but "do I have to be there" still applies to it. */
+  if(L==null&&c.req==null&&A==="own") return "";
   let h="<div class='meta'>";
   if(L) h+="<span class='lchip l"+L+"' title='Course load: "+LOADNAME[L]+"'><i></i>"+LOADNAME[L]+"</span>";
   if(c.req===1) h+="<span class='ltag req'>Required</span>";
   else if(c.req===0) h+="<span class='ltag'>Elective</span>";
-  if(c.mode==="online") h+="<span class='ltag onl'>Online</span>";
-  else if(c.mode==="hybrid") h+="<span class='ltag onl'>Hybrid</span>";
+  if(A==="online") h+="<span class='ltag onl'>Online · nothing to attend</span>";
+  else if(A==="campus") h+="<span class='ltag inp'>In person</span>";
   return h+"</div>";
 }
 /* measure text in the real font so tiles can be sized to fit */
@@ -1635,9 +1729,12 @@ function drawGrid(){
     C.forEach((c,ci)=>{ if(isStudy(c)&&!STUDY)return; c.meets.forEach(m=>{
       if(m.d!==d)return;
       const top=yOf(m.s), h=Math.max(20,yOf(m.e)-top-2);
-      inner+="<div class='blk"+(isGym(c)?" per":"")+"' style='top:"+top+"px;height:"+h+"px' "+
+      const A=attOf(c);
+      const sub = A==="online" ? "online" : (A==="own" ? "your time" : B[c.b].r);
+      inner+="<div class='blk"+(A==="online"?" onl":(A==="own"?" per":""))+
+        "' style='top:"+top+"px;height:"+h+"px' title='"+esc(ATTNAME[A])+"' "+
         "onclick='openSheet("+ci+")'>"+esc(c.c)+
-        (h>32&&B[c.b].r?"<small>"+esc(B[c.b].r)+"</small>":"")+"</div>";
+        (h>32&&sub?"<small>"+esc(sub)+"</small>":"")+"</div>";
     })});
     lanes+="<div class='glane"+(d===TODOW?" td":"")+"'>"+inner+"</div>";
   }
@@ -1647,8 +1744,9 @@ function drawGrid(){
     "<div class='gnow' id='gnow' style='display:none'></div></div>";
   const folded=SCALE_.segs.filter(s=>s.fold).reduce((a,s)=>a+(s.to-s.from),0);
   document.getElementById("gridTip").innerHTML=
-    "<b>"+dur(folded)+"</b> of empty time folded away. Tue and Thu are single-class days — "+
-    "the natural home for EC 201 lectures.";
+    "<b>"+dur(folded)+"</b> of empty time folded away. Solid tiles are places you have to "+
+    "physically be. Dashed tiles are online — nothing meets, nobody takes attendance. "+
+    "Tue and Thu are single-class days, which is why the EC 201 blocks live there.";
   drawGridNow();
 }
 function drawGridNow(){
@@ -1685,6 +1783,11 @@ function openSheet(i){
     "<div style='display:flex;gap:12px;align-items:center;margin-bottom:10px'>"+tileFor(c)+
     "<h3>"+esc(c.c)+"</h3></div>"+
     "<p style='color:var(--t-sec);font-size:13px;margin-bottom:14px'>"+esc(c.name)+"</p>"+
+    "<div class='kv attrow "+attOf(c)+"'><div class='k'>Be there?</div><div class='v'><b>"+
+      esc(ATTNAME[attOf(c)])+"</b>"+(c.attNote?"<span class='an'>"+esc(c.attNote)+"</span>":"")+
+      (c.modeNote?"<span class='an conflict'><b>SIS says "+esc(c.sisMode||"something else")+"</b> "+
+        esc(c.modeNote)+"</span>":"")+
+      "</div></div>"+
     "<div class='kv'><div class='k'>When</div><div class='v'>"+
       (c.meets.length?c.meets.map(m=>DAY[m.d]).join(", ")+"<br><span class='mono'>"+
        fm(c.meets[0].s)+" – "+fm(c.meets[0].e)+"</span>":"No scheduled meeting")+"</div></div>"+
@@ -1853,7 +1956,14 @@ const SYL_CATS={
   /* ISB 201L is straight points, not weighted categories. These percentages are
      derived from the syllabus point totals (250 in-lab + 200 homework + 100 project)
      so the calculator has something honest to work with. */
-  "ISB 201L":[{n:"In-lab activities (~250 pts)",w:46},{n:"Homework (~200 pts)",w:36},{n:"Final project (100 pts)",w:18}]
+  "ISB 201L":[{n:"In-lab activities (~250 pts)",w:46},{n:"Homework (~200 pts)",w:36},{n:"Final project (100 pts)",w:18}],
+  /* From the D2L sites, Aug 31. Both are point systems; these are the point
+     totals expressed as percentages of the course total so the calculator works. */
+  "COM 100":[{n:"Recitation \u2014 4 speeches (400 pts)",w:40},{n:"Connect quizzes (200 pts)",w:20},
+             {n:"Final exam (150 pts)",w:15},{n:"Lecture attendance (100 pts)",w:10},
+             {n:"Connect book exercises (100 pts)",w:10},{n:"Research participation (50 pts)",w:5}],
+  "ISS 205":[{n:"Exams (40 pts)",w:40},{n:"Final case project (25 pts)",w:25},
+             {n:"Weekly quizzes (20 pts)",w:20},{n:"Class attendance (15 pts)",w:15}]
 };
 let grades=[];                 /* {course,cat,name,earned,possible} */
 let weights={};                /* {course:[{n,w},...]} — from the syllabus */
