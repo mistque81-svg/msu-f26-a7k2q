@@ -454,6 +454,13 @@ footer{color:var(--t-mut);font-size:11px;text-align:center;margin:26px 18px 0;li
   box-shadow:var(--shadow);padding:14px 15px;font-size:13px;color:var(--t-sec);gap:12px}
 #a2hs.on{display:flex}
 #a2hs b{color:var(--t-pri)}
+#stalebar{display:none;position:fixed;left:12px;right:12px;bottom:calc(84px + var(--safe-b));z-index:57;
+  gap:10px;align-items:center;padding:11px 12px;border-radius:var(--rc);font-size:12px;line-height:1.4;
+  background:var(--surface);color:var(--t-sec);border:1px solid var(--warn);
+  box-shadow:0 8px 26px rgba(0,0,0,.22)}
+#stalebar.on{display:flex}
+#stalebar b{color:var(--warn)}
+#stalebar .btn{flex:none;text-decoration:none;display:inline-flex;align-items:center}
 #updbar{display:none;position:fixed;left:12px;right:12px;bottom:calc(84px + var(--safe-b));z-index:56;
   background:var(--canvas);border:1px solid var(--lime);border-radius:var(--r2);
   box-shadow:var(--shadow);padding:14px 15px;font-size:13px;color:var(--t-sec);gap:12px;align-items:center}
@@ -777,7 +784,12 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
       Edits only reach your phone after the new version is published — this checks the server for one
       and loads it. <b>Your assignments, scores and saved spots are kept.</b>
       <div style="margin-top:12px"><button class="btn ghost sm" id="updBtn" onclick="checkUpdate(true)">Check for update</button></div>
-      <div id="updMsg" style="margin-top:10px"></div></div>
+      <div id="updMsg" style="margin-top:10px"></div>
+      <div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--hair)">
+        <b>The live page</b> is the one that stays current:<br>
+        <a class="mono" id="liveLink2" style="font-size:11px;word-break:break-all"
+           href="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html">mistque81-svg.github.io/msu-f26-a7k2q/v2.html</a><br>
+        A copy you downloaded and opened from Files cannot update itself.</div></div>
     <h2 class="sec">Your data</h2>
     <div class="note">Assignments and scores are saved on <b>this device only</b> — never uploaded.
       Use Export backup to move them.
@@ -792,6 +804,13 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
   <div style="flex:1"><b>Add this to your Home Screen.</b><br>
     Tap Share, then “Add to Home Screen”.</div>
   <button class="xbtn" onclick="dismissA2HS()" id="a2hsX" aria-label="Dismiss"></button>
+</div>
+
+<div id="stalebar">
+  <div style="flex:1"><b>This is a downloaded copy.</b><br>
+    It cannot update itself and will fall behind. Open the live page instead.</div>
+  <a class="btn sm" id="liveLink" href="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html">Open live</a>
+  <button class="xbtn" onclick="document.getElementById('stalebar').classList.remove('on')" aria-label="Dismiss"></button>
 </div>
 
 <div id="updbar">
@@ -1082,7 +1101,8 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-3";
+const BUILD="2026-08-31-4";
+const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -1094,7 +1114,11 @@ function setUpdMsg(t,warm){
 
 async function checkUpdate(loud){
   const btn=document.getElementById("updBtn");
-  if(location.protocol==="file:"){ if(loud)setUpdMsg("Opened as a local file — update checking only works on the published link.",true); return; }
+  if(location.protocol==="file:"){
+    document.getElementById("stalebar").classList.add("on");
+    if(loud)setUpdMsg("This is a downloaded copy of the app, so it cannot check for updates and will fall behind. Open "+LIVE_URL+" instead \u2014 that one stays current.",true);
+    return;
+  }
   if(loud&&btn){btn.disabled=true;btn.textContent="Checking…"}
   if(loud)setUpdMsg("");
   try{
