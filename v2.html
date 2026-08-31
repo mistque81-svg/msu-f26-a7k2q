@@ -955,6 +955,8 @@ const C = [
    prof:"G. Ericksen",extra:""},
   {c:"EC 201",name:"Introduction to Microeconomics",cls:"18650",sec:"740",cr:3,b:"ONL",
    meets:[],load:4,req:1,mode:"online",att:"online",
+   sisMode:"Days and Times: To be Announced",
+   modeNote:"That is not a pending announcement \u2014 it is how SIS displays an asynchronous course with no meeting pattern, and it will read that way all semester. Prof. Ackermann has already published a full syllabus with every date. The one thing genuinely unannounced is the exam ROOMS, which he says will come by email.",
    attNote:"Nothing to attend weekly — no meeting, no attendance, no Zoom. You watch the lectures whenever you want. The exception is the four exams, which are in person on campus in the evening.",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
    syl:{
      status:"full",
@@ -1002,7 +1004,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-1";
+const BUILD="2026-08-31-2";
 let UPD_FOUND=null;
 
 function setUpdMsg(t,warm){
@@ -1114,7 +1116,7 @@ const OPEN_Q=[{
   id:"ec201-nod2l",
   t:"EC 201 has no D2L site yet",
   d:"Your D2L account lists five course sites \u2014 COM 100, ISB 201, ISB 201L, ISS 205 \u2014 plus two non-course shells. There is no EC 201 site. The EC 201 syllabus says the lecture videos, the workbook, the quizzes and the Achieve purchase link all live in D2L, and the first quiz is due Wed Sept 16 at 11:59 PM with no late submissions accepted.",
-  a:"Email Jairui Wang (wangj328@msu.edu), the course administrator, with \u201cEC 201 740\u201d in the subject: \u201cI am enrolled in section 740 but the D2L site is not showing in my course list.\u201d Do not wait \u2014 the Achieve purchase is behind that link."
+  a:"Instructors often publish the D2L site on or just after the first day, so give it until Wed Sept 2. If it is still missing, email Jairui Wang (wangj328@msu.edu) with \u201cEC 201 740\u201d in the subject: \u201cI am enrolled in section 740 but the D2L site is not showing in my course list.\u201d Quiz 1 is due Sept 16 and the Achieve link lives behind that site, so do not let it drift past that."
 },{
   id:"com100-icebreaker",
   t:"COM 100 icebreaker speech is week 2",
