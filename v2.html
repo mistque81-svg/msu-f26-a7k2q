@@ -1028,18 +1028,27 @@ const C = [
      status:"full",
      src:"ISS 205 syllabus on D2L, read Aug 31 2026 \u2014 Dr. Jeff Ericksen (erickse8@msu.edu), office S418 South Kedzie.",
      unit:" pts",
-     grading:[{n:"Exams",w:40},
-              {n:"Final case project",w:25},
-              {n:"Weekly quizzes",w:20},
-              {n:"Class attendance",w:15}],
-     gnote:"100 points total. Attendance is 15 of them, so showing up to all three meetings a week is worth a letter step on its own.",
+     flag:"Weekly quizzes open Friday 4:40 PM and close Monday 3:30 PM. That is a weekend window, 30 minutes, and there are no make-ups \u2014 miss one and it just becomes a dropped score.",
+     grading:[{n:"Exam 1",w:20},
+              {n:"Exam 2",w:20},
+              {n:"Weekly quizzes (best 10 of 12)",w:20},
+              {n:"Final project \u2014 team analysis",w:20},
+              {n:"Class attendance",w:15},
+              {n:"Final project \u2014 individual synthesis",w:5}],
+     gnote:"100 points, so each point is one percent of the grade. The two exams together are 40 of them, and neither is cumulative.",
      notes:["This section's topic is Big Ideas in Human Resources and Labor Relations \u2014 the closest thing on your schedule to a business course, and the most directly useful one for Broad.",
-            "Quizzes are weekly, so there is something due most weeks even when nothing big is.",
-            "Attendance is its own graded line. Three meetings a week means a lot of small chances to lose those 15 points.",
-            "Office hours Mon & Tue 1:00\u20132:00 PM \u2014 in person at S418 South Kedzie, or by Zoom.",
-            "As of Aug 31 the only thing posted to D2L is the syllabus. No assignments, no quizzes yet."],
-     exams:["Final: Mon Dec 14, 3:10\u20135:10 PM, Wonders Hall C100",
-            "Midterm dates are in the syllabus course schedule and have not been announced separately yet."],
+            "12 weekly quizzes, 10 questions each, 30 minutes, taken outside class. Open book, open note, and open AI. Your best 10 count; the two lowest drop automatically, which is also why there are no make-ups.",
+            "Attendance is taken with Top Hat across 36 meetings. Each class is worth 0.5 pts and you need 30 of 36 for the full 15 \u2014 so you get six free absences, no explanation needed, and nothing after that.",
+            "Both exams are closed book, closed note, closed AI, and sit in class. Each is 30 multiple-choice questions (15 pts) plus an unseen workplace scenario to analyse (5 pts).",
+            "No textbook \u2014 but you must buy the Treadway Tire Company case from Harvard Business Impact, about $5.10, for the final project. Instructions come later in the term.",
+            "Readings come from the NYT, WSJ, Atlantic and Harvard Business Review. MSU gives you all of them free \u2014 set up NYT through accessnyt.com and WSJ through the partner link in D2L before you need them.",
+            "Office hours Mon & Tue 1:00\u20132:00 PM \u2014 in person at S418 South Kedzie, or by Zoom."],
+     exams:["Two non-cumulative exams, 20 pts each, in person during class. Dates in the syllabus course schedule.",
+            "Final: Mon Dec 14, 3:10\u20135:10 PM, Wonders Hall C100"],
+     schedLabel:"Week 1 \u2014 Why We Work",
+     sched:[{w:"Read",t:"Rethinking Work"},
+            {w:"Read",t:"The Secret to Happiness at Work"},
+            {w:"Read",t:"Workism is Making Americans Miserable"}],
      extraLabel:"Also in the syllabus",
      extras:["Course schedule (week by week), learning environment and civil discourse",
              "Academic honesty and use of AI \u00b7 accessibility and accommodations",
@@ -1070,12 +1079,15 @@ const C = [
             "Quizzes are open-book and you get unlimited submissions, but only the last one is graded and you don't see the score until after the deadline.",
             "Everything is due 11:59 PM Eastern. Nothing late is accepted — one minute past is a zero.",
             "Your 3 lowest adaptive assignments and 1 lowest quiz drop automatically.",
-            "Send administrative questions to Jairui Wang, not Prof. Ackermann, and put \"EC 201 740\" in the subject line."],
+            "Send administrative questions to Jairui Wang, not Prof. Ackermann, and put \"EC 201 740\" in the subject line.",
+            "The D2L site went live Aug 31 and is the biggest one you have — 144 items: 32 video lectures, 34 slide decks, 32 workbook pages and 25 sets of practice problems.",
+            "There is a downloadable calendar file in the Administrative folder with every due date and exam date already in it — worth importing once.",
+            "He has also put a \"Midterm 1 Chatbot\" in that folder as a study tool."],
      exams:["Midterm 1: Thu Sep 24, 7:00 PM · 50 min · room TBA · Ch. 1–4",
             "Midterm 2: Thu Nov 5, 7:00 PM · 50 min · room TBA · Ch. 5–10",
             "Midterm 3: Thu Dec 10, 7:00 PM · 50 min · room TBA · Ch. 11–14, 17, 18",
             "Final: Thu Dec 17, 3:10 PM · cumulative · room announced by email"],
-     schedLabel:"Quiz + adaptive deadlines (all 11:59 PM)",
+     schedLabel:"Quiz + LearningCurve deadlines (all 11:59 PM)",
      sched:[{w:"Wed 9/16",t:"Ch. 1 Core Principles · Ch. 2 Demand — plus both chapter adaptive assignments."},
             {w:"Wed 9/23",t:"Ch. 3 Supply · Ch. 4 Equilibrium."},
             {w:"Wed 10/14",t:"Ch. 5 Elasticity · Ch. 6 Government Intervention · Ch. 7 Welfare and Efficiency."},
@@ -1104,7 +1116,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-08-31-6";
+const BUILD="2026-09-01-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1152,6 +1164,7 @@ const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end �
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
 const EX=[{d:"2026-09-04",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
+  {d:"2026-09-04",t:"ISS 205 · weekly quiz window opens 4:40 PM",w:"closes Mon 3:30 PM · repeats every week",k:"s"},
   {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
   {d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
   {d:"2026-09-14",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
@@ -1170,6 +1183,7 @@ const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and 
   ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
   ["Direct deposit hold","Informational, not blocking. Set it up before financial aid disburses."],
+  ["Your weekend has a standing deadline","The ISS 205 quiz opens Friday at 4:40 PM and closes Monday at 3:30 PM — every week, 12 times, 30 minutes each. Two lowest drop, no make-ups. Doing it Friday afternoon before you leave campus is the cheapest habit on this schedule."],
   ["Email DrK before every ISB 201L quiz","He sets your D2L time limit by hand, only when asked, and only before the quiz opens. Quizzes get announced at the end of lab \u2014 send the email the same day. First one lands after lab 3 or 4."],
   ["Two platforms to buy","COM 100 needs McGraw-Hill Connect (textbook, quizzes, final \u2014 450 of 1000 pts) and EC 201 needs Macmillan Achieve (15%). Both in week one; EC 201's first deadline is Sept 16."],
   ["Your Friday 8 AM is 40% of COM 100","Recitation activities are 400 of the 1000 points \u2014 four graded speeches. It is the highest-stakes hour on your timetable, not the one to sleep through."],
@@ -2082,8 +2096,9 @@ const SYL_CATS={
   "COM 100":[{n:"Recitation \u2014 4 speeches (400 pts)",w:40},{n:"Connect quizzes (200 pts)",w:20},
              {n:"Final exam (150 pts)",w:15},{n:"Lecture attendance (100 pts)",w:10},
              {n:"Connect book exercises (100 pts)",w:10},{n:"Research participation (50 pts)",w:5}],
-  "ISS 205":[{n:"Exams (40 pts)",w:40},{n:"Final case project (25 pts)",w:25},
-             {n:"Weekly quizzes (20 pts)",w:20},{n:"Class attendance (15 pts)",w:15}]
+  "ISS 205":[{n:"Exam 1",w:20},{n:"Exam 2",w:20},{n:"Weekly quizzes (best 10 of 12)",w:20},
+             {n:"Final project — team",w:20},{n:"Class attendance",w:15},
+             {n:"Final project — individual",w:5}]
 };
 let grades=[];                 /* {course,cat,name,earned,possible} */
 let weights={};                /* {course:[{n,w},...]} — from the syllabus */
