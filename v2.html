@@ -1076,7 +1076,7 @@ const C = [
    attNote:"Nothing to attend weekly — no meeting, no attendance, no Zoom. You watch the lectures whenever you want. The exception is the four exams, which are in person on campus in the evening.",why:"Asynchronous, so nothing external makes you keep up — plus three 7 PM in-person midterms and a final. It also counts toward Broad admission, so this grade carries weight the others do not.",
    syl:{
      status:"full",
-     src:"EC 201 Fall 2026 syllabus, section 740 — Prof. Jeff Ackermann (jaa@msu.edu). Admin: Jairui Wang (wangj328@msu.edu).",
+     src:"EC 201 Fall 2026 syllabus, section 740, read in full — Prof. Jeff Ackermann (jaa@msu.edu). Admin: Jairui Wang (wangj328@msu.edu).",
      flag:"Midterm dates corrected — they are Sept 24, Nov 5 and Dec 10, not the Sept 17 / Oct 29 / Dec 3 the app showed. The syllabus is the authority. All four exam dates are Thursdays.",
      grading:[{n:"Exams — best 3 of 4, equally weighted",w:70},
               {n:"Online quizzes — best 5 of 6",w:15},
@@ -1095,7 +1095,12 @@ const C = [
             "Send administrative questions to Jairui Wang, not Prof. Ackermann, and put \"EC 201 740\" in the subject line.",
             "The D2L site went live Aug 31 and is the biggest one you have — 144 items: 32 video lectures, 34 slide decks, 32 workbook pages and 25 sets of practice problems.",
             "There is a downloadable calendar file in the Administrative folder with every due date and exam date already in it — worth importing once.",
-            "He has also put a \"Midterm 1 Chatbot\" in that folder as a study tool."],
+            "He has also put a \"Midterm 1 Chatbot\" in that folder as a study tool.",
+            "Textbook: Principles of Microeconomics by Stevenson & Wolfers. The workbook pages on D2L are ungraded, but they are built to be filled in while the lecture videos play — that is what stops watching from turning into scrolling.",
+            "Economics Help Rooms are staffed by TAs who hold the homework answer keys and are happy to work through problems with you. The schedule is in the Administrative folder on D2L. Free, and almost nobody uses them in September.",
+            "Office hours: Prof. Ackermann Wed & Thu at 25B Marshall-Adams Hall (time TBD); Jairui runs drop-in Zoom hours Thursdays 1:00–3:00 PM.",
+            "On exam day, bubble in pencil, mark the right exam form, and put your sheet in the correct pile. An error of yours that needs fixing by hand costs 10% of that assignment — one of the few penalties here that is purely mechanical.",
+            "Raise any grading question within one week. Nothing is changed more than 24 hours after final grades post."],
      exams:["Midterm 1: Thu Sep 24, 7:00 PM · 50 min · room TBA · Ch. 1–4",
             "Midterm 2: Thu Nov 5, 7:00 PM · 50 min · room TBA · Ch. 5–10",
             "Midterm 3: Thu Dec 10, 7:00 PM · 50 min · room TBA · Ch. 11–14, 17, 18",
@@ -1129,7 +1134,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-01-4";
+const BUILD="2026-09-01-5";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
