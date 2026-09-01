@@ -1129,7 +1129,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-01-3";
+const BUILD="2026-09-01-4";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1176,22 +1176,27 @@ function applyUpdate(){
 const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end — last day to add or swap"},
   {d:"2026-09-24",t:"Last day to drop with a refund"},{d:"2026-10-19",t:"Last day to drop, no grade reported"},
   {d:"2026-12-11",t:"Your last class meets (Fri) — registrar\u2019s last day is Sun Dec 13"},{d:"2026-12-18",t:"End of finals week"}];
-const EX=[{d:"2026-09-04",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
-  {d:"2026-09-04",t:"ISS 205 · weekly quiz window opens 4:40 PM",w:"closes Mon 3:30 PM · repeats every week",k:"s"},
+const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
+  {d:"2026-09-04",tm:"1640",dur:30,t:"ISS 205 · weekly quiz window opens 4:40 PM",w:"closes Mon 3:30 PM · repeats every week",k:"s"},
   {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
-  {d:"2026-09-08",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
-  {d:"2026-09-14",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
-  {d:"2026-09-16",t:"EC 201 · quiz 1 + Ch.1–2 adaptive",w:"due 11:59 PM · buy Achieve first",k:"w"},
-  {d:"2026-09-27",t:"COM 100 · Informative speech outline",w:"due 11:59 PM · 30 pts",k:"w"},
-  {d:"2026-11-15",t:"COM 100 · Persuasive speech outline",w:"due 11:59 PM · 40 pts",k:"w"},
-  {d:"2026-11-23",t:"COM 100 · research requirement",w:"due 11:59 PM · 50 pts",k:"w"},
-  {d:"2026-09-24",t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-11-05",t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-12-10",t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-12-14",t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
-  {d:"2026-12-15",t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
-  {d:"2026-12-16",t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
-  {d:"2026-12-17",t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
+  {d:"2026-09-08",tm:"1500",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
+  {d:"2026-09-14",tm:"1020",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
+  {d:"2026-09-16",tm:"2359",t:"EC 201 · quiz 1 + Core Principles, Demand",w:"due 11:59 PM · buy Achieve first",k:"w"},
+  {d:"2026-09-23",tm:"2359",t:"EC 201 · quiz 2 + Supply, Equilibrium",w:"due 11:59 PM",k:"w"},
+  {d:"2026-09-27",tm:"2359",t:"COM 100 · Informative speech outline",w:"due 11:59 PM · 30 pts",k:"w"},
+  {d:"2026-10-14",tm:"2359",t:"EC 201 · quiz 3 + Elasticity, Gov Intervention, Welfare",w:"due 11:59 PM",k:"w"},
+  {d:"2026-11-02",tm:"2359",t:"EC 201 · quiz 4 + Gains from Trade, Int'l Trade, Externalities",w:"due 11:59 PM",k:"w"},
+  {d:"2026-11-15",tm:"2359",t:"COM 100 · Persuasive speech outline",w:"due 11:59 PM · 40 pts",k:"w"},
+  {d:"2026-11-18",tm:"2359",t:"EC 201 · quiz 5 + Labor Markets, Wages, Inequality",w:"due 11:59 PM",k:"w"},
+  {d:"2026-11-23",tm:"2359",t:"COM 100 · research requirement",w:"due 11:59 PM · 50 pts",k:"w"},
+  {d:"2026-12-07",tm:"2359",t:"EC 201 · quiz 6 + Market Power, Game Theory, Pricing",w:"due 11:59 PM",k:"w"},
+  {d:"2026-09-24",tm:"1900",dur:50,t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-11-05",tm:"1900",dur:50,t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-12-10",tm:"1900",dur:50,t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-12-14",tm:"1510",dur:120,t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
+  {d:"2026-12-15",tm:"1510",dur:120,t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
+  {d:"2026-12-16",tm:"1010",dur:120,t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
+  {d:"2026-12-17",tm:"1510",dur:120,t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
 const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
   ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
@@ -2392,11 +2397,25 @@ function exportWorkIcs(){
   });
   EX.filter(x=>days(x.d)>=0).forEach((x,i)=>{
     const dd=x.d.replace(/-/g,"");
+    let when;
+    if(x.tm){
+      /* A deadline at 11:59 PM is not an all-day event — an all-day block sits at
+         the top of the day and tells you nothing about how long you actually have. */
+      const st=+x.tm.slice(0,2)*60 + +x.tm.slice(2), en=st+(x.dur||15);
+      const hm=m=>pad(Math.floor(m/60)%24)+pad(m%60)+"00";
+      when=["DTSTART;TZID=America/Detroit:"+dd+"T"+hm(st),
+            "DTEND;TZID=America/Detroit:"+dd+"T"+hm(Math.min(en,1439))];
+    }else{
+      when=["DTSTART;VALUE=DATE:"+dd,"TRANSP:TRANSPARENT"];
+    }
+    const exam=/final|midterm/i.test(x.t);
     L=L.concat(["BEGIN:VEVENT","UID:msu-ex-"+i+"@msuassist","DTSTAMP:"+ds,
-      "SUMMARY:"+icsEsc(x.t),"DTSTART;VALUE=DATE:"+dd,"TRANSP:TRANSPARENT",
-      "DESCRIPTION:"+icsEsc(x.w),
-      "BEGIN:VALARM","TRIGGER:-P3D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.t),"END:VALARM",
-      "END:VEVENT"]);
+      "SUMMARY:"+icsEsc(x.t)],when,["DESCRIPTION:"+icsEsc(x.w)],
+      exam?["BEGIN:VALARM","TRIGGER:-P7D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("In one week: "+x.t),"END:VALARM",
+            "BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("In 2 hours: "+x.t),"END:VALARM"]
+          :["BEGIN:VALARM","TRIGGER:-P2D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("In 2 days: "+x.t),"END:VALARM",
+            "BEGIN:VALARM","TRIGGER:-PT6H","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("Due tonight: "+x.t),"END:VALARM"],
+      ["END:VEVENT"]);
   });
   /* Weekly classes, so one import covers the whole semester rather than just
      the dated one-offs. Break days become EXDATEs or the calendar cheerfully
