@@ -242,6 +242,10 @@ html[data-theme="dark"] .tag.s{background:rgba(123,189,0,.16);color:var(--lime);
 .note ol,.note ul{margin:8px 0 0 18px}.note li{margin-bottom:5px}
 .note a{color:var(--spartan);font-weight:700;text-decoration:underline}
 html[data-theme="dark"] .note a{color:var(--lime)}
+/* An <a> styled as a button must not inherit the .note link colour — in dark mode
+   that paints lime text onto a lime button and the label vanishes. */
+.note a.btn{color:var(--t-pri);text-decoration:none;font-weight:700}
+html[data-theme="dark"] .note a.btn{color:#0A2A08}
 
 /* ---------------- forms ---------------- */
 textarea{font:inherit;font-size:16px;padding:12px;border-radius:var(--r2);
@@ -790,6 +794,12 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
         <a class="mono" id="liveLink2" style="font-size:11px;word-break:break-all"
            href="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html">mistque81-svg.github.io/msu-f26-a7k2q/v2.html</a><br>
         A copy you downloaded and opened from Files cannot update itself.</div></div>
+    <h2 class="sec">Research log</h2>
+    <div class="note">Answers with a shelf life — Broad admission rules, transfer-credit policy,
+      how each instructor actually grades — are kept on a separate page that survives between
+      sessions. Deadlines stay here; findings live there.
+      <div style="margin-top:12px"><a class="btn ghost sm" target="_blank" rel="noopener"
+        href="https://claude.ai/code/artifact/3aac72c5-9375-42ee-9713-7afa404536fe">Open the research log</a></div></div>
     <h2 class="sec">Your data</h2>
     <div class="note">Assignments and scores are saved on <b>this device only</b> — never uploaded.
       Use Export backup to move them.
@@ -873,6 +883,9 @@ const mins=b=>modeDef().f(b);
 const C = [
   {c:"ISB 201L",name:"Insects, Globalization & Sustainability — Lab",cls:"15653",sec:"001",cr:2,b:"NKZ",
    meets:[{d:1,s:620,e:730}],load:2,req:1,mode:null,att:"campus",
+   /* Weeks no lab meets, beyond the university breaks: Sept 7-11 is take-home,
+      and there is no lab the Monday of Thanksgiving week. */
+   noMeet:["2026-09-07","2026-11-23"],
    sisMode:"Hybrid",
    attNote:"Four unexcused absences drops you from the course with a 0.0, and there are only 12 labs. Two weeks have no meeting: Sept 7–11 is take-home, and there is no lab over Fall or Thanksgiving break.",
    modeNote:"MSU's system lists this section as Hybrid. The syllabus Dr. Kimbirauskas sent says \u201cCourse modality: Face-to-face\u201d and that the lab meets in person every week. The two disagree — but not about you: both put you in N220 on Mondays. Hybrid at MSU means at least half the instruction is delivered online, never that attendance is optional.",why:"Two credits, but a weekly lab with deliverables plus an online asynchronous component — the work-per-credit is the highest on your schedule.",
@@ -1116,7 +1129,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-01-1";
+const BUILD="2026-09-01-3";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -2385,8 +2398,45 @@ function exportWorkIcs(){
       "BEGIN:VALARM","TRIGGER:-P3D","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(x.t),"END:VALARM",
       "END:VEVENT"]);
   });
+  /* Weekly classes, so one import covers the whole semester rather than just
+     the dated one-offs. Break days become EXDATEs or the calendar cheerfully
+     tells you that you have ISB 201 on Thanksgiving. */
+  const BYDAY=["","MO","TU","WE","TH","FR"], LASTCLASS="20261211T235959Z";
+  const hhmm=m=>pad(Math.floor(m/60))+pad(m%60)+"00";
+  /* Classes begin Mon Aug 31. Walk forward to the first meeting on weekday d
+     with real date maths — string arithmetic here produces August 32nd. */
+  const TERM0=new Date(2026,7,31);
+  const firstOf=d=>{const x=new Date(TERM0);x.setDate(x.getDate()+(d-1));
+    return x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())};
+  C.filter(c=>!isGym(c)&&c.meets&&c.meets.length).forEach((c,i)=>{
+    const b=B[c.b], days=[...new Set(c.meets.map(m=>m.d))].sort();
+    const m0=c.meets[0], st=firstOf(days[0])+"T"+hhmm(m0.s), en=firstOf(days[0])+"T"+hhmm(m0.e);
+    /* University breaks, plus any weeks this course specifically does not meet. */
+    const skips=BREAKS.map(x=>x.d).concat(c.noMeet||[]);
+    const ex=[...new Set(skips)].map(x=>x.replace(/-/g,"")).filter(dd=>{
+      const wd=new Date(dd.slice(0,4)+"-"+dd.slice(4,6)+"-"+dd.slice(6)+"T12:00:00").getDay();
+      return days.indexOf(wd)>=0;
+    }).sort().map(dd=>dd+"T"+hhmm(m0.s));
+    L=L.concat(["BEGIN:VEVENT","UID:msu-cls-"+i+"@msuassist","DTSTAMP:"+ds,
+      "SUMMARY:"+icsEsc(c.c),
+      "DTSTART;TZID=America/Detroit:"+st,"DTEND;TZID=America/Detroit:"+en,
+      "RRULE:FREQ=WEEKLY;BYDAY="+days.map(d=>BYDAY[d]).join(",")+";UNTIL="+LASTCLASS]
+      .concat(ex.length?["EXDATE;TZID=America/Detroit:"+ex.join(",")]:[])
+      .concat([b.q?"LOCATION:"+icsEsc(b.n+(b.r?" "+b.r:"")):"",
+      "DESCRIPTION:"+icsEsc(c.name+(c.prof?" · "+c.prof:"")),
+      "BEGIN:VALARM","TRIGGER:-PT30M","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(c.c+" soon"),"END:VALARM",
+      "END:VEVENT"]).filter(Boolean));
+  });
+  /* The one standing weekly deadline that is not a class. */
+  L=L.concat(["BEGIN:VEVENT","UID:msu-issquiz@msuassist","DTSTAMP:"+ds,
+    "SUMMARY:"+icsEsc("ISS 205 weekly quiz opens"),
+    "DTSTART;TZID=America/Detroit:20260904T164000","DTEND;TZID=America/Detroit:20260904T171000",
+    "RRULE:FREQ=WEEKLY;BYDAY=FR;COUNT=12",
+    "DESCRIPTION:"+icsEsc("Opens Fri 4:40 PM, closes Mon 3:30 PM. 30 minutes. Best 10 of 12, no make-ups."),
+    "BEGIN:VALARM","TRIGGER:-PT10M","ACTION:DISPLAY","DESCRIPTION:Quiz opens in 10 min","END:VALARM",
+    "END:VEVENT"]);
   L.push("END:VCALENDAR");
-  download("msu-work.ics",L.join("\r\n")+"\r\n");
+  download("msu-fall-2026.ics",L.join("\r\n")+"\r\n");
 }
 /* Digest: pasting is far easier than file-picking on iOS. */
 function pasteDigest(){
