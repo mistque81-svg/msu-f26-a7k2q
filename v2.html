@@ -546,6 +546,65 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
 .sylsched .scrow .w{flex:none;width:74px;color:var(--t-mut);font-size:10.5px;padding-top:1px}
 .sylsched .scrow .t{color:var(--t-sec)}
 .sylsched .scrow.off .t{color:var(--t-mut);font-style:italic}
+
+/* ---------------- week plan ---------------- */
+.planbar{display:flex;align-items:center;gap:8px;padding:0 18px 8px}
+.pnav{border:1px solid var(--line);background:var(--surface);color:var(--t-pri);
+  width:32px;height:32px;border-radius:9px;font-size:17px;line-height:1;cursor:pointer;flex:none}
+.pnav:active{transform:scale(.94)}
+.pmid{flex:1;min-width:0}
+.pmid > b{display:block;font-size:13.5px;color:var(--t-pri)}
+.pmid span b{color:var(--t-pri);font-weight:700}
+.pmid span{display:block;font-size:11.5px;color:var(--t-mut);margin-top:1px}
+.plan{padding:0 18px}
+.pday{border-top:1px solid var(--hair);padding:9px 0 10px}
+.pday:first-child{border-top:0}
+.pday.td{background:color-mix(in srgb,var(--spartan) 5%,transparent);
+  margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:8px}
+html[data-theme="dark"] .pday.td{background:rgba(123,189,0,.07)}
+.phd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.phd b{font-size:12.5px;color:var(--t-pri);letter-spacing:.02em}
+.pdt{font-size:10.5px;color:var(--t-mut)}
+.pcls{font-size:10.5px;color:var(--t-mut);margin-left:auto;text-align:right}
+.pcls.free{opacity:.55;font-style:italic}
+.pnone{font-size:11.5px;color:var(--t-mut);opacity:.5;padding:1px 0 2px}
+/* Blocks: a filled left edge for things with a deadline, a dashed one for work you
+   chose to do — same language the week grid uses for "a real place" vs "not". */
+.pblk{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--t-pri);
+  border-radius:8px;padding:7px 9px;margin-top:5px;font:inherit;font-size:12.5px}
+.pblk:active{transform:scale(.995)}
+.pblk .pc{flex:none;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--t-mut);min-width:52px}
+.pblk .pt{flex:1;min-width:0;line-height:1.35}
+.pblk .pm{flex:none;font-size:10.5px;color:var(--t-mut)}
+.pblk.due{border-left:3px solid var(--spartan)}
+.pblk.exam{border-left:3px solid var(--danger)}
+.pblk.exam .pt{font-weight:700}
+.pblk.work{border-left:3px dashed var(--t-mut);background:transparent}
+.pblk.done{opacity:.5}
+.pblk.done .pt{text-decoration:line-through}
+html[data-theme="dark"] .pblk.due{border-left-color:var(--lime)}
+/* assignment sheet */
+.asnhd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.asnc{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--spartan)}
+html[data-theme="dark"] .asnc{color:var(--lime)}
+.asnp{margin-left:auto;font-size:11px;color:var(--t-mut)}
+.asndue{font-size:13px;font-weight:600;color:var(--t-pri);background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:16px}
+.asndue.soon{border-color:var(--warn);color:var(--warn)}
+.asndue.ok{border-color:var(--spartan);color:var(--spartan)}
+html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
+.asnsec{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:800;
+  color:var(--t-mut);margin:16px 0 6px}
+.asnp2{font-size:13px;color:var(--t-sec);line-height:1.55;margin:0}
+.asnlist{margin:0;padding-left:18px;font-size:13px;color:var(--t-sec);line-height:1.55}
+.asnlist li{margin-bottom:5px}
+.asnw{display:flex;gap:9px;align-items:baseline;font-size:12px;color:var(--t-sec);
+  padding:6px 0;border-top:1px solid var(--hair)}
+.asnw .mono:first-child{flex:none;width:76px;color:var(--t-mut);font-size:10.5px}
+.asnw span:nth-child(2){flex:1}
+.asnw .mono:last-child{flex:none;color:var(--t-mut);font-size:10.5px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
 </style>
 </head>
@@ -624,7 +683,18 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
   </section>
 
   <section class="pane" id="p-work">
-    <h2 class="sec">Assignments</h2>
+    <h2 class="sec">This week</h2>
+    <div class="planbar">
+      <button class="pnav" onclick="shiftWeek(-1)" aria-label="Previous week">‹</button>
+      <div class="pmid"><b id="planRange">—</b><span id="planSum"></span></div>
+      <button class="pnav" onclick="shiftWeek(1)" aria-label="Next week">›</button>
+      <button class="btn ghost sm" id="planNow" onclick="thisWeek()" style="display:none">Today</button>
+    </div>
+    <div id="planBox" class="plan"></div>
+    <p class="tip" style="margin:2px 0 4px">Tap any block for what the assignment is, what you have
+      to do, and where it goes. Work sessions are placed ahead of each deadline — move on if a day
+      doesn't suit, nothing here is graded on when you do it.</p>
+    <h2 class="sec">Your own assignments</h2>
     <div class="card">
       <button class="btn full addtoggle" id="aToggle" onclick="toggleForm('aForm',this,'New assignment')">New assignment</button>
       <div class="frm collapsible" id="aForm" style="margin-top:12px">
@@ -1134,7 +1204,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-01-5";
+const BUILD="2026-09-01-7";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1202,6 +1272,138 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
   {d:"2026-12-15",tm:"1510",dur:120,t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
   {d:"2026-12-16",tm:"1010",dur:120,t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
   {d:"2026-12-17",tm:"1510",dur:120,t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
+
+/* ===== ASSIGNMENTS =====
+   Every graded thing, with what it actually is, what you have to do, and where it
+   goes. `work` places prep sessions on the days before it is due — negative numbers
+   are days ahead of the deadline, chosen to land on days you are already on campus
+   or genuinely free, never the night before something big. */
+const ASSN=[
+ {id:"com-connect",c:"COM 100",t:"Connect intro assignment",d:"2026-09-04",tm:"2359",pts:10,
+  what:"A short walkthrough that exists to teach you the Connect platform — where the textbook, book exercises, quizzes and the final exam all live.",
+  todo:["Buy the Connect course pack through the purchase link in D2L. Register it with your msu.edu address or it will not link to the course.",
+        "Work through the intro assignment inside Connect."],
+  where:"McGraw-Hill Connect, launched from D2L › Textbook › Link To Text",
+  work:[{o:-2,m:45,t:"Buy Connect and log in — do not leave the purchase to Friday"}]},
+
+ {id:"iss-read1",c:"ISS 205",t:"Week 1 readings — Why We Work",d:"2026-09-04",tm:"1530",pts:0,
+  what:"Three articles behind the first topic. They are also what the first quiz asks about.",
+  todo:["Rethinking Work","The Secret to Happiness at Work","Workism is Making Americans Miserable",
+        "Set up free NYT access via accessnyt.com and WSJ via the D2L partner link first."],
+  where:"Links in D2L › Week/Topic 1",
+  work:[{o:-2,m:60,t:"Read all three — they feed straight into the quiz"}]},
+
+ {id:"isb-cc",c:"ISB 201",t:"Two comprehension checkpoints",d:"2026-09-08",tm:"1500",pts:0,
+  what:"Short checks on the two assigned readings. One attempt each — you have already done both.",
+  todo:["Easter Island","Researchers make the case for a shift from economic growth to human well-being"],
+  where:"D2L › Course Readings",
+  done:true, work:[]},
+
+ {id:"com-ice",c:"COM 100 rec",t:"Icebreaker speech",d:"2026-09-13",tm:"2359",pts:50,
+  what:"Your first graded speech — 30 points for delivery, 20 for the peer review you give someone else. It happens in Friday recitation.",
+  todo:["Check D2L › Speech Assignments › Icebreaker for the prompt.",
+        "Prepare it before Friday — you deliver in recitation.",
+        "Recitation work is due two days later, so Sunday 11:59 PM."],
+  where:"Recitation in person; upload via GoReact",
+  work:[{o:-5,m:45,t:"Read the prompt and pick your angle"},
+        {o:-3,m:45,t:"Practise out loud once — it is 30 pts and you have never done one"}]},
+
+ {id:"isb-num",c:"ISB 201L",t:"Numerology homework",d:"2026-09-14",tm:"1020",pts:20,
+  what:"The take-home from the no-meeting week, on pseudoscience and confirmation bias.",
+  todo:["Submit before lab starts — the deadline is 10:20 AM, not end of day.",
+        "Late work in this course scores zero, with no partial credit."],
+  where:"D2L › Homework Dropboxes",
+  work:[{o:-4,m:60,t:"Do it over the weekend, not Monday morning"}]},
+
+ {id:"ec-q1",c:"EC 201",t:"Quiz 1 + Ch. 1–2 LearningCurve",d:"2026-09-16",tm:"2359",pts:0,
+  what:"Three things due at once: the adaptive assignments for Core Principles and Demand, plus the first online quiz. Quizzes are open-book and you get unlimited submissions, but only the last one is graded.",
+  todo:["Buy Macmillan Achieve first — the link is in D2L.",
+        "Print the quiz PDF, solve on paper, then enter your answers.",
+        "Nothing late is accepted. One minute past is a zero."],
+  where:"Achieve for the adaptive work; D2L › Quizzes for the quiz",
+  work:[{o:-6,m:30,t:"Buy Achieve — everything else is blocked until you do"},
+        {o:-3,m:90,t:"Watch the Ch.1–2 videos with the workbook pages open"},
+        {o:-1,m:60,t:"Do the LearningCurve sets and the quiz"}]},
+
+ {id:"ec-q2",c:"EC 201",t:"Quiz 2 + Ch. 3–4 LearningCurve",d:"2026-09-23",tm:"2359",pts:0,
+  what:"Supply and Equilibrium — the other half of what Midterm 1 covers, due the night before that exam's final study window.",
+  todo:["Same pattern: adaptive sets in Achieve, quiz in D2L.",
+        "Exam questions are often very close to quiz questions. Treat this as exam prep, not homework."],
+  where:"Achieve + D2L › Quizzes",
+  work:[{o:-4,m:90,t:"Ch.3–4 videos with the workbook"},
+        {o:-1,m:60,t:"LearningCurve sets and the quiz"}]},
+
+ {id:"ec-m1",c:"EC 201",t:"Midterm 1",d:"2026-09-24",tm:"1900",pts:0,exam:true,
+  what:"Covers Chapters 1–4: Core Principles, Demand, Supply, Equilibrium. 50 minutes, in person, closed book, no calculators. Only your best 3 of 4 exam scores count.",
+  todo:["Room is announced by email — check before you go.",
+        "Do the practice problems he posts, then the Midterm 1 Chatbot in the Administrative folder.",
+        "Bubble in pencil and mark the right exam form: a mistake there costs 10% of the exam."],
+  where:"In person, room TBA. 7:00 PM sharp — cutoffs are strict.",
+  work:[{o:-6,m:90,t:"Practice problems, Ch.1–2"},
+        {o:-3,m:90,t:"Practice problems, Ch.3–4"},
+        {o:-1,m:60,t:"Redo the quiz questions — exam questions look like them"}]},
+
+ {id:"com-info",c:"COM 100",t:"Informative speech outline",d:"2026-09-27",tm:"2359",pts:30,
+  what:"The outline for your informative speech — 30 of the 130 points that speech is worth in total.",
+  todo:["Topic is submitted earlier and is worth 10 pts on its own.","Full speech and peer review follow in later recitations."],
+  where:"D2L › Assignments",
+  work:[{o:-6,m:60,t:"Pick the topic and find sources"},
+        {o:-2,m:75,t:"Draft the outline"}]}
+];
+
+
+/* The ISS 205 quiz repeats every week and is the single most regular thing he owes,
+   so it is generated rather than typed out twelve times. Opens Fri 4:40 PM, closes
+   Mon 3:30 PM; break weeks have no quiz. The syllabus says "generally", so treat
+   these as the pattern and let a D2L announcement override. */
+function buildIssQuizzes(){
+  let d="2026-09-07", n=1;
+  while(n<=12 && d<="2026-12-14"){
+    /* Skip only when the Friday it would OPEN is a break — no open, no quiz.
+       A quiz whose Monday deadline lands on a holiday still gets shown, flagged,
+       because a missing quiz costs more than an uncertain one. */
+    if(!isBreak(shiftDays(d,-3))){
+      const holiday=isBreak(d);
+      ASSN.push({id:"iss-q"+n,c:"ISS 205",t:"Weekly quiz "+n,d:d,tm:"1530",pts:2,
+        what:"10 questions on the week's readings, videos and class material — 5 knowledge, 3 application, 2 big-idea. Open book, open note, open AI, 30 minutes once you start.",
+        todo:(holiday?["⚠ The Monday it would close is "+holiday.t+" — with no class that day the deadline may shift. Check D2L before the weekend rather than assuming."]:[])
+             .concat(["Opens Friday 4:40 PM and closes Monday 3:30 PM.",
+              "Your best 10 of 12 count, so two drop automatically — which is exactly why there are no make-ups.",
+              "Any change to this schedule gets posted on D2L."]),
+        where:"D2L › Quizzes",
+        work:[{o:-3,m:30,t:"Take the quiz Friday after class, before you leave campus"}]});
+      n++;
+    }
+    d=shiftDays(d,7);
+  }
+}
+/* Which Monday a date belongs to. */
+function mondayOf(dt){const x=new Date(dt);const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);x.setHours(0,0,0,0);return x}
+function shiftDays(iso,n){const x=new Date(iso+"T12:00:00");x.setDate(x.getDate()+n);return isoOf(x)}
+let PLANWEEK=null;   /* Monday ISO of the week on screen */
+
+/* Everything landing in a given week: deadlines on their due day, and each
+   assignment's work sessions on the days they were placed. */
+function planFor(mondayIso){
+  const out=[];
+  for(let i=0;i<7;i++){
+    const iso=shiftDays(mondayIso,i);
+    out.push({iso,items:[]});
+  }
+  const inWeek=iso=>out.findIndex(d=>d.iso===iso);
+  ASSN.forEach(a=>{
+    let k=inWeek(a.d);
+    if(k>=0) out[k].items.push({kind:a.exam?"exam":"due",a});
+    (a.work||[]).forEach((w,wi)=>{
+      const iso=shiftDays(a.d,w.o); k=inWeek(iso);
+      if(k>=0) out[k].items.push({kind:"work",a,w,wi});
+    });
+  });
+  /* deadlines first inside a day, then work sessions */
+  out.forEach(d=>d.items.sort((x,y)=>(x.kind==="work")-(y.kind==="work")));
+  return out;
+}
+
 const FACTS=[["EC 201 is on you","Asynchronous — nobody takes attendance, and it counts toward Broad admission GPA. Free Tue/Thu mornings are the natural slot for lectures."],
   ["Three 7 PM midterms","Thu Sept 24, Thu Nov 5, Thu Dec 10 — 50 minutes each, in person, no calculators. Only your best 3 of 4 exam scores count, and a missed exam is the one that drops."],
   ["No travel before Dec 17","Last class is Dec 11, but the EC 201 final is Dec 17."],
@@ -1299,6 +1501,9 @@ let INBOX=[];
 
 /* ================= UTIL ================= */
 const DAY=["","Mon","Tue","Wed","Thu","Fri"];
+/* The plan view runs Mon-Sun, so it needs a weekend the class grid never did. */
+const DAY7=["","Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const MON3=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYFULL=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const fm=v=>{const h=Math.floor(v/60),m=v%60,a=h>=12?"PM":"AM",hh=h%12||12;
   return hh+(m?":"+String(m).padStart(2,"0"):"")+" "+a};
@@ -2041,6 +2246,82 @@ let tasks=[],filter="All";
       b.classList.add("on");renderTasks()};w.appendChild(b)})})();
 function bucket(t){if(!t.date)return "Later";const n=days(t.date);
   return n<0?"Overdue":n===0?"Today":n<=7?"This week":"Later"}
+
+/* ===== WEEK PLAN =====
+   Seven day rows rather than a time grid: on a phone a grid squeezes every block
+   into an unreadable sliver, and none of this work has a fixed hour anyway. */
+function planTitle(m){
+  const a=new Date(m+"T12:00:00"), b=new Date(shiftDays(m,6)+"T12:00:00");
+  const f=x=>MON3[x.getMonth()]+" "+x.getDate();
+  return f(a)+" – "+f(b);
+}
+function shiftWeek(n){ PLANWEEK=shiftDays(PLANWEEK,n*7); renderPlan(); }
+function thisWeek(){ PLANWEEK=isoOf(mondayOf(new Date())); renderPlan(); }
+
+function renderPlan(){
+  const box=document.getElementById("planBox"); if(!box)return;
+  if(!PLANWEEK) PLANWEEK=isoOf(mondayOf(new Date()));
+  const wk=planFor(PLANWEEK), todayIso=isoOf(new Date());
+  const lab=document.getElementById("planRange"); if(lab)lab.textContent=planTitle(PLANWEEK);
+  const cur=document.getElementById("planNow");
+  if(cur) cur.style.display = PLANWEEK===isoOf(mondayOf(new Date())) ? "none" : "inline-flex";
+
+  const load=wk.reduce((a,d)=>a+d.items.filter(i=>i.kind==="work").reduce((x,i)=>x+i.w.m,0),0);
+  const dues=wk.reduce((a,d)=>a+d.items.filter(i=>i.kind!=="work").length,0);
+  const sum=document.getElementById("planSum");
+  if(sum) sum.innerHTML = dues||load
+    ? "<b>"+dues+"</b> due this week · <b>"+dur(load)+"</b> of work planned"
+    : "Nothing due this week.";
+
+  box.innerHTML = wk.map(d=>{
+    const dt=new Date(d.iso+"T12:00:00"), isTd=d.iso===todayIso;
+    const cls=C.filter(c=>!isGym(c)&&(c.meets||[]).some(m=>m.d===((dt.getDay()+6)%7)+1)
+                          && !(c.noMeet||[]).includes(d.iso) && !isBreak(d.iso));
+    const rows=d.items.map(i=>{
+      if(i.kind==="work"){
+        return "<button class='pblk work' onclick=\"openAssn('"+i.a.id+"')\">"+
+          "<span class='pc'>"+esc(i.a.c)+"</span>"+
+          "<span class='pt'>"+esc(i.w.t)+"</span>"+
+          "<span class='pm mono'>"+i.w.m+"m</span></button>";
+      }
+      const late=i.a.done?"done":"";
+      return "<button class='pblk "+(i.kind==="exam"?"exam":"due")+" "+late+"' onclick=\"openAssn('"+i.a.id+"')\">"+
+        "<span class='pc'>"+esc(i.a.c)+"</span>"+
+        "<span class='pt'>"+(i.a.done?"✓ ":"")+esc(i.a.t)+"</span>"+
+        "<span class='pm mono'>"+(i.a.tm?fm(+i.a.tm.slice(0,2)*60+ +i.a.tm.slice(2)):"due")+"</span></button>";
+    }).join("");
+    return "<div class='pday"+(isTd?" td":"")+"'>"+
+      "<div class='phd'><b>"+DAY7[((dt.getDay()+6)%7)+1]+"</b>"+
+        "<span class='pdt mono'>"+MON3[dt.getMonth()]+" "+dt.getDate()+"</span>"+
+        (cls.length?"<span class='pcls'>"+cls.map(c=>esc(c.c)).join(" · ")+"</span>"
+                   :"<span class='pcls free'>no class</span>")+"</div>"+
+      (rows||"<div class='pnone'>—</div>")+"</div>";
+  }).join("");
+}
+
+function openAssn(id){
+  const a=ASSN.find(x=>x.id===id); if(!a)return;
+  const sh=document.getElementById("sheet");
+  const t=a.tm?fm(+a.tm.slice(0,2)*60+ +a.tm.slice(2)):"";
+  const left=days(a.d);
+  sh.innerHTML="<button class='closebtn' onclick='closeSheet()' aria-label='Close'>"+I(IC.x,16)+"</button>"+
+    "<div class='asnhd'><span class='asnc'>"+esc(a.c)+"</span>"+
+      (a.pts?"<span class='asnp mono'>"+a.pts+" pts</span>":"")+"</div>"+
+    "<h3 style='margin:0 0 12px'>"+esc(a.t)+"</h3>"+
+    "<div class='asndue"+(a.done?" ok":(left<=2?" soon":""))+"'>"+
+      (a.done?"Done — you have already submitted this."
+             :"Due "+dfmt(a.d)+(t?" at "+t:"")+
+              " · "+(left<0?"overdue":left===0?"today":left+" day"+(left===1?"":"s")+" away"))+"</div>"+
+    "<div class='asnsec'>What it is</div><p class='asnp2'>"+esc(a.what)+"</p>"+
+    "<div class='asnsec'>What you have to do</div>"+
+    "<ul class='asnlist'>"+(a.todo||[]).map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"+
+    (a.where?"<div class='asnsec'>Where it goes</div><p class='asnp2'>"+esc(a.where)+"</p>":"")+
+    ((a.work||[]).length?"<div class='asnsec'>Planned work</div>"+
+      a.work.map(w=>"<div class='asnw'><span class='mono'>"+dfmt(shiftDays(a.d,w.o))+"</span>"+
+        "<span>"+esc(w.t)+"</span><span class='mono'>"+w.m+"m</span></div>").join(""):"");
+  sh.classList.add("on"); document.getElementById("scrim").classList.add("on");
+}
+
 function renderTasks(){
   const el=document.getElementById("taskGroups");
   const vis=tasks.filter(t=>filter==="All"||t.course===filter);
@@ -2600,7 +2881,8 @@ function tick(){ paintMast(); renderToday(); renderDueSoon(); drawGridNow(); }
 restore();
 paintTheme();
 renderModeChips(); setMode(MODE);
-renderCourses(); renderDates(); renderTasks(); renderInbox(); renderGList(); drawBars();
+buildIssQuizzes();
+renderCourses(); renderDates(); renderTasks(); renderPlan(); renderInbox(); renderGList(); drawBars();
 buildTabs();
 renderEvents(); renderLinks(); paintGeo();
 renderWeights(); fillCatSelect(); paintStudy(); renderQ();
