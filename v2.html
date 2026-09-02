@@ -285,6 +285,10 @@ html[data-theme="dark"] .btn{background:var(--lime);color:#0A2A08}
 .chip.on{background:var(--spartan);color:#fff;border-color:var(--spartan)}
 html[data-theme="dark"] .chip.on{background:var(--lime);color:#0A2A08;border-color:var(--lime)}
 .savednote{color:var(--t-mut);font-size:11.5px;margin:12px 0 0;display:flex;align-items:center;gap:6px}
+/* Two secondary actions on one line. They are the tail of the Work pane, not its
+   subject, so they get no card, no heading and no full-width button treatment. */
+.wfoot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 18px 0}
+.wfoot .btn{margin:0}
 .savednote::before{content:"";width:6px;height:6px;border-radius:9px;background:var(--lime);flex:none}
 .task{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--hair)}
 .task .g{flex:1;min-width:0}
@@ -725,39 +729,24 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
     <div id="planDay" class="pday2"></div>
     <p class="tip" style="margin:6px 0 4px">Tap a bar to open that day. Arrows move a work session;
       the tick clears it. Deadlines can't move — only the work you do ahead of them.</p>
-    <h2 class="sec">Your own assignments</h2>
-    <div class="card">
-      <button class="btn full addtoggle" id="aToggle" onclick="toggleForm('aForm',this,'New assignment')">New assignment</button>
-      <div class="frm collapsible" id="aForm" style="margin-top:12px">
-        <input id="aT" placeholder="Add an assignment…">
-        <div class="two"><select id="aC"></select><input id="aD" type="date"></div>
-        <button class="btn full" onclick="addTask()">Add</button>
-      </div>
-      <div id="taskGroups"></div>
-      <p class="savednote">Saved automatically on this device.</p>
-      <button class="btn full sm" style="margin:8px 0 0" onclick="exportWorkIcs()">
-        Send deadlines to my calendar</button>
-      <p style="font-size:11.5px;color:var(--t-mut);margin:8px 0 0;line-height:1.45">
-        Adds every open assignment, deadline and exam to your phone's calendar with reminders —
-        1 day and 3 hours before. This app can't send notifications itself; your calendar can.
-        Re-export after adding things, and delete the old ones first so you don't get doubles.</p>
-      <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px">
-        <button class="btn ghost sm" onclick="saveTasks()">Export backup</button>
-        <button class="btn ghost sm" onclick="document.getElementById('lf').click()">Import</button>
-      </div>
-      <input type="file" id="lf" accept=".json" hidden onchange="loadTasks(event)">
-    </div>
-    <div class="chips" id="courseFilter"></div>
-    <h2 class="sec">Deadlines</h2>
-    <div class="card" id="dlList"></div>
-    <h2 class="sec">Exams</h2>
+    <h2 class="sec">Fixed — can't be moved</h2>
     <div class="card" id="examList"></div>
-    <h2 class="sec">Morning digest</h2>
-    <div class="note" id="digestHint">The 8:45 AM check emails you a summary. Paste it in to see it
-      here — an Inbox tab appears once there's something in it.
-      <div style="margin-top:10px"><button class="btn ghost sm" onclick="go('inbox')">Open the digest box</button></div></div>
-    <h2 class="sec">No-class days</h2>
-    <div class="card" id="breakList"></div>
+    <h2 class="sec">Semester dates</h2>
+    <div class="card" id="dlList"></div>
+
+    <div class="wfoot">
+      <button class="btn ghost sm nogh" id="aToggle" onclick="toggleForm('aForm',this,'Add your own')">Add your own</button>
+      <button class="btn ghost sm" onclick="exportWorkIcs()">Send to calendar</button>
+    </div>
+    <div class="frm collapsible" id="aForm">
+      <input id="aT" placeholder="Add an assignment…">
+      <div class="two"><select id="aC"></select><input id="aD" type="date"></div>
+      <button class="btn full" onclick="addTask()">Add</button>
+    </div>
+    <div id="taskGroups"></div>
+    <p class="tip" style="margin:8px 0 16px">Anything you add saves on this phone and joins the chart above.
+      The calendar export carries every deadline and exam with reminders — delete the old ones first
+      so you don't get doubles.</p>
   </section>
 
 
@@ -1056,7 +1045,8 @@ const C = [
             "No course materials to purchase.",
             "Coffee hour Mon & Wed 9–10 AM. Undergrad assistants: Kate Enlow (enlowkat@msu.edu), Trent Jones (jones804@msu.edu).",
             "He asked everyone to email him back: excitement 1–10, how much you like insects 1–10, and your favourite insect."],
-     exams:["Two comprehension checkpoints open now — both due Mon Sept 8, 3:00 PM. One attempt each.",
+     exams:["Five comprehension checkpoints are open. Two are submitted; three went up Sept 2 and are untouched. All close Tue Sept 8, 3:00 PM. One attempt each.",
+            "Biosphere II / Ecological Footprint written homework, 10 pts, through Turnitin. Title says due Sept 3, D2L says Sept 8 3:00 PM — ask him which.",
             "Three tests during the term, dates announced in class.",
             "Final: Wed Dec 16, 10:10 AM–12:10 PM, South Kedzie S105"],
      schedLabel:"Posted on D2L so far",
@@ -1235,7 +1225,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-02-1";
+const BUILD="2026-09-02-3";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1285,7 +1275,8 @@ const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end �
 const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
   {d:"2026-09-04",tm:"1640",dur:30,t:"ISS 205 · weekly quiz window opens 4:40 PM",w:"closes Mon 3:30 PM · repeats every week",k:"s"},
   {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
-  {d:"2026-09-08",tm:"1500",t:"ISB 201 · 2 comprehension checkpoints",w:"due 3:00 PM · on D2L",k:"s"},
+  {d:"2026-09-08",tm:"1500",t:"ISB 201 · 3 checkpoints + Biosphere II homework",w:"all due 3:00 PM · homework is 10 pts",k:"s"},
+  {d:"2026-09-09",tm:"1530",t:"ISS 205 · weekly quiz 1",w:"due Wed 3:30 PM this week — Labor Day moved it",k:"s"},
   {d:"2026-09-14",tm:"1020",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
   {d:"2026-09-16",tm:"2359",t:"EC 201 · quiz 1 + Core Principles, Demand",w:"due 11:59 PM · buy Achieve first",k:"w"},
   {d:"2026-09-23",tm:"2359",t:"EC 201 · quiz 2 + Supply, Equilibrium",w:"due 11:59 PM",k:"w"},
@@ -1296,13 +1287,13 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
   {d:"2026-11-18",tm:"2359",t:"EC 201 · quiz 5 + Labor Markets, Wages, Inequality",w:"due 11:59 PM",k:"w"},
   {d:"2026-11-23",tm:"2359",t:"COM 100 · research requirement",w:"due 11:59 PM · 50 pts",k:"w"},
   {d:"2026-12-07",tm:"2359",t:"EC 201 · quiz 6 + Market Power, Game Theory, Pricing",w:"due 11:59 PM",k:"w"},
-  {d:"2026-09-24",tm:"1900",dur:50,t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-11-05",tm:"1900",dur:50,t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-12-10",tm:"1900",dur:50,t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
-  {d:"2026-12-14",tm:"1510",dur:120,t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
-  {d:"2026-12-15",tm:"1510",dur:120,t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
-  {d:"2026-12-16",tm:"1010",dur:120,t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
-  {d:"2026-12-17",tm:"1510",dur:120,t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
+  {d:"2026-09-24",tm:"1900",dur:50,x:1,t:"EC 201 midterm 1",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-11-05",tm:"1900",dur:50,x:1,t:"EC 201 midterm 2",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-12-10",tm:"1900",dur:50,x:1,t:"EC 201 midterm 3",w:"7:00 PM · 50 min · room TBA",k:"w"},
+  {d:"2026-12-14",tm:"1510",dur:120,x:1,t:"ISS 205 final",w:"3:10–5:10 PM · Wonders C100",k:"s"},
+  {d:"2026-12-15",tm:"1510",dur:120,x:1,t:"COM 100 final",w:"3:10–5:10 PM · room TBA",k:"w"},
+  {d:"2026-12-16",tm:"1010",dur:120,x:1,t:"ISB 201 final",w:"10:10 AM–12:10 PM · S. Kedzie S105",k:"s"},
+  {d:"2026-12-17",tm:"1510",dur:120,x:1,t:"EC 201 final",w:"3:10 PM · cumulative · room TBA",k:"w"}];
 
 /* ===== ASSIGNMENTS =====
    Every graded thing, with what it actually is, what you have to do, and where it
@@ -1324,11 +1315,23 @@ const ASSN=[
   where:"Links in D2L › Week/Topic 1",
   work:[{o:-2,m:60,t:"Read all three — they feed straight into the quiz"}]},
 
- {id:"isb-cc",c:"ISB 201",t:"Two comprehension checkpoints",d:"2026-09-08",tm:"1500",pts:0,
-  what:"Short checks on the two assigned readings. One attempt each — you have already done both.",
-  todo:["Easter Island","Researchers make the case for a shift from economic growth to human well-being"],
-  where:"D2L › Course Readings",
-  done:true, work:[]},
+ {id:"isb-cc",c:"ISB 201",t:"Comprehension checkpoints — 3 still open",d:"2026-09-08",tm:"1500",pts:0,
+  what:"Short reading checks, one attempt each. Two are already submitted. Three more went up Wednesday morning and are still untouched — all five close together at 3:00 PM Tuesday.",
+  todo:["✓ Easter Island — submitted","✓ Researchers make the case for a shift from economic growth to human well-being — submitted",
+        "☐ Tragedy of the Commons","☐ The EPA removes federal protections for most of the country's wetlands",
+        "☐ How a Crisis for Vultures Led to a Human Disaster: Half a Million Deaths",
+        "One attempt each, so read before you open one."],
+  where:"D2L › Quizzes (they are set up as quizzes, not under Course Readings)",
+  work:[{o:-4,m:75,t:"Read all three articles in one sitting, then take the three checkpoints"}]},
+
+ {id:"isb-bio",c:"ISB 201",t:"Biosphere II, Ecological Footprint and Biocapacity",d:"2026-09-08",tm:"1500",pts:10,
+  what:"A written homework, submitted through Turnitin. The instructions are a Word document under Content › Course Homework; the dropbox itself has no prompt in it.",
+  todo:["⚠ Two different dates. The assignment title says \"Due Thursday, September 3\" but the D2L due date and the access cutoff are both Tuesday, September 8 at 3:00 PM. D2L locks you out after the 8th, so that is the hard wall — but ask him in class which one he means, because he may grade from the 3rd.",
+        "Download the Word document first — that is where the actual questions are.",
+        "It goes through Turnitin, so write it yourself and cite anything you quote."],
+  where:"D2L › Assignments, instructions in Content › Course Homework",
+  work:[{o:-6,m:20,t:"Open the Word doc and see what it actually asks — do this today, in case it really is due the 3rd"},
+        {o:-4,m:75,t:"Write and submit it"}]},
 
  {id:"com-ice",c:"COM 100 rec",t:"Icebreaker speech",d:"2026-09-13",tm:"2359",pts:50,
   what:"Your first graded speech — 30 points for delivery, 20 for the peer review you give someone else. It happens in Friday recitation.",
@@ -1379,7 +1382,18 @@ const ASSN=[
   todo:["Topic is submitted earlier and is worth 10 pts on its own.","Full speech and peer review follow in later recitations."],
   where:"D2L › Assignments",
   work:[{o:-6,m:60,t:"Pick the topic and find sources"},
-        {o:-2,m:75,t:"Draft the outline"}]}
+        {o:-2,m:75,t:"Draft the outline"}]},
+
+ {id:"com-res",c:"COM 100",t:"Research requirement",d:"2026-11-23",tm:"2359",pts:50,
+  what:"50 points of the course, earned either by taking part in department research studies or by writing the alternative assignments instead. The dropboxes are already open, so this can be finished any time before Thanksgiving.",
+  todo:["Two alternative assignments, 25 points each, if you would rather write than sign up for studies.",
+        "A third dropbox is extra credit only — 20 points on top, same deadline.",
+        "Doing it early is worth real points: study slots fill up and November is when three other things are due."],
+  where:"D2L › Assignments (three separate dropboxes)",
+  work:[{o:-40,m:30,t:"Decide: research studies or the written alternatives"},
+        {o:-30,m:90,t:"Alternative assignment #1 — 25 pts"},
+        {o:-23,m:90,t:"Alternative assignment #2 — 25 pts"},
+        {o:-16,m:75,t:"Extra credit alternative — 20 pts for one more sitting"}]}
 ];
 
 
@@ -1387,6 +1401,11 @@ const ASSN=[
    so it is generated rather than typed out twelve times. Opens Fri 4:40 PM, closes
    Mon 3:30 PM; break weeks have no quiz. The syllabus says "generally", so treat
    these as the pattern and let a D2L announcement override. */
+/* A confirmed D2L announcement always beats the syllabus pattern. Keyed by quiz
+   number. Quiz 1 moved because Labor Day killed the Monday it would have closed on —
+   the Week 1 announcement says "Opens Friday, Due Wednesday at 3:30 PM". */
+const ISSQ_FIX={1:{d:"2026-09-09",why:"Confirmed on D2L: with Labor Day on the Monday, this one closes Wednesday, September 9 at 3:30 PM instead."}};
+
 function buildIssQuizzes(){
   let d="2026-09-07", n=1;
   while(n<=12 && d<="2026-12-14"){
@@ -1394,15 +1413,23 @@ function buildIssQuizzes(){
        A quiz whose Monday deadline lands on a holiday still gets shown, flagged,
        because a missing quiz costs more than an uncertain one. */
     if(!isBreak(shiftDays(d,-3))){
-      const holiday=isBreak(d);
-      ASSN.push({id:"iss-q"+n,c:"ISS 205",t:"Weekly quiz "+n,d:d,tm:"1530",pts:2,
+      const fix=ISSQ_FIX[n];
+      /* A confirmed date replaces the guess entirely; only an unconfirmed holiday
+         collision still needs the "go check" warning. */
+      const due=fix?fix.d:d;
+      const holiday=fix?null:isBreak(d);
+      ASSN.push({id:"iss-q"+n,c:"ISS 205",t:"Weekly quiz "+n,d:due,tm:"1530",pts:2,
         what:"10 questions on the week's readings, videos and class material — 5 knowledge, 3 application, 2 big-idea. Open book, open note, open AI, 30 minutes once you start.",
-        todo:(holiday?["⚠ The Monday it would close is "+holiday.t+" — with no class that day the deadline may shift. Check D2L before the weekend rather than assuming."]:[])
-             .concat(["Opens Friday 4:40 PM and closes Monday 3:30 PM.",
+        todo:(fix?["✓ "+fix.why]:[])
+             .concat(holiday?["⚠ The Monday it would close is "+holiday.t+" — with no class that day the deadline may shift. Check D2L before the weekend rather than assuming."]:[])
+             .concat([fix?"Still opens Friday 4:40 PM.":"Opens Friday 4:40 PM and closes Monday 3:30 PM.",
               "Your best 10 of 12 count, so two drop automatically — which is exactly why there are no make-ups.",
               "Any change to this schedule gets posted on D2L."]),
         where:"D2L › Quizzes",
-        work:[{o:-3,m:30,t:"Take the quiz Friday after class, before you leave campus"}]});
+        /* The session belongs on the Friday the quiz OPENS, which is only three days
+           before the due date when the deadline sits on its usual Monday. When a
+           deadline has been pushed, anchor to the Friday and let the offset stretch. */
+        work:[{o:-daysBetween(shiftDays(d,-3),due),m:30,t:"Take the quiz Friday after class, before you leave campus"}]});
       n++;
     }
     d=shiftDays(d,7);
@@ -1411,6 +1438,8 @@ function buildIssQuizzes(){
 /* Which Monday a date belongs to. */
 function mondayOf(dt){const x=new Date(dt);const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);x.setHours(0,0,0,0);return x}
 function shiftDays(iso,n){const x=new Date(iso+"T12:00:00");x.setDate(x.getDate()+n);return isoOf(x)}
+/* Whole days from a to b, positive when b is later. Noon anchors dodge DST. */
+function daysBetween(a,b){return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000)}
 let PLANWEEK=null;   /* Monday ISO of the week on screen */
 let PLANSEL=null;    /* which day is open below the chart */
 /* A work session's placement is a suggestion, so the moment he moves one it has to
@@ -1419,7 +1448,10 @@ let planMoves={}, planDone={};
 
 /* Everything landing in a given week: deadlines on their due day, and each
    assignment's work sessions on the days they were placed. */
+/* Detail records for the items he typed in, rebuilt each render. */
+let OWNA={};
 function planFor(mondayIso){
+  OWNA={};
   const out=[];
   for(let i=0;i<7;i++){
     const iso=shiftDays(mondayIso,i);
@@ -1435,6 +1467,19 @@ function planFor(mondayIso){
       k=inWeek(iso);
       if(k>=0) out[k].items.push({kind:"work",a,w,wi,key,moved:!!planMoves[key]});
     });
+  });
+  /* Anything he typed in himself is a deadline like any other and belongs on the
+     same bar. It carries no prep sessions, because he did not plan any. */
+  tasks.forEach((t,i)=>{
+    if(t.done||!t.date) return;
+    const k=inWeek(t.date);
+    if(k<0) return;
+    /* Registered so the detail sheet can find it — openAssn only knows ASSN. */
+    const a={id:"own-"+i,c:t.course||"Yours",t:t.title,d:t.date,tm:"2359",pts:0,
+      what:"You added this one yourself, so there is nothing here but what you typed.",
+      todo:[],where:"Your own list",work:[]};
+    OWNA[a.id]=a;
+    out[k].items.push({kind:"due",own:i,a});
   });
   /* deadlines first inside a day, then work sessions */
   out.forEach(d=>d.items.sort((x,y)=>(x.kind==="work")-(y.kind==="work")));
@@ -2217,15 +2262,19 @@ function dateRow(t,sub,cls,txt){
     "<span class='tag "+cls+" mono'>"+esc(txt)+"</span></div>";
 }
 function renderDates(){
-  document.getElementById("dlList").innerHTML=DL.map(d=>{
+  /* Registrar dates and no-class days are the same kind of thing — dates the
+     university fixed that no amount of planning changes — so they read as one
+     list in date order rather than two sections you have to cross-reference. */
+  const sem=DL.map(d=>({d:d.d,t:d.t,s:dfmt(d.d)}))
+    .concat(BREAKS.map(b=>({d:b.d,t:b.t,s:dfmt(b.d)+" · no class"})))
+    .sort((a,b)=>a.d<b.d?-1:1);
+  document.getElementById("dlList").innerHTML=sem.map(d=>{
     const n=days(d.d);
-    return dateRow(d.t,dfmt(d.d),n<0?"":n<=14?"w":"s",n<0?"passed":n===0?"today":n+"d");
+    return dateRow(d.t,d.s,n<0?"":n<=14?"w":"s",n<0?"passed":n===0?"today":n+"d");
   }).join("");
-  document.getElementById("breakList").innerHTML=BREAKS.map(b=>{
-    const n=days(b.d);
-    return dateRow(b.t,dfmt(b.d),n<0?"":"s",n<0?"passed":n+"d");
-  }).join("");
-  document.getElementById("examList").innerHTML=EX.map(x=>{
+  /* Only the sit-in-a-room-at-a-time things. Every other deadline that used to be
+     listed here is in the week chart above, with what to do about it attached. */
+  document.getElementById("examList").innerHTML=EX.filter(x=>x.x).map(x=>{
     const n=days(x.d);
     return dateRow(x.t,dfmt(x.d)+" · "+x.w,n<0?"":n<=14?"w":"s",n<0?"passed":n+"d");
   }).join("");
@@ -2276,11 +2325,8 @@ let tasks=[],filter="All";
 (function(){const s=document.getElementById("aC");
   ["General",...new Set(C.filter(c=>!c.kind).map(c=>c.c))].forEach(v=>{
     const o=document.createElement("option");o.value=o.textContent=v;s.appendChild(o)})})();
-(function(){const w=document.getElementById("courseFilter");
-  ["All",...new Set(C.filter(c=>!c.kind).map(c=>c.c))].forEach(v=>{
-    const b=document.createElement("button");b.className="chip"+(v==="All"?" on":"");b.textContent=v;
-    b.onclick=()=>{filter=v;w.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
-      b.classList.add("on");renderTasks()};w.appendChild(b)})})();
+/* The course filter went with the read-only deadline list it used to filter.
+   Five courses over a seven-bar week is not enough hay to need a needle finder. */
 function bucket(t){if(!t.date)return "Later";const n=days(t.date);
   return n<0?"Overdue":n===0?"Today":n<=7?"This week":"Later"}
 
@@ -2382,7 +2428,7 @@ function moveWork(k,step){
   planMoves[k]=next; PLANSEL=next; persist(); renderPlan();
 }
 function openAssn(id){
-  const a=ASSN.find(x=>x.id===id); if(!a)return;
+  const a=ASSN.find(x=>x.id===id)||OWNA[id]; if(!a)return;
   const sh=document.getElementById("sheet");
   const t=a.tm?fm(+a.tm.slice(0,2)*60+ +a.tm.slice(2)):"";
   const left=days(a.d);
@@ -2407,8 +2453,9 @@ function openAssn(id){
 function renderTasks(){
   const el=document.getElementById("taskGroups");
   const vis=tasks.filter(t=>filter==="All"||t.course===filter);
-  if(!vis.length){el.innerHTML="<div class='empty'>"+I(IC.work,26)+"Nothing tracked yet.</div>";
-    renderDueSoon();return}
+  /* No heading, no card, nothing to say — an empty tracker renders as nothing at
+     all rather than a box explaining that it is empty. */
+  if(!vis.length){el.innerHTML=""; renderDueSoon(); planSync(); return}
   const order=["Overdue","Today","This week","Later"],g={};
   vis.forEach(t=>{(g[bucket(t)]=g[bucket(t)]||[]).push(t)});
   el.innerHTML=order.filter(k=>g[k]).map(k=>{
@@ -2422,8 +2469,11 @@ function renderTasks(){
     const tag=k==="Overdue"?"d":k==="Today"?"w":"";
     return "<div style='margin:14px 0 6px'><span class='tag "+tag+"'>"+k+" · "+g[k].length+"</span></div>"+rows;
   }).join("");
-  renderDueSoon();
+  renderDueSoon(); planSync();
 }
+/* The chart reads from tasks, so any edit to the list has to redraw it. Guarded
+   because renderTasks also runs during boot, before the plan exists. */
+function planSync(){ if(typeof renderPlan==="function" && document.getElementById("planBox")) renderPlan(); }
 function addTask(){
   const t=document.getElementById("aT"); if(!t.value.trim())return;
   tasks.push({title:t.value.trim(),course:document.getElementById("aC").value,
@@ -2884,14 +2934,18 @@ addEventListener("keydown",e=>{
 /* ================= FORMS / PERSISTENCE / GESTURES ================= */
 function toggleForm(id,btn,label){
   const f=document.getElementById(id), open=f.classList.toggle("open");
-  btn.textContent=open?"Close":label; btn.classList.toggle("ghost",open);
+  /* Buttons marked .nogh are already quiet and stay that way — flipping them to
+     solid on open would make the footer louder than the chart it sits under. */
+  btn.textContent=open?"Close":label;
+  if(!btn.classList.contains("nogh")) btn.classList.toggle("ghost",open);
   if(open) f.querySelector("input,select")?.focus({preventScroll:true});
 }
 function closeForm(id){
   const f=document.getElementById(id); if(!f||!f.classList.contains("open"))return;
   f.classList.remove("open");
   const b=document.getElementById(id==="aForm"?"aToggle":"gToggle");
-  if(b){b.textContent=id==="aForm"?"New assignment":"New score";b.classList.remove("ghost")}
+  if(b){b.textContent=id==="aForm"?"Add your own":"New score";
+    if(!b.classList.contains("nogh"))b.classList.remove("ghost")}
 }
 const LSKEY="msu-spartan-v1"; let READY=false;
 function persist(){ if(!READY)return;
