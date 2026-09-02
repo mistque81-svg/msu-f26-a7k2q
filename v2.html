@@ -547,44 +547,75 @@ html[data-theme="dark"] .attrow.online .v b{border-color:var(--lime);color:var(-
 .sylsched .scrow .t{color:var(--t-sec)}
 .sylsched .scrow.off .t{color:var(--t-mut);font-style:italic}
 
-/* ---------------- week plan ---------------- */
+/* ---------------- week plan: pressure ---------------- */
 .planbar{display:flex;align-items:center;gap:8px;padding:0 18px 8px}
 .pnav{border:1px solid var(--line);background:var(--surface);color:var(--t-pri);
   width:32px;height:32px;border-radius:9px;font-size:17px;line-height:1;cursor:pointer;flex:none}
 .pnav:active{transform:scale(.94)}
 .pmid{flex:1;min-width:0}
 .pmid > b{display:block;font-size:13.5px;color:var(--t-pri)}
-.pmid span b{color:var(--t-pri);font-weight:700}
 .pmid span{display:block;font-size:11.5px;color:var(--t-mut);margin-top:1px}
+.pmid span b{color:var(--t-pri);font-weight:700}
 .plan{padding:0 18px}
-.pday{border-top:1px solid var(--hair);padding:9px 0 10px}
-.pday:first-child{border-top:0}
-.pday.td{background:color-mix(in srgb,var(--spartan) 5%,transparent);
-  margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:8px}
-html[data-theme="dark"] .pday.td{background:rgba(123,189,0,.07)}
-.phd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-.phd b{font-size:12.5px;color:var(--t-pri);letter-spacing:.02em}
-.pdt{font-size:10.5px;color:var(--t-mut)}
-.pcls{font-size:10.5px;color:var(--t-mut);margin-left:auto;text-align:right}
-.pcls.free{opacity:.55;font-style:italic}
-.pnone{font-size:11.5px;color:var(--t-mut);opacity:.5;padding:1px 0 2px}
-/* Blocks: a filled left edge for things with a deadline, a dashed one for work you
-   chose to do — same language the week grid uses for "a real place" vs "not". */
-.pblk{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
-  border:1px solid var(--line);background:var(--surface);color:var(--t-pri);
-  border-radius:8px;padding:7px 9px;margin-top:5px;font:inherit;font-size:12.5px}
-.pblk:active{transform:scale(.995)}
-.pblk .pc{flex:none;font-size:9.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--t-mut);min-width:52px}
-.pblk .pt{flex:1;min-width:0;line-height:1.35}
-.pblk .pm{flex:none;font-size:10.5px;color:var(--t-mut)}
-.pblk.due{border-left:3px solid var(--spartan)}
-.pblk.exam{border-left:3px solid var(--danger)}
-.pblk.exam .pt{font-weight:700}
-.pblk.work{border-left:3px dashed var(--t-mut);background:transparent}
-.pblk.done{opacity:.5}
-.pblk.done .pt{text-decoration:line-through}
-html[data-theme="dark"] .pblk.due{border-left-color:var(--lime)}
+.pchart{display:flex;align-items:flex-end;gap:5px;height:132px}
+.pcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:3px;height:100%;background:none;border:0;padding:0;cursor:pointer;font:inherit}
+.pmk{height:7px;line-height:7px;font-size:0}
+.pcol .pmk:not(:empty)::before{content:"";display:block;width:6px;height:6px;border-radius:9px;
+  background:var(--t-pri);margin:0 auto}
+.pcol .pmk.ex::before{background:var(--danger);width:7px;height:7px}
+.pbarw{flex:1;width:100%;display:flex;align-items:flex-end;
+  border-bottom:1px solid var(--line)}
+.pbar{width:100%;border-radius:5px 5px 0 0;min-height:2px;background:var(--hair);
+  transition:height .5s cubic-bezier(.2,.8,.2,1),background .25s}
+.pbar.l0{background:var(--hair)}
+.pbar.l1{background:var(--load1)} .pbar.l2{background:var(--load2)}
+.pbar.l3{background:var(--load3)} .pbar.l4{background:var(--load4)}
+/* Selection is never another colour — colour already carries load. A tinted column
+   and an underlined label mark it instead, so a day with no work does not draw a
+   big hollow box where its bar would be. */
+.pcol.on{background:color-mix(in srgb,var(--spartan) 8%,transparent);border-radius:8px}
+html[data-theme="dark"] .pcol.on{background:rgba(123,189,0,.12)}
+.pcol.on .plb{border-bottom:2px solid var(--spartan);padding-bottom:1px}
+html[data-theme="dark"] .pcol.on .plb{border-bottom-color:var(--lime)}
+.plb{font-size:10px;font-weight:700;color:var(--t-mut);letter-spacing:.04em}
+.pdd{font-family:var(--mono,ui-monospace,monospace);font-size:9px;color:var(--t-mut);opacity:.7}
+.pcol.on .plb,.pcol.on .pdd{color:var(--t-pri);opacity:1}
+.pcol.td .plb{color:var(--spartan)}
+html[data-theme="dark"] .pcol.td .plb{color:var(--lime)}
+.pkey{display:flex;gap:12px;align-items:center;padding:8px 0 0;font-size:10px;color:var(--t-mut)}
+.pkey i.pdot{display:inline-block;width:6px;height:6px;border-radius:9px;background:var(--t-pri);
+  margin-right:4px;vertical-align:1px}
+.pkey i.pdot.ex{background:var(--danger)}
+.pkr{margin-left:auto;opacity:.7}
+/* day panel */
+.pday2{margin:12px 18px 0;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);overflow:hidden}
+.pdhd{display:flex;align-items:baseline;gap:8px;padding:10px 12px;border-bottom:1px solid var(--hair)}
+.pdhd b{font-size:13px;color:var(--t-pri)}
+.pdhd span{margin-left:auto;font-size:10.5px;color:var(--t-mut)}
+.pempty{padding:14px 12px;font-size:12.5px;color:var(--t-mut);opacity:.6}
+.prow{display:flex;align-items:center;gap:6px;padding:7px 10px;border-top:1px solid var(--hair)}
+.prow:first-of-type{border-top:0}
+.prow.due{border-left:3px solid var(--spartan)}
+html[data-theme="dark"] .prow.due{border-left-color:var(--lime)}
+.prow.exam{border-left-color:var(--danger)}
+.prow.off{opacity:.45}
+.prow.off .pn{text-decoration:line-through}
+.pmain{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;
+  padding:2px 0;font:inherit;text-align:left;cursor:pointer;color:var(--t-pri)}
+.tagm{flex:none;min-width:50px;font-size:9px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--t-mut)}
+.pn{flex:1;min-width:0;font-size:12.5px;line-height:1.35}
+.pw{flex:none;font-size:10.5px;color:var(--t-mut)}
+.ptick{flex:none;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);
+  background:var(--surface);color:var(--spartan);font-size:11px;line-height:1;cursor:pointer;padding:0}
+.ptick.on{background:var(--spartan);color:#fff;border-color:var(--spartan)}
+html[data-theme="dark"] .ptick.on{background:var(--lime);color:#0A2A08;border-color:var(--lime)}
+.pmv{flex:none;width:24px;height:24px;border-radius:7px;border:1px solid var(--line);
+  background:var(--surface);color:var(--t-sec);font-size:13px;line-height:1;cursor:pointer;padding:0}
+.pmv:active{transform:scale(.9)}
+.pmv[disabled]{opacity:.28;cursor:default}
 /* assignment sheet */
 .asnhd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .asnc{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--spartan)}
@@ -691,9 +722,9 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
       <button class="btn ghost sm" id="planNow" onclick="thisWeek()" style="display:none">Today</button>
     </div>
     <div id="planBox" class="plan"></div>
-    <p class="tip" style="margin:2px 0 4px">Tap any block for what the assignment is, what you have
-      to do, and where it goes. Work sessions are placed ahead of each deadline — move on if a day
-      doesn't suit, nothing here is graded on when you do it.</p>
+    <div id="planDay" class="pday2"></div>
+    <p class="tip" style="margin:6px 0 4px">Tap a bar to open that day. Arrows move a work session;
+      the tick clears it. Deadlines can't move — only the work you do ahead of them.</p>
     <h2 class="sec">Your own assignments</h2>
     <div class="card">
       <button class="btn full addtoggle" id="aToggle" onclick="toggleForm('aForm',this,'New assignment')">New assignment</button>
@@ -1204,7 +1235,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-01-7";
+const BUILD="2026-09-02-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1381,6 +1412,10 @@ function buildIssQuizzes(){
 function mondayOf(dt){const x=new Date(dt);const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);x.setHours(0,0,0,0);return x}
 function shiftDays(iso,n){const x=new Date(iso+"T12:00:00");x.setDate(x.getDate()+n);return isoOf(x)}
 let PLANWEEK=null;   /* Monday ISO of the week on screen */
+let PLANSEL=null;    /* which day is open below the chart */
+/* A work session's placement is a suggestion, so the moment he moves one it has to
+   stick. Keyed assignment-id:session-index -> the day he put it on. */
+let planMoves={}, planDone={};
 
 /* Everything landing in a given week: deadlines on their due day, and each
    assignment's work sessions on the days they were placed. */
@@ -1395,8 +1430,10 @@ function planFor(mondayIso){
     let k=inWeek(a.d);
     if(k>=0) out[k].items.push({kind:a.exam?"exam":"due",a});
     (a.work||[]).forEach((w,wi)=>{
-      const iso=shiftDays(a.d,w.o); k=inWeek(iso);
-      if(k>=0) out[k].items.push({kind:"work",a,w,wi});
+      const key=a.id+":"+wi;
+      const iso=planMoves[key]||shiftDays(a.d,w.o);
+      k=inWeek(iso);
+      if(k>=0) out[k].items.push({kind:"work",a,w,wi,key,moved:!!planMoves[key]});
     });
   });
   /* deadlines first inside a day, then work sessions */
@@ -2258,47 +2295,92 @@ function planTitle(m){
 function shiftWeek(n){ PLANWEEK=shiftDays(PLANWEEK,n*7); renderPlan(); }
 function thisWeek(){ PLANWEEK=isoOf(mondayOf(new Date())); renderPlan(); }
 
+/* Load level for a day: one sequential ramp, work minutes only. Colour carries
+   exactly one meaning here, so the selected day is marked with a ring instead of
+   a different hue. Reuses the course-load ramp already validated for contrast. */
+function loadLvl(m){ return m===0?0 : m<60?1 : m<120?2 : m<180?3 : 4; }
+
 function renderPlan(){
   const box=document.getElementById("planBox"); if(!box)return;
   if(!PLANWEEK) PLANWEEK=isoOf(mondayOf(new Date()));
   const wk=planFor(PLANWEEK), todayIso=isoOf(new Date());
+  if(PLANSEL==null||!wk.some(d=>d.iso===PLANSEL)){
+    const t=wk.find(d=>d.iso===todayIso);
+    PLANSEL=(t||wk.find(d=>d.items.length)||wk[0]).iso;
+  }
   const lab=document.getElementById("planRange"); if(lab)lab.textContent=planTitle(PLANWEEK);
   const cur=document.getElementById("planNow");
   if(cur) cur.style.display = PLANWEEK===isoOf(mondayOf(new Date())) ? "none" : "inline-flex";
 
-  const load=wk.reduce((a,d)=>a+d.items.filter(i=>i.kind==="work").reduce((x,i)=>x+i.w.m,0),0);
+  const mins=d=>d.items.filter(i=>i.kind==="work"&&!planDone[i.key])
+                       .reduce((a,i)=>a+i.w.m,0);
+  const peak=Math.max(60,...wk.map(mins));
+  const week=wk.reduce((a,d)=>a+mins(d),0);
   const dues=wk.reduce((a,d)=>a+d.items.filter(i=>i.kind!=="work").length,0);
   const sum=document.getElementById("planSum");
-  if(sum) sum.innerHTML = dues||load
-    ? "<b>"+dues+"</b> due this week · <b>"+dur(load)+"</b> of work planned"
-    : "Nothing due this week.";
+  if(sum) sum.innerHTML = (dues||week)
+    ? "<b>"+dues+"</b> due · <b>"+dur(week)+"</b> to do"
+    : "Nothing this week.";
 
-  box.innerHTML = wk.map(d=>{
-    const dt=new Date(d.iso+"T12:00:00"), isTd=d.iso===todayIso;
-    const cls=C.filter(c=>!isGym(c)&&(c.meets||[]).some(m=>m.d===((dt.getDay()+6)%7)+1)
-                          && !(c.noMeet||[]).includes(d.iso) && !isBreak(d.iso));
-    const rows=d.items.map(i=>{
-      if(i.kind==="work"){
-        return "<button class='pblk work' onclick=\"openAssn('"+i.a.id+"')\">"+
-          "<span class='pc'>"+esc(i.a.c)+"</span>"+
-          "<span class='pt'>"+esc(i.w.t)+"</span>"+
-          "<span class='pm mono'>"+i.w.m+"m</span></button>";
-      }
-      const late=i.a.done?"done":"";
-      return "<button class='pblk "+(i.kind==="exam"?"exam":"due")+" "+late+"' onclick=\"openAssn('"+i.a.id+"')\">"+
-        "<span class='pc'>"+esc(i.a.c)+"</span>"+
-        "<span class='pt'>"+(i.a.done?"✓ ":"")+esc(i.a.t)+"</span>"+
-        "<span class='pm mono'>"+(i.a.tm?fm(+i.a.tm.slice(0,2)*60+ +i.a.tm.slice(2)):"due")+"</span></button>";
-    }).join("");
-    return "<div class='pday"+(isTd?" td":"")+"'>"+
-      "<div class='phd'><b>"+DAY7[((dt.getDay()+6)%7)+1]+"</b>"+
-        "<span class='pdt mono'>"+MON3[dt.getMonth()]+" "+dt.getDate()+"</span>"+
-        (cls.length?"<span class='pcls'>"+cls.map(c=>esc(c.c)).join(" · ")+"</span>"
-                   :"<span class='pcls free'>no class</span>")+"</div>"+
-      (rows||"<div class='pnone'>—</div>")+"</div>";
-  }).join("");
+  /* the chart */
+  box.innerHTML="<div class='pchart'>"+wk.map(d=>{
+    const m=mins(d), lv=loadLvl(m), dt=new Date(d.iso+"T12:00:00");
+    const hasDue=d.items.some(i=>i.kind!=="work");
+    const isExam=d.items.some(i=>i.kind==="exam");
+    return "<button class='pcol"+(d.iso===PLANSEL?" on":"")+(d.iso===todayIso?" td":"")+
+      "' onclick=\"pickDay('"+d.iso+"')\" aria-label='"+DAY7[((dt.getDay()+6)%7)+1]+", "+dur(m)+"'>"+
+      "<span class='pmk"+(isExam?" ex":"")+"'>"+(hasDue?"&nbsp;":"")+"</span>"+
+      "<span class='pbarw'><span class='pbar l"+lv+"' style='height:"+
+        Math.round(m/peak*88)+"%'></span></span>"+
+      "<span class='plb'>"+DAY7[((dt.getDay()+6)%7)+1].slice(0,1)+"</span>"+
+      "<span class='pdd'>"+dt.getDate()+"</span></button>";
+  }).join("")+"</div>"+
+  "<div class='pkey'><span><i class='pdot'></i>deadline</span>"+
+    "<span><i class='pdot ex'></i>exam</span>"+
+    "<span class='pkr'>taller = more to do</span></div>";
+
+  /* the day panel */
+  const day=wk.find(d=>d.iso===PLANSEL);
+  const dt=new Date(day.iso+"T12:00:00");
+  const cls=C.filter(c=>!isGym(c)&&(c.meets||[]).some(m=>m.d===((dt.getDay()+6)%7)+1)
+                    && !(c.noMeet||[]).includes(day.iso) && !isBreak(day.iso));
+  let h="<div class='pdhd'><b>"+DAY7[((dt.getDay()+6)%7)+1]+" "+MON3[dt.getMonth()]+" "+dt.getDate()+"</b>"+
+    "<span>"+(cls.length?cls.map(c=>esc(c.c)).join(" · "):"no class")+"</span></div>";
+  if(!day.items.length) h+="<div class='pempty'>Nothing planned.</div>";
+  day.items.forEach(i=>{
+    if(i.kind!=="work"){
+      h+="<div class='prow due"+(i.kind==="exam"?" exam":"")+"'>"+
+        "<button class='pmain' onclick=\"openAssn('"+i.a.id+"')\">"+
+        "<span class='tagm'>"+esc(i.a.c)+"</span><span class='pn'>"+esc(i.a.t)+"</span>"+
+        "<span class='pw mono'>"+(i.a.tm?fm(+i.a.tm.slice(0,2)*60+ +i.a.tm.slice(2)):"due")+"</span>"+
+        "</button></div>";
+    }else{
+      const off=planDone[i.key];
+      h+="<div class='prow work"+(off?" off":"")+"'>"+
+        "<button class='ptick"+(off?" on":"")+"' onclick=\"tickWork('"+i.key+"')\" "+
+          "aria-label='Mark done'>"+(off?"✓":"")+"</button>"+
+        "<button class='pmain' onclick=\"openAssn('"+i.a.id+"')\">"+
+        "<span class='tagm'>"+esc(i.a.c)+"</span><span class='pn'>"+esc(i.w.t)+"</span>"+
+        "<span class='pw mono'>"+i.w.m+"m</span></button>"+
+        "<button class='pmv' onclick=\"moveWork('"+i.key+"',-1)\" aria-label='Move a day earlier'>‹</button>"+
+        "<button class='pmv' onclick=\"moveWork('"+i.key+"',1)\" aria-label='Move a day later'"+
+          (shiftDays(planMoves[i.key]||shiftDays(i.a.d,i.w.o),1)>i.a.d?" disabled":"")+">›</button>"+
+        "</div>";
+    }
+  });
+  document.getElementById("planDay").innerHTML=h;
 }
-
+function pickDay(iso){ PLANSEL=iso; renderPlan(); }
+function tickWork(k){ planDone[k]=!planDone[k]; persist(); renderPlan(); }
+function moveWork(k,step){
+  const [id,wi]=k.split(":");
+  const a=ASSN.find(x=>x.id===id); if(!a)return;
+  const cur=planMoves[k]||shiftDays(a.d,a.work[+wi].o);
+  const next=shiftDays(cur,step);
+  /* Never let a prep session slide past the thing it is preparing for. */
+  if(next>a.d) return;   /* a prep session may never sit after its own deadline */
+  planMoves[k]=next; PLANSEL=next; persist(); renderPlan();
+}
 function openAssn(id){
   const a=ASSN.find(x=>x.id===id); if(!a)return;
   const sh=document.getElementById("sheet");
@@ -2814,7 +2896,7 @@ function closeForm(id){
 const LSKEY="msu-spartan-v1"; let READY=false;
 function persist(){ if(!READY)return;
   try{localStorage.setItem(LSKEY,JSON.stringify({v:1,tasks,grades,inbox:INBOX,mode:MODE,
-    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER,weights,target:TARGET,study:STUDY,dismissedQ,
+    theme:dark?"dark":"light",weekview:WEEKVIEW,tab:curTab,myEvents,evfilter:EVFILTER,weights,target:TARGET,study:STUDY,dismissedQ,planMoves,planDone,
     where:WHERE,geoOn:GEO.on,spots:SPOTS}))}catch(_){}}
 function restore(){
   let s={};try{s=JSON.parse(localStorage.getItem(LSKEY)||"{}")||{}}catch(_){s={}}
@@ -2825,6 +2907,8 @@ function restore(){
   if(typeof s.evfilter==="string")EVFILTER=s.evfilter;
   if(s.where==="HOME"||B[s.where])WHERE=s.where;
   if(s.spots&&typeof s.spots==="object")SPOTS=s.spots;
+  if(s.planMoves&&typeof s.planMoves==="object")planMoves=s.planMoves;
+  if(s.planDone&&typeof s.planDone==="object")planDone=s.planDone;
   if(s.weights&&typeof s.weights==="object")weights=s.weights;
   if(typeof s.target==="number")TARGET=s.target;
   if(s.study===false)STUDY=false;
