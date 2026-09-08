@@ -603,6 +603,11 @@ html[data-theme="dark"] .pcol.td .plb{color:var(--lime)}
 .prow:first-of-type{border-top:0}
 .prow.due{border-left:3px solid var(--spartan)}
 html[data-theme="dark"] .prow.due{border-left-color:var(--lime)}
+/* Submitted: still listed so he can see it is handled, but drained of urgency —
+   the accent bar goes grey and the whole row recedes. */
+.prow.due.ok{border-left-color:var(--hair);opacity:.55}
+html[data-theme="dark"] .prow.due.ok{border-left-color:var(--hair)}
+.prow.due.ok .pn{text-decoration:line-through}
 .prow.exam{border-left-color:var(--danger)}
 .prow.off{opacity:.45}
 .prow.off .pn{text-decoration:line-through}
@@ -1059,6 +1064,8 @@ const C = [
    prof:"G. Ording",extra:""},
   {c:"COM 100",name:"Human Communication — Lecture",cls:"14293",sec:"LEC2",cr:3,b:"HOL",
    meets:[{d:3,s:760,e:840}],load:1,req:0,mode:null,att:"campus",
+   /* Announced by the TA on Sept 8: no lecture in week 2. Recitation still meets. */
+   noMeet:["2026-09-09"],
    attNote:"In person in Holden G8, and attendance is taken every lecture \u2014 100 points, two free absences, then 10 points each.",why:"Intro communication — one lecture and one recitation a week. The only course on your schedule that is not required for anything.",
    syl:{
      status:"full",
@@ -1127,6 +1134,8 @@ const C = [
    meets:[{d:5,s:480,e:560}],prof:"S. P. Lubert (TA)",extra:"Friday 8:00 AM in Comm Arts 173 — your earliest class of the week, and worth 400 of COM 100's 1000 points. Four graded speeches happen here. Work from recitation is due the following SUNDAY at 11:59 PM. From home it is about a 15 minute walk, so leave by ~7:40."},
   {c:"ISS 205",name:"Big Ideas in Social Science (D)",cls:"18510",sec:"006",cr:4,b:"WON",
    meets:[{d:1,s:930,e:1000},{d:3,s:930,e:1000},{d:5,s:930,e:1000}],load:3,req:1,mode:null,att:"campus",
+   /* Week 2 announcement: Friday Sept 11 runs online asynchronous, no room. */
+   noMeet:["2026-09-11"],
    attNote:"Wonders C100, three times a week. Attendance is a graded category worth 15 of the course\u2019s 100 points.",why:"Four credits and three meetings a week — more contact hours than anything else you have, and reading-heavy.",
    syl:{
      status:"full",
@@ -1225,7 +1234,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-02-3";
+const BUILD="2026-09-08-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1275,8 +1284,11 @@ const DL=[{d:"2026-08-31",t:"Classes begin"},{d:"2026-09-04",t:"Open adds end �
 const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"due end of day · intro to the platform",k:"w"},
   {d:"2026-09-04",tm:"1640",dur:30,t:"ISS 205 · weekly quiz window opens 4:40 PM",w:"closes Mon 3:30 PM · repeats every week",k:"s"},
   {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
-  {d:"2026-09-08",tm:"1500",t:"ISB 201 · 3 checkpoints + Biosphere II homework",w:"all due 3:00 PM · homework is 10 pts",k:"s"},
-  {d:"2026-09-09",tm:"1530",t:"ISS 205 · weekly quiz 1",w:"due Wed 3:30 PM this week — Labor Day moved it",k:"s"},
+  {d:"2026-09-08",tm:"1500",t:"ISB 201 · 2 checkpoints still open",w:"lock at 3:00 PM \u00b7 homeworks already submitted",k:"w"},
+  {d:"2026-09-09",tm:"1240",t:"COM 100 \u00b7 no lecture this week",w:"Holden G8 is empty \u2014 recitation Friday still meets",k:"s"},
+  {d:"2026-09-10",tm:"1500",t:"ISB 201 \u00b7 checkpoint: What Has Science Done for You Lately?",w:"due 3:00 PM \u00b7 one attempt",k:"s"},
+  {d:"2026-09-11",tm:"0800",t:"COM 100 \u00b7 icebreaker speech in recitation",w:"3 min, recorded \u2014 upload to GoReact by Sun 11:59 PM",k:"w"},
+  {d:"2026-09-11",tm:"0930",t:"ISS 205 \u00b7 no in-person class",w:"online asynchronous \u2014 do not walk to Wonders",k:"s"},
   {d:"2026-09-14",tm:"1020",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
   {d:"2026-09-16",tm:"2359",t:"EC 201 · quiz 1 + Core Principles, Demand",w:"due 11:59 PM · buy Achieve first",k:"w"},
   {d:"2026-09-23",tm:"2359",t:"EC 201 · quiz 2 + Supply, Equilibrium",w:"due 11:59 PM",k:"w"},
@@ -1315,32 +1327,66 @@ const ASSN=[
   where:"Links in D2L › Week/Topic 1",
   work:[{o:-2,m:60,t:"Read all three — they feed straight into the quiz"}]},
 
- {id:"isb-cc",c:"ISB 201",t:"Comprehension checkpoints — 3 still open",d:"2026-09-08",tm:"1500",pts:0,
-  what:"Short reading checks, one attempt each. Two are already submitted. Three more went up Wednesday morning and are still untouched — all five close together at 3:00 PM Tuesday.",
-  todo:["✓ Easter Island — submitted","✓ Researchers make the case for a shift from economic growth to human well-being — submitted",
-        "☐ Tragedy of the Commons","☐ The EPA removes federal protections for most of the country's wetlands",
-        "☐ How a Crisis for Vultures Led to a Human Disaster: Half a Million Deaths",
-        "One attempt each, so read before you open one."],
-  where:"D2L › Quizzes (they are set up as quizzes, not under Course Readings)",
-  work:[{o:-4,m:75,t:"Read all three articles in one sitting, then take the three checkpoints"}]},
+ {id:"isb-cc",c:"ISB 201",t:"Comprehension checkpoints — 2 still open",d:"2026-09-08",tm:"1500",pts:0,
+  what:"Short reading checks, one attempt each. Four are submitted. Two are still untouched and D2L locks them at 3:00 PM today — after that there is no way back in.",
+  todo:["\u26a0 OPEN: Tragedy of the Commons",
+        "\u26a0 OPEN: How Do You Put a Price Tag on Nature? \u2014 posted Friday Sept 4, easy to have missed",
+        "\u2713 Easter Island \u00b7 \u2713 EPA wetlands \u00b7 \u2713 Vultures \u00b7 \u2713 Economic growth and well-being",
+        "One attempt each, so read the article before you open the checkpoint."],
+  where:"D2L \u203a Quizzes",
+  work:[{o:0,m:40,t:"Read both articles and take the two checkpoints before 3:00 PM"}]},
 
- {id:"isb-bio",c:"ISB 201",t:"Biosphere II, Ecological Footprint and Biocapacity",d:"2026-09-08",tm:"1500",pts:10,
-  what:"A written homework, submitted through Turnitin. The instructions are a Word document under Content › Course Homework; the dropbox itself has no prompt in it.",
-  todo:["⚠ Two different dates. The assignment title says \"Due Thursday, September 3\" but the D2L due date and the access cutoff are both Tuesday, September 8 at 3:00 PM. D2L locks you out after the 8th, so that is the hard wall — but ask him in class which one he means, because he may grade from the 3rd.",
-        "Download the Word document first — that is where the actual questions are.",
-        "It goes through Turnitin, so write it yourself and cite anything you quote."],
-  where:"D2L › Assignments, instructions in Content › Course Homework",
-  work:[{o:-6,m:20,t:"Open the Word doc and see what it actually asks — do this today, in case it really is due the 3rd"},
-        {o:-4,m:75,t:"Write and submit it"}]},
+ {id:"isb-cc3",c:"ISB 201",t:"Checkpoint — What Has Science Done for You Lately?",d:"2026-09-10",tm:"1500",pts:0,
+  what:"The checkpoint for Thursday's class. Opened Friday Sept 4, one attempt, closes at 3:00 PM Thursday.",
+  todo:["Read the article first \u2014 one attempt and no reopening.",
+        "He posts these in batches a few days ahead, so check Quizzes whenever you open D2L rather than waiting for class."],
+  where:"D2L \u203a Quizzes",
+  work:[{o:-1,m:25,t:"Read it and take the checkpoint the night before"}]},
 
- {id:"com-ice",c:"COM 100 rec",t:"Icebreaker speech",d:"2026-09-13",tm:"2359",pts:50,
-  what:"Your first graded speech — 30 points for delivery, 20 for the peer review you give someone else. It happens in Friday recitation.",
-  todo:["Check D2L › Speech Assignments › Icebreaker for the prompt.",
-        "Prepare it before Friday — you deliver in recitation.",
-        "Recitation work is due two days later, so Sunday 11:59 PM."],
-  where:"Recitation in person; upload via GoReact",
-  work:[{o:-5,m:45,t:"Read the prompt and pick your angle"},
-        {o:-3,m:45,t:"Practise out loud once — it is 30 pts and you have never done one"}]},
+ {id:"isb-sci",c:"ISB 201",t:"The Role of Science in Society",d:"2026-09-10",tm:"1500",pts:10,
+  what:"Written homework through Turnitin, the same shape as Biosphere II and Subsidies. Already submitted \u2014 nothing left to do.",
+  todo:["\u2713 Submitted \u2014 1 file in the dropbox.",
+        "He is running roughly one written homework plus two checkpoints per class meeting. Expect the next pair around Sept 15."],
+  where:"D2L \u203a Assignments",
+  done:true, work:[]},
+
+ {id:"isb-bio",c:"ISB 201",t:"Biosphere II + Subsidies homework",d:"2026-09-08",tm:"1500",pts:20,
+  what:"Two written homeworks, 10 points each, both through Turnitin. Both are submitted.",
+  todo:["\u2713 Biosphere II, Ecological Footprint and Biocapacity \u2014 submitted.",
+        "\u2713 Subsidies \u2014 submitted.",
+        "The Sept 3 vs Sept 8 date confusion on Biosphere II is moot now: it went in before the cutoff either way."],
+  where:"D2L \u203a Assignments",
+  done:true, work:[]},
+
+ {id:"com-ice",c:"COM 100 rec",t:"Icebreaker speech \u2014 you deliver Friday",d:"2026-09-13",tm:"2359",pts:50,
+  what:"Your first graded speech: 3 minutes, delivered live in Friday recitation, recorded there, then uploaded to GoReact. 30 points for the speech, 20 for the peer review you give someone else.",
+  todo:["\u26a0 You speak THIS Friday, Sept 11, in recitation \u2014 come prepared, you could be called first.",
+        "3 minutes, to the guidelines in D2L \u203a Speech Assignments \u203a Icebreaker.",
+        "Either the TA or a classmate records you; you then upload through D2L \u2192 Connect \u2192 GoReact.",
+        "Be on time. If you are assigned to peer-review someone and miss their speech, that peer review is a zero.",
+        "The upload and peer review are due Sunday Sept 13, 11:59 PM \u2014 Friday recitation work is always due two days later."],
+  where:"Comm Arts 173 on Friday; upload via GoReact",
+  work:[{o:-4,m:45,t:"Read the prompt and pick what you actually care about"},
+        {o:-3,m:45,t:"Write it and time it \u2014 3 minutes is shorter than it sounds"},
+        {o:-2,m:30,t:"Run it out loud twice before Friday morning"},
+        {o:-1,m:25,t:"Upload the recording to GoReact and do the peer review"}]},
+
+ {id:"com-read2",c:"COM 100",t:"Week 2 readings",d:"2026-09-13",tm:"2359",pts:0,
+  what:"Readings assigned for week 2, sitting in D2L and Connect. There is no lecture this week, so nothing in class will remind you they exist.",
+  todo:["Check both D2L and Connect \u2014 the TA said they are split across the two.",
+        "Friday recitation work is due Sunday at 11:59 PM.",
+        "The TA said he may adjust dates for the Friday sections; if the date moves it will be in a D2L announcement."],
+  where:"D2L \u203a Content and McGraw-Hill Connect",
+  work:[{o:-2,m:50,t:"Do the readings Friday after recitation while it is fresh"}]},
+
+ {id:"iss-read2",c:"ISS 205",t:"Week 2 readings \u2014 A Brief History of Work",d:"2026-09-11",tm:"1530",pts:0,
+  what:"The reading behind week 2 and behind the quiz that opens Friday.",
+  todo:["A Timeline of Key Moments in the History of Work in America (for Wednesday)",
+        "How the Average US Worker Has Changed Over 250 Years (for Wednesday)",
+        "Workism is Making Americans Miserable (for Friday)",
+        "\u26a0 Friday Sept 11 has no in-person class \u2014 it runs online asynchronous. Do not walk to Wonders."],
+  where:"Links in D2L \u203a Week/Topic 2",
+  work:[{o:-2,m:55,t:"Read all three \u2014 they are what the Friday quiz asks about"}]},
 
  {id:"isb-num",c:"ISB 201L",t:"Numerology homework",d:"2026-09-14",tm:"1020",pts:20,
   what:"The take-home from the no-meeting week, on pseudoscience and confirmation bias.",
@@ -1351,12 +1397,11 @@ const ASSN=[
 
  {id:"ec-q1",c:"EC 201",t:"Quiz 1 + Ch. 1–2 LearningCurve",d:"2026-09-16",tm:"2359",pts:0,
   what:"Three things due at once: the adaptive assignments for Core Principles and Demand, plus the first online quiz. Quizzes are open-book and you get unlimited submissions, but only the last one is graded.",
-  todo:["Buy Macmillan Achieve first — the link is in D2L.",
+  todo:["\u2713 Achieve is bought and working \u2014 2 of the 16 LearningCurve topics are already complete.",
         "Print the quiz PDF, solve on paper, then enter your answers.",
         "Nothing late is accepted. One minute past is a zero."],
   where:"Achieve for the adaptive work; D2L › Quizzes for the quiz",
-  work:[{o:-6,m:30,t:"Buy Achieve — everything else is blocked until you do"},
-        {o:-3,m:90,t:"Watch the Ch.1–2 videos with the workbook pages open"},
+  work:[{o:-3,m:90,t:"Watch the Ch.1\u20132 videos with the workbook pages open"},
         {o:-1,m:60,t:"Do the LearningCurve sets and the quiz"}]},
 
  {id:"ec-q2",c:"EC 201",t:"Quiz 2 + Ch. 3–4 LearningCurve",d:"2026-09-23",tm:"2359",pts:0,
@@ -1404,7 +1449,9 @@ const ASSN=[
 /* A confirmed D2L announcement always beats the syllabus pattern. Keyed by quiz
    number. Quiz 1 moved because Labor Day killed the Monday it would have closed on —
    the Week 1 announcement says "Opens Friday, Due Wednesday at 3:30 PM". */
-const ISSQ_FIX={1:{d:"2026-09-09",why:"Confirmed on D2L: with Labor Day on the Monday, this one closes Wednesday, September 9 at 3:30 PM instead."}};
+const ISSQ_FIX={
+  1:{d:"2026-09-09",done:1,why:"Labor Day pushed this one to Wednesday Sept 9, 3:30 PM. Already submitted."},
+  2:{d:"2026-09-14",why:"Confirmed in the Week 2 announcement: opens Friday Sept 11, closes Monday Sept 14 at 3:30 PM."}};
 
 function buildIssQuizzes(){
   let d="2026-09-07", n=1;
@@ -1419,6 +1466,7 @@ function buildIssQuizzes(){
       const due=fix?fix.d:d;
       const holiday=fix?null:isBreak(d);
       ASSN.push({id:"iss-q"+n,c:"ISS 205",t:"Weekly quiz "+n,d:due,tm:"1530",pts:2,
+        done:!!(fix&&fix.done),
         what:"10 questions on the week's readings, videos and class material — 5 knowledge, 3 application, 2 big-idea. Open book, open note, open AI, 30 minutes once you start.",
         todo:(fix?["✓ "+fix.why]:[])
              .concat(holiday?["⚠ The Monday it would close is "+holiday.t+" — with no class that day the deadline may shift. Check D2L before the weekend rather than assuming."]:[])
@@ -1429,7 +1477,8 @@ function buildIssQuizzes(){
         /* The session belongs on the Friday the quiz OPENS, which is only three days
            before the due date when the deadline sits on its usual Monday. When a
            deadline has been pushed, anchor to the Friday and let the offset stretch. */
-        work:[{o:-daysBetween(shiftDays(d,-3),due),m:30,t:"Take the quiz Friday after class, before you leave campus"}]});
+        work:(fix&&fix.done)?[]:[{o:-daysBetween(shiftDays(d,-3),due),m:30,
+          t:"Take the quiz Friday after class, before you leave campus"}]});
       n++;
     }
     d=shiftDays(d,7);
@@ -1679,8 +1728,14 @@ document.getElementById("searchBtn").innerHTML=I(IC.search,18);
 function dayItems(dow){const o=[];C.forEach(c=>{if(isStudy(c)&&!STUDY)return;
   c.meets.forEach(m=>{if(m.d===dow)o.push({c,m})})});
   return o.sort((a,b)=>a.m.s-b.m.s)}
-/* same, but aware of what date it actually is — returns nothing on a break day */
-function dayItemsOn(iso){ return isBreak(iso) ? [] : dayItems(new Date(iso+"T12:00:00").getDay()); }
+/* Same, but aware of what date it actually is. Drops the whole day on a university
+   break, and drops individual courses an instructor has cancelled for that date —
+   otherwise the app sends him to a room where nobody will be there. */
+function dayItemsOn(iso){
+  if(isBreak(iso)) return [];
+  return dayItems(new Date(iso+"T12:00:00").getDay())
+    .filter(x=>!(x.c.noMeet||[]).includes(iso));
+}
 function walkTotal(dow){
   const it=dayItems(dow).filter(x=>B[x.c.b].q); if(!it.length)return 0;
   let t=fromHere(it[0].c.b);                      // wherever you are -> first
@@ -1841,13 +1896,28 @@ function paintGeo(){
 }
 
 /* ================= MASTHEAD ================= */
+/* "Week N · Mon d — Fri d" for whatever week today falls in. Clamped so the label
+   stays sane before classes start and after they end. */
+const TERM_MON="2026-08-31";
+function weekLabel(){
+  const m=isoOf(mondayOf(new Date()));
+  const n=Math.floor(daysBetween(TERM_MON,m)/7)+1;
+  const f=iso=>{const x=new Date(iso+"T12:00:00");return MON3[x.getMonth()]+" "+x.getDate()};
+  return (n>=1&&n<=16?"Week "+n+" · ":"")+f(m)+" — "+f(shiftDays(m,4));
+}
 function nowNext(){
   const n=new Date(),dow=n.getDay(),nm=n.getHours()*60+n.getMinutes();
+  const today=isoOf(n);
+  /* A cancelled meeting must not become "next up" — the masthead is the one line
+     he acts on without reading anything else, so a stale class there walks him to
+     an empty room. Look up the real date each candidate falls on. */
+  const offISO=dd=>shiftDays(today,dd);
+  const skip=(c,iso)=>isBreak(iso)||(c.noMeet||[]).includes(iso);
   let cur=null,next=null,best=1e9;
   C.forEach(c=>{ if(isStudy(c)&&!STUDY)return; c.meets.forEach(m=>{
-    if(m.d===dow&&nm>=m.s&&nm<m.e)cur={c,m};
+    if(m.d===dow&&nm>=m.s&&nm<m.e&&!skip(c,today))cur={c,m};
     const dd=(m.d-dow+7)%7,delta=dd*1440+(m.s-nm);
-    if(delta>0&&delta<best){best=delta;next={c,m,dd}}
+    if(delta>0&&delta<best&&!skip(c,offISO(dd))){best=delta;next={c,m,dd}}
   })});
   return {cur,next,dow,nm};
 }
@@ -1863,12 +1933,14 @@ function paintMast(){
   if(curTab==="week"){
     const all=C.flatMap(c=>c.meets.map(m=>({c,m})));
     const wk=[1,2,3,4,5].reduce((a,d)=>a+walkTotal(d),0);
-    K.textContent="Week 3 · Aug 31 — Sep 4";
+    /* Was hardcoded and went stale in week two. Counts real weeks from the first
+       day of classes so it can never disagree with the calendar again. */
+    K.textContent=weekLabel();
     T.textContent="Your campus";
     S.textContent=routes().length+" routes · "+wk+" min on foot · "+
       new Set(C.filter(c=>B[c.b].q).map(c=>c.b)).size+" buildings";
   }else if(curTab==="today"){
-    K.textContent=DAYFULL[dow]+" · Week 3";
+    K.textContent=DAYFULL[dow]+" · "+weekLabel().split(" · ")[0];
     T.textContent = it.length ? (it.length+(it.length===1?" stop today":" stops today"))
                   : onl.length ? (onl.length===1?"1 block today":onl.length+" blocks today")
                   : (brkToday?"No classes":"Nothing today");
@@ -2362,7 +2434,10 @@ function renderPlan(){
                        .reduce((a,i)=>a+i.w.m,0);
   const peak=Math.max(60,...wk.map(mins));
   const week=wk.reduce((a,d)=>a+mins(d),0);
-  const dues=wk.reduce((a,d)=>a+d.items.filter(i=>i.kind!=="work").length,0);
+  /* Only work he still owes counts as pressure. A submitted assignment stays
+     visible so he can see it is handled, but it must not inflate the number. */
+  const open=i=>i.kind!=="work"&&!i.a.done;
+  const dues=wk.reduce((a,d)=>a+d.items.filter(open).length,0);
   const sum=document.getElementById("planSum");
   if(sum) sum.innerHTML = (dues||week)
     ? "<b>"+dues+"</b> due · <b>"+dur(week)+"</b> to do"
@@ -2371,8 +2446,8 @@ function renderPlan(){
   /* the chart */
   box.innerHTML="<div class='pchart'>"+wk.map(d=>{
     const m=mins(d), lv=loadLvl(m), dt=new Date(d.iso+"T12:00:00");
-    const hasDue=d.items.some(i=>i.kind!=="work");
-    const isExam=d.items.some(i=>i.kind==="exam");
+    const hasDue=d.items.some(open);
+    const isExam=d.items.some(i=>i.kind==="exam"&&!i.a.done);
     return "<button class='pcol"+(d.iso===PLANSEL?" on":"")+(d.iso===todayIso?" td":"")+
       "' onclick=\"pickDay('"+d.iso+"')\" aria-label='"+DAY7[((dt.getDay()+6)%7)+1]+", "+dur(m)+"'>"+
       "<span class='pmk"+(isExam?" ex":"")+"'>"+(hasDue?"&nbsp;":"")+"</span>"+
@@ -2395,10 +2470,10 @@ function renderPlan(){
   if(!day.items.length) h+="<div class='pempty'>Nothing planned.</div>";
   day.items.forEach(i=>{
     if(i.kind!=="work"){
-      h+="<div class='prow due"+(i.kind==="exam"?" exam":"")+"'>"+
+      h+="<div class='prow due"+(i.kind==="exam"?" exam":"")+(i.a.done?" ok":"")+"'>"+
         "<button class='pmain' onclick=\"openAssn('"+i.a.id+"')\">"+
         "<span class='tagm'>"+esc(i.a.c)+"</span><span class='pn'>"+esc(i.a.t)+"</span>"+
-        "<span class='pw mono'>"+(i.a.tm?fm(+i.a.tm.slice(0,2)*60+ +i.a.tm.slice(2)):"due")+"</span>"+
+        "<span class='pw mono'>"+(i.a.done?"done":(i.a.tm?fm(+i.a.tm.slice(0,2)*60+ +i.a.tm.slice(2)):"due"))+"</span>"+
         "</button></div>";
     }else{
       const off=planDone[i.key];
