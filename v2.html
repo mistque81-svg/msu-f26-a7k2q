@@ -1234,7 +1234,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-08-1";
+const BUILD="2026-09-09-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1286,7 +1286,9 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
   {d:"2026-09-09",t:"ISB 201L · email Dr. Kimbirauskas before the first D2L quiz",w:"do this ahead of every quiz, not just the first",k:"s"},
   {d:"2026-09-08",tm:"1500",t:"ISB 201 · 2 checkpoints still open",w:"lock at 3:00 PM \u00b7 homeworks already submitted",k:"w"},
   {d:"2026-09-09",tm:"1240",t:"COM 100 \u00b7 no lecture this week",w:"Holden G8 is empty \u2014 recitation Friday still meets",k:"s"},
-  {d:"2026-09-10",tm:"1500",t:"ISB 201 \u00b7 checkpoint: What Has Science Done for You Lately?",w:"due 3:00 PM \u00b7 one attempt",k:"s"},
+  {d:"2026-09-10",tm:"1500",t:"ISB 201 \u00b7 checkpoint: What Has Science Done for You Lately?",w:"due 3:00 PM \u00b7 one attempt \u00b7 still open",k:"w"},
+  {d:"2026-09-11",tm:"2359",t:"COM 100 \u00b7 recitation readings Ch. 11 and Ch. 13",w:"D2L says Fri, the TA said Sun \u2014 assume Fri",k:"w"},
+  {d:"2026-09-18",tm:"2359",t:"COM 100 \u00b7 Chapter 2 reading + quiz",w:"30 pts \u00b7 first Connect chapter that counts",k:"w"},
   {d:"2026-09-11",tm:"0800",t:"COM 100 \u00b7 icebreaker speech in recitation",w:"3 min, recorded \u2014 upload to GoReact by Sun 11:59 PM",k:"w"},
   {d:"2026-09-11",tm:"0930",t:"ISS 205 \u00b7 no in-person class",w:"online asynchronous \u2014 do not walk to Wonders",k:"s"},
   {d:"2026-09-14",tm:"1020",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
@@ -1313,28 +1315,26 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
    are days ahead of the deadline, chosen to land on days you are already on campus
    or genuinely free, never the night before something big. */
 const ASSN=[
- {id:"com-connect",c:"COM 100",t:"Connect intro assignment",d:"2026-09-04",tm:"2359",pts:10,
+ {id:"com-connect",c:"COM 100",t:"Connect intro assignment \u2014 10/10",d:"2026-09-04",tm:"2359",pts:10,done:true,
   what:"A short walkthrough that exists to teach you the Connect platform — where the textbook, book exercises, quizzes and the final exam all live.",
   todo:["Buy the Connect course pack through the purchase link in D2L. Register it with your msu.edu address or it will not link to the course.",
         "Work through the intro assignment inside Connect."],
   where:"McGraw-Hill Connect, launched from D2L › Textbook › Link To Text",
   work:[{o:-2,m:45,t:"Buy Connect and log in — do not leave the purchase to Friday"}]},
 
- {id:"iss-read1",c:"ISS 205",t:"Week 1 readings — Why We Work",d:"2026-09-04",tm:"1530",pts:0,
+ {id:"iss-read1",c:"ISS 205",t:"Week 1 readings — Why We Work",d:"2026-09-04",tm:"1530",pts:0,done:true,
   what:"Three articles behind the first topic. They are also what the first quiz asks about.",
   todo:["Rethinking Work","The Secret to Happiness at Work","Workism is Making Americans Miserable",
         "Set up free NYT access via accessnyt.com and WSJ via the D2L partner link first."],
   where:"Links in D2L › Week/Topic 1",
   work:[{o:-2,m:60,t:"Read all three — they feed straight into the quiz"}]},
 
- {id:"isb-cc",c:"ISB 201",t:"Comprehension checkpoints — 2 still open",d:"2026-09-08",tm:"1500",pts:0,
-  what:"Short reading checks, one attempt each. Four are submitted. Two are still untouched and D2L locks them at 3:00 PM today — after that there is no way back in.",
-  todo:["\u26a0 OPEN: Tragedy of the Commons",
-        "\u26a0 OPEN: How Do You Put a Price Tag on Nature? \u2014 posted Friday Sept 4, easy to have missed",
-        "\u2713 Easter Island \u00b7 \u2713 EPA wetlands \u00b7 \u2713 Vultures \u00b7 \u2713 Economic growth and well-being",
-        "One attempt each, so read the article before you open the checkpoint."],
+ {id:"isb-cc",c:"ISB 201",t:"Comprehension checkpoints \u2014 all submitted",d:"2026-09-08",tm:"1500",pts:0,
+  what:"Six reading checkpoints, one attempt each. Every one is in, and the batch came back at 10/10.",
+  todo:["\u2713 All six submitted before the 3:00 PM cutoff.",
+        "\u2713 The gradebook shows \"9.3 Quiz\" at 10/10 \u2014 so checkpoints are pooled per class date, not scored one by one."],
   where:"D2L \u203a Quizzes",
-  work:[{o:0,m:40,t:"Read both articles and take the two checkpoints before 3:00 PM"}]},
+  done:true, work:[]},
 
  {id:"isb-cc3",c:"ISB 201",t:"Checkpoint — What Has Science Done for You Lately?",d:"2026-09-10",tm:"1500",pts:0,
   what:"The checkpoint for Thursday's class. Opened Friday Sept 4, one attempt, closes at 3:00 PM Thursday.",
@@ -1344,40 +1344,42 @@ const ASSN=[
   work:[{o:-1,m:25,t:"Read it and take the checkpoint the night before"}]},
 
  {id:"isb-sci",c:"ISB 201",t:"The Role of Science in Society",d:"2026-09-10",tm:"1500",pts:10,
-  what:"Written homework through Turnitin, the same shape as Biosphere II and Subsidies. Already submitted \u2014 nothing left to do.",
-  todo:["\u2713 Submitted \u2014 1 file in the dropbox.",
-        "He is running roughly one written homework plus two checkpoints per class meeting. Expect the next pair around Sept 15."],
+  what:"Written homework through Turnitin. Already submitted.",
+  todo:["\u2713 Submitted \u2014 one file in the dropbox, nothing left to do."],
   where:"D2L \u203a Assignments",
   done:true, work:[]},
 
- {id:"isb-bio",c:"ISB 201",t:"Biosphere II + Subsidies homework",d:"2026-09-08",tm:"1500",pts:20,
-  what:"Two written homeworks, 10 points each, both through Turnitin. Both are submitted.",
-  todo:["\u2713 Biosphere II, Ecological Footprint and Biocapacity \u2014 submitted.",
-        "\u2713 Subsidies \u2014 submitted.",
-        "The Sept 3 vs Sept 8 date confusion on Biosphere II is moot now: it went in before the cutoff either way."],
+ {id:"isb-bio",c:"ISB 201",t:"Biosphere II + Subsidies \u2014 graded",d:"2026-09-08",tm:"1500",pts:20,
+  what:"Two written homeworks, 10 points each. Biosphere II came back at 10/10 with feedback attached.",
+  todo:["\u2713 Biosphere II \u2014 10/10, 100%. There is unread feedback on it. Open it: it is the only read you have on how he marks.",
+        "\u2713 Subsidies \u2014 submitted, not yet graded."],
   where:"D2L \u203a Assignments",
   done:true, work:[]},
 
  {id:"com-ice",c:"COM 100 rec",t:"Icebreaker speech \u2014 you deliver Friday",d:"2026-09-13",tm:"2359",pts:50,
-  what:"Your first graded speech: 3 minutes, delivered live in Friday recitation, recorded there, then uploaded to GoReact. 30 points for the speech, 20 for the peer review you give someone else.",
-  todo:["\u26a0 You speak THIS Friday, Sept 11, in recitation \u2014 come prepared, you could be called first.",
-        "3 minutes, to the guidelines in D2L \u203a Speech Assignments \u203a Icebreaker.",
-        "Either the TA or a classmate records you; you then upload through D2L \u2192 Connect \u2192 GoReact.",
-        "Be on time. If you are assigned to peer-review someone and miss their speech, that peer review is a zero.",
-        "The upload and peer review are due Sunday Sept 13, 11:59 PM \u2014 Friday recitation work is always due two days later."],
-  where:"Comm Arts 173 on Friday; upload via GoReact",
-  work:[{o:-4,m:45,t:"Read the prompt and pick what you actually care about"},
-        {o:-3,m:45,t:"Write it and time it \u2014 3 minutes is shorter than it sounds"},
-        {o:-2,m:30,t:"Run it out loud twice before Friday morning"},
+  what:"Three minutes, delivered live in Friday recitation, recorded on a phone, uploaded to GoReact. 30 points for the speech, 20 for the peer review. Topic is you \u2014 where you are from, your major and why, what you do with your time.",
+  todo:["\u26a0 You speak Friday Sept 11 in recitation. Come prepared; you could be called first.",
+        "RUBRIC \u2014 four criteria, 7.5 points each:",
+        "\u00b7 Length: 7.5 needs you within 30 seconds of 3:00, so 2:30\u20133:30. Within 60s scores 5, within 90s scores 2.5. A quarter of the grade is a stopwatch.",
+        "\u00b7 Organization: 7.5 needs the speech to be overtly organized \u2014 announce the topic, preview the structure, use transitions, summarize at the end. Merely being organized scores 5.",
+        "\u00b7 Delivery: 7.5 needs volume and rate that VARY for emphasis, not just clear and steady. Few \u201cahs\u201d and \u201cuhms\u201d.",
+        "\u00b7 Creativity: 7.5 is \u201cvery original, captures attention\u201d. This is where specifics beat generalities.",
+        "Be on time. If you are assigned a peer review and miss that person\u2019s speech, the review is a zero.",
+        "Upload right after recitation, not Sunday night. Peer review is separate: 20 pts, one attempt, same deadline."],
+  where:"Comm Arts 173 Friday; upload via D2L \u2192 Connect \u2192 GoReact",
+  work:[{o:-4,m:45,t:"Fill in the outline \u2014 the blanks are the creativity points"},
+        {o:-3,m:45,t:"Read it aloud twice with a timer; cut anything past 3:15"},
+        {o:-2,m:30,t:"Run it standing, looking down no more than three times"},
         {o:-1,m:25,t:"Upload the recording to GoReact and do the peer review"}]},
 
- {id:"com-read2",c:"COM 100",t:"Week 2 readings",d:"2026-09-13",tm:"2359",pts:0,
-  what:"Readings assigned for week 2, sitting in D2L and Connect. There is no lecture this week, so nothing in class will remind you they exist.",
-  todo:["Check both D2L and Connect \u2014 the TA said they are split across the two.",
-        "Friday recitation work is due Sunday at 11:59 PM.",
-        "The TA said he may adjust dates for the Friday sections; if the date moves it will be in a D2L announcement."],
-  where:"D2L \u203a Content and McGraw-Hill Connect",
-  work:[{o:-2,m:50,t:"Do the readings Friday after recitation while it is fresh"}]},
+ {id:"com-recread",c:"COM 100",t:"Recitation readings \u2014 Ch. 11 and Ch. 13",d:"2026-09-11",tm:"2359",pts:0,
+  what:"Two Connect readings tied to recitation. These are the ones your TA meant when he said \"you have readings due this week.\"",
+  todo:["\u26a0 D2L dates both of these Friday Sept 11, but the TA said Friday-recitation work is due Sunday. Treat Friday as the deadline and ask him in recitation \u2014 he said he may adjust dates for the Friday sections.",
+        "Chapter 11 Recitation Reading",
+        "Chapter 13 Recitation Reading",
+        "Chapter 12 follows on Sept 18, Chapter 14 on Sept 25, Chapter 15 on Nov 6."],
+  where:"D2L \u203a Recitation Readings, launches into Connect",
+  work:[{o:-2,m:50,t:"Do both readings Wednesday night \u2014 Friday is already your speech day"}]},
 
  {id:"iss-read2",c:"ISS 205",t:"Week 2 readings \u2014 A Brief History of Work",d:"2026-09-11",tm:"1530",pts:0,
   what:"The reading behind week 2 and behind the quiz that opens Friday.",
@@ -1397,7 +1399,7 @@ const ASSN=[
 
  {id:"ec-q1",c:"EC 201",t:"Quiz 1 + Ch. 1–2 LearningCurve",d:"2026-09-16",tm:"2359",pts:0,
   what:"Three things due at once: the adaptive assignments for Core Principles and Demand, plus the first online quiz. Quizzes are open-book and you get unlimited submissions, but only the last one is graded.",
-  todo:["\u2713 Achieve is bought and working \u2014 2 of the 16 LearningCurve topics are already complete.",
+  todo:["\u2713 Ch. 1 LearningCurve is done and scored 10/10. Ch. 2 is the one still open.",
         "Print the quiz PDF, solve on paper, then enter your answers.",
         "Nothing late is accepted. One minute past is a zero."],
   where:"Achieve for the adaptive work; D2L › Quizzes for the quiz",
@@ -1452,6 +1454,35 @@ const ASSN=[
 const ISSQ_FIX={
   1:{d:"2026-09-09",done:1,why:"Labor Day pushed this one to Wednesday Sept 9, 3:30 PM. Already submitted."},
   2:{d:"2026-09-14",why:"Confirmed in the Week 2 announcement: opens Friday Sept 11, closes Monday Sept 14 at 3:30 PM."}};
+
+/* COM 100's Connect work is a fixed calendar of chapter pairs: a 10-point reading
+   and a 20-point quiz sharing one deadline. Generated rather than typed twelve
+   times, and the two-in-one-night dates are flagged where they fall. */
+const COM_CH=[[2,"2026-09-18"],[3,"2026-09-25"],[4,"2026-10-09"],[5,"2026-10-09"],
+  [6,"2026-10-16"],[7,"2026-10-23"],[8,"2026-11-06"],[9,"2026-11-13"],[10,"2026-11-20"],
+  [16,"2026-11-27"],[17,"2026-12-04"],[18,"2026-12-11"]];
+function buildComChapters(){
+  COM_CH.forEach(([ch,d],i)=>{
+    const twin=COM_CH.filter(x=>x[1]===d).map(x=>x[0]);
+    const first=twin[0]===ch;
+    /* Two chapters share Oct 9. Fold them into one card on the earlier chapter so
+       the day shows 60 points of work, not two innocent-looking 30s. */
+    if(twin.length>1&&!first) return;
+    const chs=twin.length>1?twin.join(" and "):String(ch);
+    ASSN.push({id:"com-ch"+ch,c:"COM 100",t:"Chapter "+chs+" \u2014 reading + quiz",d:d,tm:"2359",
+      pts:30*twin.length,
+      what:"Connect work for chapter"+(twin.length>1?"s":"")+" "+chs+": a reading worth 10 points and a quiz worth 20, per chapter."
+        +(twin.length>1?" Both chapters land on this one date \u2014 that is 60 points in a single night.":""),
+      todo:["Reading first, then the quiz \u2014 the quiz is drawn straight from it.",
+            "Your two lowest readings and two lowest quizzes drop, so one bad week is survivable. Chapters 2 and 3 are already sitting in the drop slots, which means from chapter 4 on, every one counts.",
+            "Quizzes are 20 points each \u2014 the single biggest repeating item in the course."],
+      where:"D2L \u203a Chapter Readings and Chapter Quizzes, both launch Connect",
+      work:twin.length>1
+        ?[{o:-6,m:60,t:"Chapter "+twin[0]+" reading and quiz \u2014 do not leave both for one night"},
+          {o:-3,m:60,t:"Chapter "+twin[1]+" reading and quiz"}]
+        :[{o:-3,m:70,t:"Chapter "+ch+" reading, then the quiz"}]});
+  });
+}
 
 function buildIssQuizzes(){
   let d="2026-09-07", n=1;
@@ -1591,15 +1622,10 @@ let myEvents=[];
    These get a banner until dismissed, because a quiet footnote is how a
    scheduling conflict survives all semester. */
 const OPEN_Q=[{
-  id:"com100-connect",
-  t:"COM 100: a Connect assignment is due this Friday",
-  d:"Your TA Sebastian Paige Lubert emailed that there is one assignment this week, designed to teach you the Connect platform, due Fri Sept 4. Connect is also where the textbook lives \u2014 Communication Matters by Kory Floyd, 4th edition, bought as a Connect course pack. You must register it with your msu.edu address.",
-  a:"Buy the Connect course pack through the purchase link in D2L before Friday. McGraw-Hill reps are in lecture this week if you would rather do it in person, and your TA walks through the platform in Friday's recitation."
-},{
-  id:"com100-icebreaker",
-  t:"COM 100 icebreaker speech is week 2",
-  d:"COM 100 has four graded speeches, and the icebreaker lands in week two \u2014 the week of Sept 7. It is 50 points (30 speech, 20 peer review). Recitation work is due two days after your recitation, so for a Friday recitation that is Sunday at 11:59 PM.",
-  a:"Check Content \u203a Speech Assignments \u203a Icebreaker in D2L this week so the topic is not a surprise on Friday."
+  id:"iss205-att-sep2",
+  t:"ISS 205: one attendance day is blank",
+  d:"Attendance in ISS 205 is worth 15 of the course\u2019s 100 points, recorded at 0.5 per meeting through Top Hat. Mon Aug 31 shows 0.5/0.5. Wed Sept 2 shows nothing at all \u2014 a week later, which is long enough that it should have posted by now. It is either an absence or a Top Hat check-in that did not register.",
+  a:"You get six free absences across the term, so one costs nothing by itself \u2014 but a Top Hat failure that goes unreported does. Ask Dr. Ericksen or check Top Hat, and if it was a glitch, say so now rather than in December."
 },{
   id:"isb201l-modality",
   t:"ISB 201L: SIS says Hybrid, the syllabus says Face-to-face",
@@ -3095,6 +3121,7 @@ restore();
 paintTheme();
 renderModeChips(); setMode(MODE);
 buildIssQuizzes();
+buildComChapters();
 renderCourses(); renderDates(); renderTasks(); renderPlan(); renderInbox(); renderGList(); drawBars();
 buildTabs();
 renderEvents(); renderLinks(); paintGeo();
