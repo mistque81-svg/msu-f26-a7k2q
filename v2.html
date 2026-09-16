@@ -651,6 +651,23 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
 .asnw span:nth-child(2){flex:1}
 .asnw .mono:last-child{flex:none;color:var(--t-mut);font-size:10.5px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:80ms!important}}
+
+/* Work tab: the rest of the semester, one tap away */
+.foldwrap{margin-top:10px}
+.foldwrap[hidden]{display:none}
+.fold{display:flex;align-items:center;gap:10px;width:100%;margin:0;padding:13px 0;
+  background:none;border:0;font:inherit;font-size:13.5px;font-weight:700;
+  letter-spacing:-.02em;color:var(--t-pri);text-align:left;cursor:pointer}
+.fold span{flex:1}
+.fold b{font-size:12px;font-weight:700;color:var(--t-sec);font-variant-numeric:tabular-nums}
+.fold i{width:7px;height:7px;border-right:2px solid var(--t-sec);border-bottom:2px solid var(--t-sec);
+  transform:translateY(-2px) rotate(45deg);transition:transform .2s ease}
+.fold[aria-expanded="true"] i{transform:translateY(2px) rotate(225deg)}
+.fold:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:8px}
+/* Folds at every width. .collapsible only collapses below 820px, which suits
+   the add-form but would leave all 13 dates open on a laptop. */
+#laterList{display:none}
+#laterList.open{display:block;margin-top:8px}
 </style>
 </head>
 <body>
@@ -737,12 +754,17 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
     </div>
     <div id="planBox" class="plan"></div>
     <div id="planDay" class="pday2"></div>
-    <p class="tip" style="margin:6px 0 4px">Tap a bar to open that day. Arrows move a work session;
-      the tick clears it. Deadlines can't move — only the work you do ahead of them.</p>
-    <h2 class="sec">Fixed — can't be moved</h2>
-    <div class="card" id="examList"></div>
-    <h2 class="sec">Semester dates</h2>
-    <div class="card" id="dlList"></div>
+    <div id="overdueWrap" hidden>
+      <h2 class="sec" id="overdueHead">Overdue</h2>
+      <div class="card" id="overdueList"></div>
+    </div>
+    <h2 class="sec">Up next</h2>
+    <div class="card" id="nextList"></div>
+    <div class="card foldwrap" id="laterWrap" hidden>
+      <button class="fold" id="laterBtn" onclick="toggleLater(this)"
+        aria-expanded="false" aria-controls="laterList"></button>
+    </div>
+    <div class="card" id="laterList"></div>
 
     <div class="wfoot">
       <button class="btn ghost sm nogh" id="aToggle" onclick="toggleForm('aForm',this,'Add your own')">Add your own</button>
@@ -754,9 +776,6 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
       <button class="btn full" onclick="addTask()">Add</button>
     </div>
     <div id="taskGroups"></div>
-    <p class="tip" style="margin:8px 0 16px">Anything you add saves on this phone and joins the chart above.
-      The calendar export carries every deadline and exam with reminders — delete the old ones first
-      so you don't get doubles.</p>
   </section>
 
 
@@ -1256,7 +1275,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-11-2";
+const BUILD="2026-09-16-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -2383,25 +2402,65 @@ function dateRow(t,sub,cls,txt){
   return "<div class='row'><div class='g'><b>"+esc(t)+"</b><span>"+esc(sub)+"</span></div>"+
     "<span class='tag "+cls+" mono'>"+esc(txt)+"</span></div>";
 }
+const NEXT_DAYS=30, OVERDUE_UNKNOWN_DAYS=7;
 function renderDates(){
-  /* Registrar dates and no-class days are the same kind of thing — dates the
-     university fixed that no amount of planning changes — so they read as one
-     list in date order rather than two sections you have to cross-reference. */
-  const sem=DL.map(d=>({d:d.d,t:d.t,s:dfmt(d.d)}))
-    .concat(BREAKS.map(b=>({d:b.d,t:b.t,s:dfmt(b.d)+" · no class"})))
-    .sort((a,b)=>a.d<b.d?-1:1);
-  document.getElementById("dlList").innerHTML=sem.map(d=>{
-    const n=days(d.d);
-    return dateRow(d.t,d.s,n<0?"":n<=14?"w":"s",n<0?"passed":n===0?"today":n+"d");
-  }).join("");
-  /* Only the sit-in-a-room-at-a-time things. Every other deadline that used to be
-     listed here is in the week chart above, with what to do about it attached. */
-  document.getElementById("examList").innerHTML=EX.filter(x=>x.x).map(x=>{
-    const n=days(x.d);
-    return dateRow(x.t,dfmt(x.d)+" · "+x.w,n<0?"":n<=14?"w":"s",n<0?"passed":n+"d");
-  }).join("");
+  /* Everything with a date you work toward, in one date-ordered list: exams,
+     registrar dates, no-class days, and D2L assignments from the last scan.
+     Only the next month stays open; the rest of the semester folds behind one
+     tap. DL, EX and BREAKS are only read here - Today, search, clash checks
+     and the calendar export still use them as they were. */
+  const fixed=EX.filter(x=>x.x).map(x=>({d:x.d,t:x.t,s:dfmt(x.d)+" \u00b7 "+x.w}))
+    .concat(DL.map(d=>({d:d.d,t:d.t,s:dfmt(d.d)})))
+    .concat(BREAKS.map(b=>({d:b.d,t:b.t,s:dfmt(b.d)+" \u00b7 no class"})));
+  const work=FILES.filter(f=>f.due).map(f=>({d:f.due,f}));
+  const byDate=(a,b)=>a.d<b.d?-1:a.d>b.d?1:0;
+  const ahead=fixed.concat(work).filter(r=>days(r.d)>=0).sort(byDate);
+  const row=r=>{
+    const n=days(r.d), when=n===0?"today":n+"d";
+    if(!r.f) return dateRow(r.t,r.s,n<=14?"w":"s",when);
+    const st=r.f.status, done=st==="submitted"||st==="graded";
+    return workRow(r.f,dfmt(r.d),done||n>14?"s":"w",
+      st==="submitted"?"in \u2713":st==="graded"?"graded":when);
+  };
+  const next=ahead.filter(r=>days(r.d)<=NEXT_DAYS), later=ahead.filter(r=>days(r.d)>NEXT_DAYS);
+  document.getElementById("nextList").innerHTML=next.length
+    ? next.map(row).join("")
+    : "<div class='empty'>Nothing due in the next "+NEXT_DAYS+" days.</div>";
+  document.getElementById("laterList").innerHTML=later.map(row).join("");
+  document.getElementById("laterWrap").hidden=!later.length;
+  document.getElementById("laterBtn").innerHTML=
+    "<span>Later this semester</span><b>"+later.length+"</b><i aria-hidden='true'></i>";
+
+  /* Overdue shows only what can still cost you. The scanner marks a dropbox
+     "submitted", "graded" or "missing" when it can tell, and leaves it blank
+     when it can't. A known miss stays until it's dealt with. A blank one
+     drops off after a week, since by then it has most likely been handed
+     in. Submitted and graded work never shows here. */
+  const over=work.filter(r=>{
+    const n=days(r.d), st=r.f.status;
+    return n<0 && st!=="submitted" && st!=="graded"
+      && (st==="missing" || -n<=OVERDUE_UNKNOWN_DAYS);
+  }).sort(byDate);
+  document.getElementById("overdueWrap").hidden=!over.length;
+  document.getElementById("overdueHead").textContent="Overdue \u00b7 "+over.length;
+  document.getElementById("overdueList").innerHTML=over.map(r=>workRow(r.f,
+    (r.f.status==="missing"?"not submitted":"check D2L")+" \u00b7 "+dfmt(r.d),
+    "d",(-days(r.d))+"d ago")).join("");
   document.getElementById("factList").innerHTML=FACTS.map(([t,b])=>
     "<div class='row'><div class='g'><b>"+esc(t)+"</b><span>"+esc(b)+"</span></div></div>").join("");
+}
+/* A dateRow for a D2L file: the name opens it in Drive, extension dropped
+   because here it reads as an assignment, not a document. */
+function workRow(f,sub,cls,txt){
+  const name=plainName(f.file).replace(/\.[a-z0-9]{2,5}$/i,"").trim();
+  return "<div class='row'><div class='g'><b><a class='flink' target='_blank' rel='noopener' href='"+
+    esc(driveUrl(f.file))+"'>"+esc(name)+"</a></b><span>"+
+    esc((f.course?f.course+" \u00b7 ":"")+sub)+"</span></div>"+
+    "<span class='tag "+cls+" mono'>"+esc(txt)+"</span></div>";
+}
+function toggleLater(btn){
+  const open=document.getElementById("laterList").classList.toggle("open");
+  btn.setAttribute("aria-expanded",String(open));
 }
 function renderDueSoon(){
   const el=document.getElementById("dueSoon");
@@ -2647,7 +2706,8 @@ function filesNorm(d){
     course:String(f.course||""), folder:String(f.folder||""),
     file:String(f.file||""),     title:String(f.title||""),
     due:String(f.due||""),       posted:String(f.posted||""),
-    kind:String(f.kind||"content")
+    kind:String(f.kind||"content"),
+    status:String(f.status||"")    /* "submitted", "graded", "missing", or "" if unknown */
   })).filter(f=>f.file);
 }
 function dayDiff(iso){
@@ -2678,7 +2738,11 @@ function fileRow(f){
   const meta=[];
   if(f.due) meta.push(esc(dueLabel(f.due))+" \u00b7 "+esc(f.due));
   else if(f.posted) meta.push("posted "+esc(f.posted));
-  const n=f.due?dayDiff(f.due):null, urgent=n!==null&&n<=2;
+  if(f.status==="submitted") meta.push("submitted \u2713");
+  else if(f.status==="graded") meta.push("graded");
+  else if(f.status==="missing") meta.push("not submitted");
+  const settled=f.status==="submitted"||f.status==="graded";
+  const n=f.due?dayDiff(f.due):null, urgent=n!==null&&n<=2&&!settled;
   return "<div class='row'><div class='g'>"+
     "<b>"+(urgent?"<span class='fdot'></span>":"")+
       "<a class='flink' target='_blank' rel='noopener' href='"+esc(driveUrl(f.file))+"'>"+
@@ -2703,7 +2767,7 @@ function renderFiles(){
       +withDue.map(fileRow).join(""):"")
     +(rest.length?"<div class='rowhead'>Everything else, newest first</div>"
       +rest.map(fileRow).join(""):"");
-  const late=withDue.filter(f=>dayDiff(f.due)<0).length;
+  const late=withDue.filter(f=>dayDiff(f.due)<0&&f.status!=="submitted"&&f.status!=="graded").length;
   const soon=withDue.filter(f=>{const n=dayDiff(f.due);return n!==null&&n>=0&&n<=7}).length;
   note.innerHTML="<b>"+FILES.length+" file"+(FILES.length===1?"":"s")+" in your Drive folders"+
     (withDue.length?", "+withDue.length+" with a deadline":"")+".</b> "+
@@ -2715,7 +2779,7 @@ function loadFiles(e){const f=e.target.files[0];if(!f)return;const r=new FileRea
   r.onload=()=>{try{
     const parsed=filesNorm(JSON.parse(r.result));
     if(!parsed.length)throw new Error("empty");
-    FILES=parsed; renderFiles(); buildTabs(); persist();
+    FILES=parsed; renderFiles(); renderDates(); buildTabs(); persist();
     document.getElementById("filesMsg").textContent=
       "Loaded "+FILES.length+" file"+(FILES.length===1?"":"s")+" from "+f.name+".";
   }catch(_){
