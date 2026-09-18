@@ -668,6 +668,20 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
    the add-form but would leave all 13 dates open on a laptop. */
 #laterList{display:none}
 #laterList.open{display:block;margin-top:8px}
+
+/* Bigger tap targets, same look. Controls keep their size; an invisible
+   pseudo-element widens what a thumb can hit. Each zone reaches the middle of
+   the gap to the next control (the arrows sit 6px apart). The two arrow zones
+   overlap by a pixel so no tap falls between them; the right-hand one wins. */
+.ptick,.pmv,.prow .pmain{position:relative}
+.ptick::before,.pmv::before,.prow .pmain::before{content:"";position:absolute}
+.ptick::before{inset:-9px -3px -9px -10px}
+.pmv::before{inset:-8px -4px}
+.pmv:last-child::before{right:-10px}
+.prow .pmain::before{inset:-9px 0}
+/* D2L file and assignment rows: the whole row opens the file, not just its name. */
+.row.lk{position:relative}
+.row.lk .flink::after{content:"";position:absolute;inset:0}
 </style>
 </head>
 <body>
@@ -1277,7 +1291,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-18-2";
+const BUILD="2026-09-18-3";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1664,6 +1678,8 @@ let myEvents=[];
 /* Things the app knows are contradictory and cannot resolve on its own.
    These get a banner until dismissed, because a quiet footnote is how a
    scheduling conflict survives all semester. */
+/* until: the last day an alert is worth showing. After it the alert retires
+   on its own; without one it stays until dismissed. */
 const OPEN_Q=[{
   id:"iss205-att-sep2",
   t:"ISS 205: one attendance day is blank",
@@ -1671,16 +1687,19 @@ const OPEN_Q=[{
   a:"You get six free absences across the term, so one costs nothing by itself \u2014 but a Top Hat failure that goes unreported does. Ask Dr. Ericksen or check Top Hat, and if it was a glitch, say so now rather than in December."
 },{
   id:"isb201l-modality",
+  until:"2026-09-06",   /* its advice is a week-one email */
   t:"ISB 201L: SIS says Hybrid, the syllabus says Face-to-face",
   d:"MSU's enrollment system lists section 001 as Hybrid with an online component. Dr. Kimbirauskas's syllabus says \u201cCourse modality: Face-to-face\u201d and that the lab is delivered in person once a week. MSU defines hybrid as at least 50% of instruction online, which does not match a course meeting 110 minutes a week for 12 weeks — so the SIS tag looks stale. It does not change what you do: you are expected in North Kedzie N220 every Monday either way.",
   a:"Worth one email to Dr. Kimbirauskas (kimbira1@msu.edu) in week one: \u201cSIS lists section 001 as hybrid but the syllabus says face-to-face \u2014 is any part of the lab delivered online?\u201d"
 },{
   id:"isb201l-absence",
+  until:"2026-12-11",   /* holds all semester */
   t:"ISB 201L drops you after 4 unexcused absences",
   d:"Four unexcused absences means an automatic drop from the lab with a 0.0 on your transcript — and there are only 12 labs. It is the harshest single policy on your schedule. Excused absences need documentation, and make-ups must happen within one week.",
   a:"If you have to miss a Monday lab, email Dr. Kimbirauskas (kimbira1@msu.edu) BEFORE it and ask to sit in on another section that same week."
 },{
   id:"ec201-achieve",
+  until:"2026-09-16",   /* framed around the first Achieve deadline */
   t:"EC 201 needs a Macmillan Achieve purchase",
   d:"15% of the EC 201 grade is Macmillan Achieve adaptive assignments, and Achieve is a paid platform you have to buy. The purchase link is in D2L. The first quiz and its adaptive assignments are due Wed Sept 16 at 11:59 PM, and nothing late is accepted.",
   a:"Buy Achieve through the D2L link in week one — do not leave it until the night of Sept 16."
@@ -1842,7 +1861,8 @@ function hop(a,b){
 function toggleStudy(){ STUDY=!STUDY; persist(); paintStudy(); tick(); drawGrid&&(WEEKVIEW==="grid"&&drawGrid()); }
 function renderQ(){
   const el=document.getElementById("qBanner"); if(!el)return;
-  const open=OPEN_Q.filter(q=>!dismissedQ.includes(q.id));
+  const today=isoOf(new Date());
+  const open=OPEN_Q.filter(q=>!dismissedQ.includes(q.id) && (!q.until || q.until>=today));
   el.innerHTML=open.map(q=>
     "<div class='qbar'><div class='qhead'>"+I(IC.alert,16)+"<b>"+esc(q.t)+"</b>"+
     "<button class='qx' onclick=\"dismissQ('"+q.id+"')\" aria-label='Dismiss'>"+I(IC.x,14)+"</button></div>"+
@@ -2456,7 +2476,7 @@ function renderDates(){
    because here it reads as an assignment, not a document. */
 function workRow(f,sub,cls,txt){
   const name=plainName(f.file).replace(/\.[a-z0-9]{2,5}$/i,"").trim();
-  return "<div class='row'><div class='g'><b><a class='flink' target='_blank' rel='noopener' href='"+
+  return "<div class='row lk'><div class='g'><b><a class='flink' target='_blank' rel='noopener' href='"+
     esc(driveUrl(f.file))+"'>"+esc(name)+"</a></b><span>"+
     esc((f.course?f.course+" \u00b7 ":"")+sub)+"</span></div>"+
     "<span class='tag "+cls+" mono'>"+esc(txt)+"</span></div>";
@@ -2746,7 +2766,7 @@ function fileRow(f){
   else if(f.status==="missing") meta.push("not submitted");
   const settled=f.status==="submitted"||f.status==="graded";
   const n=f.due?dayDiff(f.due):null, urgent=n!==null&&n<=2&&!settled;
-  return "<div class='row'><div class='g'>"+
+  return "<div class='row lk'><div class='g'>"+
     "<b>"+(urgent?"<span class='fdot'></span>":"")+
       "<a class='flink' target='_blank' rel='noopener' href='"+esc(driveUrl(f.file))+"'>"+
       esc(plainName(f.file))+"</a></b>"+
