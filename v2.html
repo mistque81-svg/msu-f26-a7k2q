@@ -870,6 +870,8 @@ html[data-theme="dark"] .asndue.ok{border-color:var(--lime);color:var(--lime)}
   </section>
 
   <section class="pane" id="p-files">
+    <h2 class="sec">Class notes</h2>
+    <div class="card" id="notesList"></div>
     <h2 class="sec">Course files</h2>
     <div class="card" id="filesList"></div>
     <div class="note warm" id="filesNote"></div>
@@ -1275,7 +1277,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-16-1";
+const BUILD="2026-09-18-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -2382,6 +2384,7 @@ function openSheet(i){
     "<div class='kv'><div class='k'>Credits</div><div class='v mono'>"+(c.cr||0)+"</div></div>"+
     (c.extra?"<p style='margin-top:14px;font-size:13px;color:var(--t-sec)'>"+esc(c.extra)+"</p>":"")+
     sylHtml(c)+
+    notesHtml(c.c)+
     (b.q?"<div style='margin-top:20px'><div style='font-size:9.5px;color:var(--t-mut);letter-spacing:.15em;"+
       "text-transform:uppercase;font-weight:800;margin-bottom:8px'>Directions</div>"+
       "<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'>"+
@@ -2749,6 +2752,30 @@ function fileRow(f){
       esc(plainName(f.file))+"</a></b>"+
     "<span>"+meta.join(" \u00b7 ")+"</span>"+
     "</div>"+(f.course?"<span class='tag s'>"+esc(f.course)+"</span>":"")+"</div>";
+}
+/* One notes document per class, written into <course>/Notes/ in Drive by the
+   scanner project's notes tool. Opened the same way file rows are: a Drive
+   search by name, so no Drive API and nothing to keep in sync. */
+const NOTE_DOCS=[["COM 100","COM 100 - Notes"],["ISB 201","ISB 201 - Notes"],
+                 ["ISB 201L","ISB 201L - Notes"],["ISS 205","ISS 205 - Notes"]];
+/* The recitation is the same class as the lecture, so it shares its notes. */
+const NOTES=Object.fromEntries(NOTE_DOCS.concat([["COM 100 rec","COM 100 - Notes"]]));
+function notesHtml(code){
+  const name=NOTES[code];
+  if(!name)return "";
+  return "<div style='margin-top:20px'><div style='font-size:9.5px;color:var(--t-mut);"+
+    "letter-spacing:.15em;text-transform:uppercase;font-weight:800;margin-bottom:8px'>Class notes</div>"+
+    "<a class='btn ghost sm' style='display:block;text-align:center' target='_blank' rel='noopener' href='"+
+    esc(driveUrl(name))+"'>Open "+esc(code)+" notes</a></div>";
+}
+function renderNotes(){
+  const el=document.getElementById("notesList");
+  if(!el)return;
+  el.innerHTML=NOTE_DOCS.map(([code,name])=>
+    "<div class='row'><div class='g'><b><a class='flink' target='_blank' rel='noopener' href='"+
+    esc(driveUrl(name))+"'>"+esc(code)+" notes</a></b>"+
+    "<span>from the lecture slides \u00b7 newest at the bottom</span></div>"+
+    "<span class='tag s'>Drive</span></div>").join("");
 }
 function renderFiles(){
   const el=document.getElementById("filesList"), note=document.getElementById("filesNote");
@@ -3301,7 +3328,7 @@ paintTheme();
 renderModeChips(); setMode(MODE);
 buildIssQuizzes();
 buildComChapters();
-renderCourses(); renderDates(); renderTasks(); renderPlan(); renderInbox(); renderFiles(); renderGList(); drawBars();
+renderCourses(); renderDates(); renderTasks(); renderPlan(); renderInbox(); renderFiles(); renderNotes(); renderGList(); drawBars();
 buildTabs();
 renderEvents(); renderLinks(); paintGeo();
 renderWeights(); fillCatSelect(); paintStudy(); renderQ();
