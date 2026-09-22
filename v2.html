@@ -1291,7 +1291,7 @@ const TOTCR=C.filter(c=>c.cr>0).reduce((a,b)=>a+b.cr,0);
    copy of that file is published and downloaded. This fetches the live file,
    reads its BUILD stamp and compares. A reload keeps localStorage, so tasks,
    grades and saved spots survive an update. */
-const BUILD="2026-09-18-3";
+const BUILD="2026-09-22-1";
 const LIVE_URL="https://mistque81-svg.github.io/msu-f26-a7k2q/v2.html";
 let UPD_FOUND=null;
 
@@ -1349,6 +1349,10 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
   {d:"2026-09-11",tm:"0800",t:"COM 100 \u00b7 icebreaker speech in recitation",w:"3 min, recorded \u2014 upload to GoReact by Sun 11:59 PM",k:"w"},
   {d:"2026-09-11",tm:"0930",t:"ISS 205 \u00b7 no in-person class",w:"online asynchronous \u2014 do not walk to Wonders",k:"s"},
   {d:"2026-09-14",tm:"1020",t:"ISB 201L · Numerology homework",w:"due 10:20 AM · D2L dropbox",k:"s"},
+  {d:"2026-09-22",tm:"1500",t:"ISB 201 \u00b7 Life Cycles and Insect Apocalypse",w:"due 3:00 PM \u00b7 D2L dropbox",k:"w"},
+  {d:"2026-09-24",tm:"1500",t:"ISB 201 \u00b7 Desertification",w:"due 3:00 PM \u00b7 D2L dropbox",k:"w"},
+  {d:"2026-09-28",tm:"1020",t:"ISB 201L \u00b7 Scatterplot homework",w:"due 10:20 AM \u00b7 before lab starts",k:"s"},
+  {d:"2026-09-30",tm:"0800",t:"ISB 201L \u00b7 Interpreting scatterplot homework",w:"due 8:00 AM",k:"s"},
   {d:"2026-09-16",tm:"2359",t:"EC 201 · quiz 1 + Core Principles, Demand",w:"due 11:59 PM · buy Achieve first",k:"w"},
   {d:"2026-09-23",tm:"2359",t:"EC 201 · quiz 2 + Supply, Equilibrium",w:"due 11:59 PM",k:"w"},
   {d:"2026-09-27",tm:"2359",t:"COM 100 · Informative speech outline",w:"due 11:59 PM · 30 pts",k:"w"},
@@ -1372,6 +1376,43 @@ const EX=[{d:"2026-09-04",tm:"2359",t:"COM 100 · first Connect assignment",w:"d
    are days ahead of the deadline, chosen to land on days you are already on campus
    or genuinely free, never the night before something big. */
 const ASSN=[
+ /* Added 2026-09-22 from the D2L scan. Points come from the course materials:
+    ISB 201 written homework is 10 points; ISB 201L is 20 for homework and 25
+    for in-class work. The work blocks are suggestions - move or tick them. */
+ {id:"isb-lifecycles",c:"ISB 201",t:"Life Cycles and Insect Apocalypse",d:"2026-09-22",tm:"1500",pts:10,
+  what:"Written homework in the D2L dropbox, the same 10-point format as Biosphere II and Subsidies.",
+  todo:["Do the reading first \u2014 the write-up follows from it.",
+        "Upload before 3:00 PM. ISB 201 dropboxes close at the deadline, not at midnight."],
+  where:"D2L \u203a Assignments",
+  work:[{o:-1,m:45,t:"Read the articles and draft the write-up"},
+        {o:0,m:20,t:"Finish and upload before 3:00 PM"}]},
+
+ {id:"isb201l-lab4",c:"ISB 201L",t:"Lab 4 in-class worksheet",d:"2026-09-23",tm:"1230",pts:25,
+  what:"The in-class worksheet from Lab 4, on standard errors in Excel. In-class work is 25 points. D2L shows your submission is in.",
+  todo:["\u2713 Submitted \u2014 nothing left to do."],
+  where:"D2L \u203a Assignments",
+  done:true, work:[]},
+
+ {id:"isb-desert",c:"ISB 201",t:"Desertification",d:"2026-09-24",tm:"1500",pts:10,
+  what:"Written homework in the D2L dropbox, 10 points like the rest of the ISB 201 homeworks.",
+  todo:["Read the assigned material, then write it up.",
+        "Upload before 3:00 PM Thursday."],
+  where:"D2L \u203a Assignments",
+  work:[{o:-1,m:45,t:"Read and draft"},{o:0,m:20,t:"Finish and upload"}]},
+
+ {id:"isb201l-scatter",c:"ISB 201L",t:"Scatterplot homework",d:"2026-09-28",tm:"1020",pts:20,
+  what:"Lab homework, 20 points. The dropbox is open in D2L; the worksheet itself had not been posted as of the last scan, so it is not in your Drive folder yet.",
+  todo:["Bring a laptop with Excel \u2014 the scatterplot is built in it.",
+        "Upload before lab starts at 10:20 AM Monday."],
+  where:"D2L \u203a Assignments",
+  work:[{o:-2,m:40,t:"Build the scatterplot in Excel"},{o:-1,m:20,t:"Check it over and upload"}]},
+
+ {id:"isb201l-interp",c:"ISB 201L",t:"Interpreting scatterplot homework",d:"2026-09-30",tm:"0800",pts:20,
+  what:"Follow-on lab homework, 20 points, due first thing Wednesday morning. Not posted to Content yet either.",
+  todo:["It is due at 8:00 AM \u2014 finish it the night before.",
+        "Upload to the D2L dropbox."],
+  where:"D2L \u203a Assignments",
+  work:[{o:-1,m:35,t:"Write up the interpretation"}]},
  {id:"com-connect",c:"COM 100",t:"Connect intro assignment \u2014 10/10",d:"2026-09-04",tm:"2359",pts:10,done:true,
   what:"A short walkthrough that exists to teach you the Connect platform — where the textbook, book exercises, quizzes and the final exam all live.",
   todo:["Buy the Connect course pack through the purchase link in D2L. Register it with your msu.edu address or it will not link to the course.",
